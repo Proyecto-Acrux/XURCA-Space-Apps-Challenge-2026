@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="XURCA, el proyecto del equipo Acrux para explorar tendencias del sistema terrestre en NASA Space Apps Challenge 2026.">
+  <meta name="theme-color" content="#ffffff">
+  <title>XURCA — Un planeta en cambio</title>
+  <link rel="icon" href="./assets/icons/xurca.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./src/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Ir al contenido</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="#inicio" aria-label="XURCA, inicio">
+        <img src="./assets/icons/xurca.svg" width="34" height="34" alt="">
+        XURCA
+      </a>
+      <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="navegacion" hidden>Menú</button>
+      <nav id="navegacion" aria-label="Navegación principal">
+        <a href="#proyecto">Proyecto</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#equipo">Equipo</a>
+      </nav>
+      <a class="button button-primary nav-download" href="#aplicacion">Descargar app <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+  <main id="contenido">
+    <section class="shell hero" id="inicio" aria-labelledby="portada">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> NASA Space Apps Challenge 2026</p>
+        <h1 id="portada">Un planeta<br>en <em>cambio.</em></h1>
+        <p class="intro">XURCA es un proyecto para explorar cómo cambia la Tierra a lo largo del tiempo con datos de observación y modelos científicos.</p>
+        <div class="actions">
+          <a class="button button-primary" href="#proyecto">Explorar el proyecto <span aria-hidden="true">→</span></a>
+          <a class="button button-outline" href="#aplicacion">Descargar app <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <figure class="earth">
+        <div class="earth-grid" aria-hidden="true"></div>
+        <div class="earth-label">
+          <span><i class="dot" aria-hidden="true"></i> OBSERVACIÓN TERRESTRE</span>
+          <span aria-hidden="true">+</span>
+        </div>
+        <img src="./assets/images/blue-marble.jpg" width="700" height="525" alt="La Tierra vista desde el espacio, con América del Norte entre nubes y océanos." fetchpriority="high">
+        <figcaption><span>BLUE MARBLE · 2002</span><a href="https://science.nasa.gov/resource/blue-marble/">NASA Earth Observatory ↗</a></figcaption>
+      </figure>
+    </section>
+    <div class="challenge-band">
+      <div class="shell challenge-inner">
+        <div><span class="eyebrow">El desafío</span><strong>Earth System Trend Detective</strong></div>
+        <a href="https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/">Ver desafío oficial <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+    <section class="shell section project" id="proyecto" aria-labelledby="proyecto-titulo">
+      <div>
+        <p class="eyebrow">El proyecto</p>
+        <h2 id="proyecto-titulo">¿Qué está cambiando en la Tierra?</h2>
+      </div>
+      <div class="section-copy">
+        <p>Las misiones de observación y los modelos científicos registran variables como la temperatura y la precipitación. Explorar esos datos a lo largo del tiempo ayuda a identificar dónde y cuánto cambian.</p>
+        <p>El equipo Acrux propone una herramienta para seleccionar variables, visualizar su evolución y evaluar si los cambios observados son estadísticamente significativos.</p>
+      </div>
+    </section>
+    <section class="resources-panel" id="recursos" aria-labelledby="recursos-titulo">
+      <div class="shell section">
+        <p class="eyebrow">Fuentes científicas</p>
+        <h2 id="recursos-titulo">Explorá los datos</h2>
+        <div class="resource-list">
+          <a href="https://www.earthdata.nasa.gov/"><strong>NASA Earthdata</strong><span>Catálogo de datos de ciencias de la Tierra.</span><span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="https://www.earthdata.nasa.gov/worldview"><strong>Worldview</strong><span>Imágenes satelitales y capas de observación.</span><span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="https://science.nasa.gov/earth/earth-observatory/"><strong>Earth Observatory</strong><span>Imágenes y explicaciones sobre cambios en el planeta.</span><span class="arrow" aria-hidden="true">↗</span></a>
+        </div>
+        <section class="demo" id="demostracion" aria-labelledby="demo-titulo" hidden>
+          <h3 id="demo-titulo">Video de demostración</h3>
+          <a class="button button-outline" data-demo-link>Ver video <span aria-hidden="true">↗</span></a>
+        </section>
+      </div>
+    </section>
+    <section class="shell section" id="aplicacion" aria-labelledby="app-titulo">
+      <div class="download-panel">
+        <div>
+          <p class="eyebrow">Aplicación XURCA</p>
+          <h2 id="app-titulo">Descargar la app</h2>
+          <p data-download-status>La descarga estará disponible cuando publiquemos la primera versión.</p>
+        </div>
+        <a class="button button-light" data-download-link hidden>Descargar app <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+    <section class="shell section team" id="equipo" aria-labelledby="equipo-titulo">
+      <div>
+        <p class="eyebrow">Quiénes somos</p>
+        <h2 id="equipo-titulo">Equipo Acrux</h2>
+      </div>
+      <p>Desarrollamos XURCA para el NASA Space Apps Challenge 2026. Queremos que explorar los datos del sistema terrestre sea más accesible para estudiantes y para cualquiera que tenga curiosidad por el planeta.</p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <a class="brand" href="#inicio"><img src="./assets/icons/xurca.svg" width="28" height="28" alt=""> XURCA</a>
+      <span>Equipo Acrux · NASA Space Apps Challenge 2026</span>
+      <a href="https://github.com/Emajack512/XURCA-Space-Apps-Challenge-2026">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </footer>
+</body>
+</html>
