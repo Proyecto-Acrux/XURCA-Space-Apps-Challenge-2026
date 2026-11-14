@@ -1,107 +1,815 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es-AR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="XURCA, el proyecto del equipo Acrux para explorar tendencias del sistema terrestre en NASA Space Apps Challenge 2026.">
-  <meta name="theme-color" content="#ffffff">
-  <title>XURCA — Un planeta en cambio</title>
-  <link rel="icon" href="./assets/icons/xurca.svg" type="image/svg+xml">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="XURCA es una herramienta para explorar tendencias del sistema Tierra a partir de datos científicos de NASA, desarrollada por Acrux para NASA Space Apps Challenge 2026.">
+  <meta name="theme-color" content="#faf9f6">
+  <title>XURCA | Earth System Trend Explorer</title>
+  <link rel="icon" type="image/png" href="./assets/images/logo-xurca.png">
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./src/main.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#contenido">Ir al contenido</a>
+  <!-- ENCABEZADO Y NAVEGACIÓN -->
   <header class="site-header">
     <div class="nav-shell">
-      <a class="brand" href="#inicio" aria-label="XURCA, inicio">
-        <img src="./assets/icons/xurca.svg" width="34" height="34" alt="">
-        XURCA
+      <a class="brand" href="#inicio" data-route="inicio" aria-label="XURCA, inicio">
+        <img src="./assets/images/logo-xurca.png" alt="Logo de XURCA">
+        <span>XURCA</span>
       </a>
-      <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="navegacion" hidden>Menú</button>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navegacion" hidden>
+        Menú
+      </button>
       <nav id="navegacion" aria-label="Navegación principal">
-        <a href="#proyecto">Proyecto</a>
-        <a href="#recursos">Recursos</a>
-        <a href="#equipo">Equipo</a>
+        <a href="#inicio" data-route="inicio">Inicio</a>
+        <a href="#explorar" data-route="explorar">Explorar</a>
+        <a href="#tutorial" data-route="tutorial">Cómo usar la app</a>
+        <a href="#datos" data-route="datos">Datos NASA</a>
+        <a href="#comunidad" data-route="comunidad">Comunidad</a>
+        <a href="#equipo" data-route="equipo">Quiénes somos</a>
       </nav>
-      <a class="button button-primary nav-download" href="#aplicacion">Descargar app <span aria-hidden="true">↓</span></a>
+      <a class="button button-primary header-download" href="#descargar" data-route="descargar">
+        Descargar app ↓
+      </a>
     </div>
   </header>
   <main id="contenido">
-    <section class="shell hero" id="inicio" aria-labelledby="portada">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> NASA Space Apps Challenge 2026</p>
-        <h1 id="portada">Un planeta<br>en <em>cambio.</em></h1>
-        <p class="intro">XURCA es un proyecto para explorar cómo cambia la Tierra a lo largo del tiempo con datos de observación y modelos científicos.</p>
-        <div class="actions">
-          <a class="button button-primary" href="#proyecto">Explorar el proyecto <span aria-hidden="true">→</span></a>
-          <a class="button button-outline" href="#aplicacion">Descargar app <span aria-hidden="true">↓</span></a>
+    <!-- INICIO: XURCA -->
+    <section class="view" data-view="inicio" id="vista-inicio">
+      <div class="shell hero xurca-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">NASA SPACE APPS CHALLENGE 2026 · BE AN EARTH SYSTEM TREND DETECTIVE</p>
+          <h1>El planeta cambia.<br><em>Investigá sus tendencias.</em></h1>
+          <p class="intro">
+            XURCA es una herramienta digital que busca acercar los datos científicos
+            de observación de la Tierra a estudiantes, investigadores y personas
+            curiosas. Permite explorar variables ambientales, observar cómo evolucionan
+            en el tiempo y analizar si sus tendencias son estadísticamente significativas.
+          </p>
+          <div class="actions">
+            <a class="button button-primary" href="#explorar" data-route="explorar">
+              Explorá XURCA →
+            </a>
+            <a class="button button-outline" href="https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/" target="_blank" rel="noopener noreferrer">
+              Conocé el desafío NASA ↗
+            </a>
+          </div>
+          <p class="hero-note">Una propuesta de Acrux · Universidad Nacional de San Luis · FICA</p>
+        </div>
+        <div class="hero-visual xurca-hero-visual">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <img class="hero-logo" src="./assets/images/logo-xurca.png" alt="Identidad visual de XURCA">
+          <div class="visual-caption">EARTH SYSTEM TREND EXPLORER</div>
         </div>
       </div>
-      <figure class="earth">
-        <div class="earth-grid" aria-hidden="true"></div>
-        <div class="earth-label">
-          <span><i class="dot" aria-hidden="true"></i> OBSERVACIÓN TERRESTRE</span>
-          <span aria-hidden="true">+</span>
+      <div class="mission-strip">
+        <div class="shell mission-inner">
+          <div>
+            <p class="eyebrow">Nuestro propósito</p>
+            <strong>Convertir datos de la Tierra en preguntas, análisis y conocimiento.</strong>
+          </div>
+          <a href="#explorar" data-route="explorar">Empezá a explorar →</a>
         </div>
-        <img src="./assets/images/blue-marble.jpg" width="700" height="525" alt="La Tierra vista desde el espacio, con América del Norte entre nubes y océanos." fetchpriority="high">
-        <figcaption><span>BLUE MARBLE · 2002</span><a href="https://science.nasa.gov/resource/blue-marble/">NASA Earth Observatory ↗</a></figcaption>
-      </figure>
-    </section>
-    <div class="challenge-band">
-      <div class="shell challenge-inner">
-        <div><span class="eyebrow">El desafío</span><strong>Earth System Trend Detective</strong></div>
-        <a href="https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/">Ver desafío oficial <span aria-hidden="true">↗</span></a>
       </div>
-    </div>
-    <section class="shell section project" id="proyecto" aria-labelledby="proyecto-titulo">
-      <div>
-        <p class="eyebrow">El proyecto</p>
-        <h2 id="proyecto-titulo">¿Qué está cambiando en la Tierra?</h2>
-      </div>
-      <div class="section-copy">
-        <p>Las misiones de observación y los modelos científicos registran variables como la temperatura y la precipitación. Explorar esos datos a lo largo del tiempo ayuda a identificar dónde y cuánto cambian.</p>
-        <p>El equipo Acrux propone una herramienta para seleccionar variables, visualizar su evolución y evaluar si los cambios observados son estadísticamente significativos.</p>
-      </div>
-    </section>
-    <section class="resources-panel" id="recursos" aria-labelledby="recursos-titulo">
-      <div class="shell section">
-        <p class="eyebrow">Fuentes científicas</p>
-        <h2 id="recursos-titulo">Explorá los datos</h2>
-        <div class="resource-list">
-          <a href="https://www.earthdata.nasa.gov/"><strong>NASA Earthdata</strong><span>Catálogo de datos de ciencias de la Tierra.</span><span class="arrow" aria-hidden="true">↗</span></a>
-          <a href="https://www.earthdata.nasa.gov/worldview"><strong>Worldview</strong><span>Imágenes satelitales y capas de observación.</span><span class="arrow" aria-hidden="true">↗</span></a>
-          <a href="https://science.nasa.gov/earth/earth-observatory/"><strong>Earth Observatory</strong><span>Imágenes y explicaciones sobre cambios en el planeta.</span><span class="arrow" aria-hidden="true">↗</span></a>
+      <section class="shell section xurca-home-section">
+        <div class="section-heading-centered">
+          <p class="eyebrow">El desafío que nos inspira</p>
+          <h2>¿Qué está cambiando en nuestro planeta?</h2>
+          <p class="section-description">
+            El sistema Tierra está en constante transformación. Una variable ambiental
+            puede aumentar en una región y disminuir en otra. El desafío consiste en
+            descubrir qué cambia, dónde ocurre, a qué ritmo y si esa tendencia tiene
+            significancia estadística.
+          </p>
+          <a class="text-link" href="https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/" target="_blank" rel="noopener noreferrer">
+            Leer el desafío oficial: Be An Earth System Trend Detective! ↗
+          </a>
         </div>
-        <section class="demo" id="demostracion" aria-labelledby="demo-titulo" hidden>
-          <h3 id="demo-titulo">Video de demostración</h3>
-          <a class="button button-outline" data-demo-link>Ver video <span aria-hidden="true">↗</span></a>
-        </section>
-      </div>
-    </section>
-    <section class="shell section" id="aplicacion" aria-labelledby="app-titulo">
-      <div class="download-panel">
+        <div class="xurca-challenge-grid">
+          <article class="panel xurca-info-card">
+            <span class="step-number">01 · EXPLORAR</span>
+            <h3>Elegir qué investigar</h3>
+            <p>Seleccionar variables del sistema Tierra, como temperatura, precipitaciones, humedad, vegetación u otras variables disponibles en los productos científicos.</p>
+          </article>
+          <article class="panel xurca-info-card">
+            <span class="step-number">02 · LOCALIZAR</span>
+            <h3>Definir dónde y cuándo</h3>
+            <p>Elegir una región y un período de estudio suficientemente amplio para observar la evolución de la variable a lo largo del tiempo.</p>
+          </article>
+          <article class="panel xurca-info-card">
+            <span class="step-number">03 · ANALIZAR</span>
+            <h3>Medir la tendencia</h3>
+            <p>Construir series temporales, visualizar los cambios y estimar su dirección y magnitud mediante herramientas de análisis.</p>
+          </article>
+          <article class="panel xurca-info-card">
+            <span class="step-number">04 · INTERPRETAR</span>
+            <h3>Evaluar la evidencia</h3>
+            <p>Comprobar si la tendencia observada es estadísticamente significativa y comunicar los resultados con contexto y cautela.</p>
+          </article>
+        </div>
+      </section>
+      <section class="audience-band">
+        <div class="shell audience-inner">
+          <div>
+            <p class="eyebrow">¿A quién está dirigida?</p>
+            <h2>Ciencia de la Tierra para más personas</h2>
+          </div>
+          <p>
+            XURCA está pensada principalmente para estudiantes de nivel secundario
+            y universitario, y para integrantes del público general con interés o
+            conocimientos científicos. Buscamos que explorar datos ambientales sea
+            una experiencia comprensible, guiada y útil para aprender e investigar.
+          </p>
+        </div>
+      </section>
+      <section class="shell section xurca-approach">
         <div>
-          <p class="eyebrow">Aplicación XURCA</p>
-          <h2 id="app-titulo">Descargar la app</h2>
-          <p data-download-status>La descarga estará disponible cuando publiquemos la primera versión.</p>
+          <p class="eyebrow">Nuestra propuesta</p>
+          <h2>¿Cómo estamos abordando el desafío?</h2>
         </div>
-        <a class="button button-light" data-download-link hidden>Descargar app <span aria-hidden="true">↓</span></a>
+        <div class="section-copy">
+          <p>
+            Estamos desarrollando XURCA como una experiencia web que acompaña al usuario
+            desde la pregunta inicial hasta la interpretación de una tendencia. La idea
+            es guiar la selección de una variable, una región y un período, y conectar
+            esa búsqueda con conjuntos de datos científicos de observación y modelado
+            del sistema Tierra.
+          </p>
+          <p>
+            Como punto de partida, trabajamos con recursos de NASA como Giovanni y
+            Earthdata, además de fuentes complementarias. Entre las familias de datos
+            que estamos explorando se encuentran MODIS, OMI, AIRS, GPM, MERRA-2 y GLDAS.
+            La aplicación busca integrar visualización de series temporales y análisis
+            estadístico para ayudar a interpretar la dirección, la magnitud y la
+            significancia de los cambios.
+          </p>
+          <p>
+            XURCA no pretende afirmar que toda variación representa una tendencia:
+            queremos que cada resultado pueda examinarse con datos, contexto y criterio.
+          </p>
+          <a class="button button-primary" href="#explorar" data-route="explorar">Conocé el recorrido de exploración →</a>
+        </div>
+      </section>
+      <section class="xurca-data-band">
+        <div class="shell xurca-data-inner">
+          <div>
+            <p class="eyebrow">Datos abiertos · Ciencia colaborativa</p>
+            <h2>La evidencia está ahí afuera. Vamos a investigarla.</h2>
+          </div>
+          <a class="button button-outline" href="#datos" data-route="datos">Explorá las fuentes de datos →</a>
+        </div>
+      </section>
+    </section>
+    <!-- EXPLORAR XURCA -->
+    <section class="view shell page-view" data-view="explorar" id="vista-explorar" hidden>
+      <div class="page-heading">
+        <p class="eyebrow">Proyecto XURCA · Exploración</p>
+        <h1>¿Qué querés investigar?</h1>
+        <p class="intro">
+          Toda investigación comienza con una pregunta. Definí el fenómeno,
+          la región y el período que te interesa estudiar.
+        </p>
+      </div>
+      <div class="explore-layout">
+        <article class="panel">
+          <span class="step-number">01 · VARIABLE</span>
+          <h2>Elegí qué querés descubrir</h2>
+          <p>Podés comenzar con una pregunta o elegir un fenómeno ambiental.</p>
+          <div class="example-question">
+            Ejemplo: ¿Cómo cambió la temperatura del aire en mi región durante las últimas décadas?
+          </div>
+          <div class="topic-grid">
+            <div class="topic-card">
+              <span>℃</span>
+              <strong>Temperatura</strong>
+              <small>Temperatura del aire o de la superficie terrestre.</small>
+            </div>
+            <div class="topic-card">
+              <span>☂</span>
+              <strong>Precipitación</strong>
+              <small>Cantidad y distribución de las lluvias.</small>
+            </div>
+            <div class="topic-card">
+              <span>◉</span>
+              <strong>Humedad</strong>
+              <small>Humedad atmosférica o del suelo.</small>
+            </div>
+            <div class="topic-card">
+              <span>✳</span>
+              <strong>Ozono</strong>
+              <small>Variables atmosféricas relacionadas con el ozono.</small>
+            </div>
+          </div>
+        </article>
+        <article class="panel">
+          <span class="step-number">02 · REGIÓN</span>
+          <h2>¿Dónde querés investigar?</h2>
+          <p>
+            La región importa: una variable puede presentar comportamientos
+            diferentes según la ubicación geográfica.
+          </p>
+          <div class="map-placeholder">
+            <span>＋</span>
+            <strong>Selección de región</strong>
+            <small>País · provincia · cuenca · área personalizada</small>
+          </div>
+          <span class="step-number step-spaced">03 · PERÍODO</span>
+          <h2>¿Durante qué período?</h2>
+          <p>
+            La disponibilidad de información depende de la variable
+            y del producto científico seleccionado.
+          </p>
+          <div class="period-row">
+            <div>Desde<strong>2000</strong></div>
+            <div>Hasta<strong>2025</strong></div>
+          </div>
+          <span class="step-number step-spaced">04 · CONTEXTO</span>
+          <h2>¿Por qué te interesa?</h2>
+          <p>
+            Agricultura, recursos hídricos, investigación, gestión ambiental
+            o simplemente curiosidad científica.
+          </p>
+        </article>
+      </div>
+      <div class="info-panel">
+        <strong>De una pregunta a una investigación</strong>
+        <p>
+          Esta sección presenta el recorrido de exploración. La selección real
+          de variables, regiones y períodos se realizará desde la aplicación XURCA.
+        </p>
+        <a class="button button-primary" href="#descargar" data-route="descargar">
+          Ir a la aplicación →
+        </a>
       </div>
     </section>
-    <section class="shell section team" id="equipo" aria-labelledby="equipo-titulo">
-      <div>
-        <p class="eyebrow">Quiénes somos</p>
-        <h2 id="equipo-titulo">Equipo Acrux</h2>
+    <!-- CÓMO USAR LA APP -->
+    <section class="view shell page-view" data-view="tutorial" id="vista-tutorial" hidden>
+      <div class="page-heading">
+        <p class="eyebrow">Proyecto XURCA · Guía de uso</p>
+        <h1>Cómo usar la aplicación</h1>
+        <p class="intro">
+          Una guía para pasar de una pregunta inicial a una interpretación
+          respaldada por datos científicos.
+        </p>
       </div>
-      <p>Desarrollamos XURCA para el NASA Space Apps Challenge 2026. Queremos que explorar los datos del sistema terrestre sea más accesible para estudiantes y para cualquiera que tenga curiosidad por el planeta.</p>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span>01</span>
+          <h2>Formulá una pregunta</h2>
+          <p>Definí qué fenómeno querés estudiar. Una pregunta concreta ayuda a elegir variables adecuadas.</p>
+        </article>
+        <article class="step-card">
+          <span>02</span>
+          <h2>Elegí la variable</h2>
+          <p>Revisá qué mide, cuáles son sus unidades y si representa el fenómeno que te interesa.</p>
+        </article>
+        <article class="step-card">
+          <span>03</span>
+          <h2>Delimitá la región</h2>
+          <p>Elegí un área geográfica y comprobá que el producto tenga cobertura suficiente.</p>
+        </article>
+        <article class="step-card">
+          <span>04</span>
+          <h2>Definí el período</h2>
+          <p>Seleccioná un intervalo temporal adecuado y justificá las fechas elegidas.</p>
+        </article>
+        <article class="step-card">
+          <span>05</span>
+          <h2>Explorá la serie temporal</h2>
+          <p>Observá unidades, frecuencia, valores faltantes, variabilidad y cambios abruptos.</p>
+        </article>
+        <article class="step-card">
+          <span>06</span>
+          <h2>Separá señal y variabilidad</h2>
+          <p>Considerá estacionalidad, ciclos y ruido antes de interpretar una pendiente.</p>
+        </article>
+        <article class="step-card">
+          <span>07</span>
+          <h2>Evaluá la evidencia</h2>
+          <p>Estimá la tasa de cambio y evaluá significancia e incertidumbre con un método apropiado.</p>
+        </article>
+        <article class="step-card">
+          <span>08</span>
+          <h2>Comunicá los resultados</h2>
+          <p>Indicá qué encontraste, qué no podés afirmar y cuáles son las limitaciones.</p>
+        </article>
+      </div>
+      <div class="example-panel">
+        <p class="eyebrow">Ejemplo de investigación</p>
+        <h2>¿Aumentó la temperatura en una región?</h2>
+        <p>
+          Una investigación válida debe especificar si analiza temperatura del aire
+          o superficial, el producto de datos, la región, el período, la frecuencia
+          y el método estadístico. Un gráfico ascendente no demuestra por sí solo
+          una tendencia significativa.
+        </p>
+      </div>
+    </section>
+    <!-- DATOS NASA -->
+    <section class="view shell page-view" data-view="datos" id="vista-datos" hidden>
+  <div class="page-heading">
+    <p class="eyebrow">XURCA · Centro de investigación</p>
+    <h1>Explorá nuestro planeta. Comprendé sus tendencias.</h1>
+    <p class="intro">Un espacio para descubrir fenómenos del sistema Tierra, conocer las fuentes de datos que podemos consultar y entender cómo transformamos observaciones en evidencia.</p>
+  </div>
+  <div class="science-hero">
+    <div><span class="source-label">DEL DATO A LA EVIDENCIA</span><h2>Investigar empieza con una buena pregunta.</h2><p>XURCA organiza el recorrido de investigación: identificar un fenómeno, seleccionar indicadores y fuentes, analizar tendencias, evaluar la calidad de los datos e interpretar los resultados con sus límites.</p></div>
+    <div class="science-hero-mark"><span>EARTH</span><strong>SYSTEM</strong><small>TREND DETECTIVE</small></div>
+  </div>
+  <nav class="science-jump" aria-label="Secciones del centro de investigación">
+    <a href="#fenomenos">Fenómenos</a><a href="#recursos">Fuentes y herramientas</a><a href="#metodos">Métodos</a><a href="#glosario">Glosario</a>
+  </nav>
+  <section class="science-block" id="fenomenos">
+    <div class="science-heading"><div><p class="eyebrow">01 · Nivel 1 y Nivel 2</p><h2>¿Qué está pasando en la Tierra?</h2></div><p>Explorá ejemplos de fenómenos incluidos en la matriz de investigación del equipo. Abrí cada ficha para consultar indicadores, fuentes, métodos y precauciones.</p></div>
+    <div class="science-subgroup"><h3>Nivel 1 · Detección de tendencias</h3><p>Identificar cambios observables en variables ambientales.</p><div class="science-grid"><details class="science-card"><summary><span class="science-id">N1.1.0 · N1 · Detección</span><strong>Tendencia de temperatura del aire y LST (por separado)</strong><span class="science-indicator">T2m; LST</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-03; COMP-04; COMP-06]: Giovanni → producto meteorológico/atmosférico; AppEEARS → MOD11A2 LST cuando corresponda; CDO estaciones; KNMI contraste | COMPLEMENTO: ERA5/ERA5-Land, NASA POWER; Sentinel-5P para gases; GES DISC según variable</p><p><b>Método / análisis</b><br>Sen + MK estacional/autocorrelación; IC95; serie y climatología</p><p><b>Qué podemos comunicar</b><br>Reportar pendiente °C/década, IC, p ajustada y período; no significación = evidencia insuficiente</p><p class="science-warning"><b>Precaución</b><br>No confundir LST con temperatura del aire</p></div></details><details class="science-card"><summary><span class="science-id">N1.1.1 · N1 · Detección</span><strong>Temperatura superficial de cuerpos de agua</strong><span class="science-indicator">SST/LSWT</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-06; COMP-05]: Giovanni → series SST o temperatura acuática del producto disponible; KNMI → contraste climático; SeaWiFS → antecedente metodológico marino | COMPLEMENTO: NASA Ocean Color/GHRSST/NOAA SST para mares; para lagos/ríos, producto LSWT térmico y máscara de agua compatible</p><p><b>Método / análisis</b><br>Sen; MK; estacionalidad; cobertura</p><p><b>Qué podemos comunicar</b><br>Mostrar cambios observados sobre agua, distinguiendo oceánico/lacustre</p><p class="science-warning"><b>Precaución</b><br>No inferir mezcla vertical ni temperatura profunda</p></div></details><details class="science-card"><summary><span class="science-id">N1.1A · N1 · Detección</span><strong>Calentamiento regional sostenido</strong><span class="science-indicator">T2m</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-03; COMP-04; COMP-06]: Giovanni → producto meteorológico/atmosférico; AppEEARS → MOD11A2 LST cuando corresponda; CDO estaciones; KNMI contraste | COMPLEMENTO: ERA5/ERA5-Land, NASA POWER; Sentinel-5P para gases; GES DISC según variable</p><p><b>Método / análisis</b><br>Sen + IC; contraste en subperíodos; representatividad</p><p><b>Qué podemos comunicar</b><br>Tendencia de T2m positiva consistente con calentamiento regional</p><p class="science-warning"><b>Precaución</b><br>No atribuir causas antropogénicas mediante un solo indicador local</p></div></details><details class="science-card"><summary><span class="science-id">N1.1B · N1 · Detección</span><strong>Frecuencia y duración de olas de calor</strong><span class="science-indicator">Tmax/Tmin diaria</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-03; COMP-06]: Giovanni para exploración; AppEEARS si producto elegible; KNMI contraste | COMPLEMENTO: Producto primario apropiado de NASA/NOAA/ECMWF/ESA</p><p><b>Método / análisis</b><br>Índices ETCCDI o definición local explícita; conteo anual</p><p><b>Qué podemos comunicar</b><br>Detectar episodios con duración mínima definida y tendencia de frecuencia</p><p class="science-warning"><b>Precaución</b><br>Presión alta o suelo seco no son requisitos de ola de calor</p></div></details><details class="science-card"><summary><span class="science-id">N1.1C · N1 · Detección</span><strong>Diferencial térmico urbano-rural superficial</strong><span class="science-indicator">LST urbana y rural</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-03; COMP-04; COMP-06]: Giovanni → producto meteorológico/atmosférico; AppEEARS → MOD11A2 LST cuando corresponda; CDO estaciones; KNMI contraste | COMPLEMENTO: ERA5/ERA5-Land, NASA POWER; Sentinel-5P para gases; GES DISC según variable</p><p><b>Método / análisis</b><br>ΔLST pareado; IC bootstrap espacial-temporal</p><p><b>Qué podemos comunicar</b><br>Diferencia térmica superficial urbana-rural, sin exigir patrón nocturno</p><p class="science-warning"><b>Precaución</b><br>No confundir SUHI con isla de calor del aire</p></div></details><details class="science-card"><summary><span class="science-id">N1.2.0 · N1 · Detección</span><strong>Precipitación: déficit, exceso y evolución temporal</strong><span class="science-indicator">Precipitación acumulada</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-04; COMP-06; COMP-02]: Giovanni → GPM IMERG; CDO → estaciones; KNMI → contraste; Hydrology TS si producto aplicable | COMPLEMENTO: GES DISC / Earthdata: GPM IMERG bruto; ERA5-Land cuando se requiera; estaciones locales</p><p><b>Método / análisis</b><br>Anomalía absoluta/%, SPI (1/3/6/12), Sen+MK en totales, mapas</p><p><b>Qué podemos comunicar</b><br>Déficit/exceso por región y período, duración, persistencia y evolución</p><p class="science-warning"><b>Precaución</b><br>No etiquetar causalidad ni sequía hidrológica solo con lluvia</p></div></details><details class="science-card"><summary><span class="science-id">N1.2A · N1 · Detección</span><strong>Sequía meteorológica y aridificación (diagnósticos separados)</strong><span class="science-indicator">Precipitación; SPI; índice de aridez</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-04; COMP-06; COMP-02]: Giovanni → GPM IMERG; CDO → estaciones; KNMI → contraste; Hydrology TS si producto aplicable | COMPLEMENTO: GES DISC / Earthdata: GPM IMERG bruto; ERA5-Land cuando se requiera; estaciones locales</p><p><b>Método / análisis</b><br>SPI por escala; tendencia P/PET con IC y ventanas largas</p><p><b>Qué podemos comunicar</b><br>SPI negativo indica déficit relativo; aridificación requiere indicador climático de largo plazo</p><p class="science-warning"><b>Precaución</b><br>SPI no confirma aridificación ni impactos sobre agua superficial</p></div></details><details class="science-card"><summary><span class="science-id">N1.2B · N1 · Detección</span><strong>Cambios en lluvias intensas y períodos secos</strong><span class="science-indicator">Precipitación diaria</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-04; COMP-06; COMP-02]: Giovanni → GPM IMERG; CDO → estaciones; KNMI → contraste; Hydrology TS si producto aplicable | COMPLEMENTO: GES DISC / Earthdata: GPM IMERG bruto; ERA5-Land cuando se requiera; estaciones locales</p><p><b>Método / análisis</b><br>RX1day, RX5day, R95pTOT, SDII, CDD; tendencia por índice</p><p><b>Qué podemos comunicar</b><br>Informar cada indicador por separado y coincidencias sin forzarlas</p><p class="science-warning"><b>Precaución</b><br>R95pTOT↑ y CDD↑ no prueban por sí solos tormentas más violentas</p></div></details><details class="science-card"><summary><span class="science-id">N1.3.0 · N1 · Detección</span><strong>Vigor de vegetación: NDVI/EVI y fenología</strong><span class="science-indicator">NDVI; EVI</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>Sen por estación; percentiles; amplitud y comienzo de estación</p><p><b>Qué podemos comunicar</b><br>Comparar vigor respecto de su propio ciclo histórico y clase de vegetación</p><p class="science-warning"><b>Precaución</b><br>NDVI no equivale a biomasa ni a salud ecológica completa</p></div></details><details class="science-card"><summary><span class="science-id">N1.3A · N1 · Detección</span><strong>Pérdida persistente de cobertura vegetal</strong><span class="science-indicator">NDVI/EVI; cobertura arbórea</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>BFAST/ruptura + comparación pre/post + land cover</p><p><b>Qué podemos comunicar</b><br>Reportar pérdida de verdor; llamar deforestación solo con evidencia de bosque→no bosque</p><p class="science-warning"><b>Precaución</b><br>No llamar deforestación a cosecha, incendio o sequía</p></div></details></div></div>
+    <div class="science-subgroup"><h3>Nivel 2 · Diagnóstico e hipótesis</h3><p>Profundizar en relaciones y posibles explicaciones, sin confundir asociación con causalidad.</p><div class="science-grid"><details class="science-card"><summary><span class="science-id">B1.1 · N2 · Diagnóstico</span><strong>Expansión urbana y conversión de cobertura vegetal</strong><span class="science-indicator">Cobertura urbana; land cover; NDVI</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>Cambios bosque/vegetación→urbano y tendencia NDVI</p><p><b>Qué podemos comunicar</b><br>Expansión urbana cartografiada más disminución de verdor en áreas convertidas</p><p class="science-warning"><b>Precaución</b><br>NDVI solo no prueba impermeabilización</p></div></details><details class="science-card"><summary><span class="science-id">B1.2 · N2 · Diagnóstico</span><strong>Isla de calor superficial y pérdida de vegetación</strong><span class="science-indicator">LST; NDVI; ET; cobertura</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>ΔLST urbano-rural y análisis condicionado de NDVI/ET</p><p><b>Qué podemos comunicar</b><br>Asociación consistente, no atribución única de temperatura</p><p class="science-warning"><b>Precaución</b><br>No afirmar isla de calor atmosférica a partir de LST</p></div></details><details class="science-card"><summary><span class="science-id">B1.3 · N2 · Diagnóstico</span><strong>Aerosoles urbanos y ventilación atmosférica</strong><span class="science-indicator">AOD; NO2; viento; PBLH</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-01; COMP-03; COMP-04; COMP-06]: Giovanni → producto meteorológico/atmosférico; AppEEARS → MOD11A2 LST cuando corresponda; CDO estaciones; KNMI contraste | COMPLEMENTO: ERA5/ERA5-Land, NASA POWER; Sentinel-5P para gases; GES DISC según variable</p><p><b>Método / análisis</b><br>Análisis multivariable NO2/AOD-viento-PBLH</p><p><b>Qué podemos comunicar</b><br>Condiciones favorables a acumulación de contaminantes en columna</p><p class="science-warning"><b>Precaución</b><br>AOD no confirma concentración superficial ni exposición</p></div></details><details class="science-card"><summary><span class="science-id">B1.4 · N2 · Diagnóstico</span><strong>Patrones de HCHO y NO2, sin atribución exclusiva de COV</strong><span class="science-indicator">HCHO; NO2; T2m; vegetación</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>Correlaciones parciales/modelo explicativo</p><p><b>Qué podemos comunicar</b><br>Compatibilidad con posibles fuentes fotoquímicas/biogénicas/antrópicas</p><p class="science-warning"><b>Precaución</b><br>No clasificar fuente VOC con HCHO/NO2 únicamente</p></div></details><details class="science-card"><summary><span class="science-id">B2.1 · N2 · Diagnóstico</span><strong>Pérdida de bosque por cambio de uso del suelo</strong><span class="science-indicator">Cobertura forestal; NDVI; LST</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-02; COMP-11; COMP-09; COMP-13; COMP-01]: Hydrology TS → GLDAS/SMAP/GPM; CSA SWOT → selección de productos; RCM/SAR solo si acceso y zona habilitan | COMPLEMENTO: SWOT productos hidrológicos (repositorio científico); Sentinel-1 SAR; GES DISC datos primarios</p><p><b>Método / análisis</b><br>Transición bosque→no bosque corroborada con espectro</p><p><b>Qué podemos comunicar</b><br>Pérdida forestal confirmada por transición de clase con nivel de certeza</p><p class="science-warning"><b>Precaución</b><br>No deducir expansión agropecuaria sin clase destino verificada</p></div></details><details class="science-card"><summary><span class="science-id">B2.2 · N2 · Diagnóstico</span><strong>Estrés vegetal asociado a déficit de agua</strong><span class="science-indicator">NDVI/EVI; P; SM; T2m</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-02; COMP-01; COMP-03; COMP-11]: Hydrology Time Series y Giovanni → GLDAS/SMAP/GPM; AppEEARS si colección compatible; SWOT para niveles | COMPLEMENTO: GES DISC GLDAS/SMAP/GPM; productos SWOT; ERA5-Land para comparación</p><p><b>Método / análisis</b><br>Regresión dinámica con lags; sensibilidad; controles</p><p><b>Qué podemos comunicar</b><br>Disminución vigor coincide/precedida por déficit hídrico; hipótesis explícita</p><p class="science-warning"><b>Precaución</b><br>No declarar causalidad mediante correlación simple</p></div></details><details class="science-card"><summary><span class="science-id">B2.3 · N2 · Diagnóstico</span><strong>Cambios de productividad primaria terrestre</strong><span class="science-indicator">GPP/NPP; LAI; T2m; P</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>Tendencia GPP/NPP + regresión explicativa</p><p><b>Qué podemos comunicar</b><br>Variación de productividad, no balance neto del ecosistema</p><p class="science-warning"><b>Precaución</b><br>NPP positiva no equivale a sumidero neto de carbono</p></div></details><details class="science-card"><summary><span class="science-id">B2.4 · N2 · Diagnóstico</span><strong>Cambios estructurales potenciales en vegetación con SAR</strong><span class="science-indicator">Retrodispersión SAR; cobertura; NDVI</span></summary><div class="science-card-body"><p><b>Fuentes candidatas</b><br>BASE COMPETENCIA [COMP-03; COMP-01; COMP-12; COMP-13]: AppEEARS → MOD13Q1/MOD13A2 y productos de vegetación disponibles; Giovanni para clima; CSA para contexto | COMPLEMENTO: Sentinel-2 L2A / Landsat C2; MOD17 NPP/GPP según producto; Sentinel-1 SAR</p><p><b>Método / análisis</b><br>Change detection SAR + verificación óptica</p><p><b>Qué podemos comunicar</b><br>Cambio estructural probable con incertidumbre y validación</p><p class="science-warning"><b>Precaución</b><br>Retrodispersión SAR baja no confirma tala ni drenaje</p></div></details></div></div>
+    <p class="science-note">Estas fichas son una selección representativa de la matriz de trabajo. No implican que todas las variables o productos estén conectados automáticamente a la aplicación.</p>
+  </section>
+  <section class="science-block" id="recursos">
+    <div class="science-heading"><div><p class="eyebrow">02 · Fuentes de información</p><h2>¿De dónde obtenemos los datos?</h2></div><p>Portales y herramientas que permiten explorar, consultar o extraer información. Su integración técnica depende del producto, la cobertura, la autenticación y la disponibilidad de cada servicio.</p></div>
+    <div class="science-resource-grid"><article class="science-resource"><span>NASA GES DISC</span><h3>Giovanni</h3><p>Exploración web y exportación de series</p><p class="science-meta"><b>Rol:</b> Exploración / prototipo</p><p class="science-warning"><b>A tener en cuenta:</b> Interfaz interactiva; producto y descarga programática separados</p><a href="https://giovanni.gsfc.nasa.gov/" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>NASA GES DISC</span><h3>Hydrology Time Series</h3><p>Series hidrológicas desde portal de herramientas</p><p class="science-meta"><b>Rol:</b> Exploración / prototipo</p><p class="science-warning"><b>A tener en cuenta:</b> Herramienta de consulta; validar producto, API y automatización específica</p><a href="https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>NASA LP DAAC</span><h3>AppEEARS</h3><p>Solicitudes de área/punto MODIS/VIIRS y derivados</p><p class="science-meta"><b>Rol:</b> Backend de extracciones asíncronas</p><p class="science-warning"><b>A tener en cuenta:</b> API de tareas, autenticación, recorte y formatos; verificar lista de productos disponibles</p><a href="https://appeears.earthdatacloud.nasa.gov/" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>NOAA NCEI</span><h3>Climate Data Online (CDO)</h3><p>Estaciones y clima histórico</p><p class="science-meta"><b>Rol:</b> Validación / estaciones</p><p class="science-warning"><b>A tener en cuenta:</b> API CDO con restricciones de datasets/tokens/límites; cobertura heterogénea en Argentina</p><a href="https://www.ncei.noaa.gov/cdo-web/" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>NASA NTRS</span><h3>Artículo SeaWiFS / NTRS</h3><p>Metodología sobre series de clorofila</p><p class="science-meta"><b>Rol:</b> Referencia científica</p><p class="science-warning"><b>A tener en cuenta:</b> Publicación histórica, no feed de datos; verificar aplicabilidad a productos actuales</p><a href="https://ntrs.nasa.gov/api/citations/20090042747/downloads/20090042747.pdf" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>KNMI</span><h3>KNMI Climate Explorer</h3><p>Comparación y exploración de series climáticas</p><p class="science-meta"><b>Rol:</b> Exploración / contraste metodológico</p><p class="science-warning"><b>A tener en cuenta:</b> Interfaz investigativa; extracción automatizada debe revisarse</p><a href="https://climexp.knmi.nl/" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>Autor tercero</span><h3>Artículo Medium tests</h3><p>Explicaciones generales de pruebas estadísticas</p><p class="science-meta"><b>Rol:</b> Referencia introductoria</p><p class="science-warning"><b>A tener en cuenta:</b> No sustituye documentación técnica revisada por pares</p><a href="https://medium.com/@snp.kriss/statistical-test-methods-to-detect-trends-in-time-series-data-b361a0ec530b" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>Statsig</span><h3>Statsig significance guide</h3><p>Explicaciones generales de significancia</p><p class="science-meta"><b>Rol:</b> Referencia introductoria</p><p class="science-warning"><b>A tener en cuenta:</b> No cubre necesariamente autocorrelación, climatología, pruebas múltiples</p><a href="https://www.statsig.com/perspectives/a-comprehensive-guide-to-statistical-significance" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>Canadian Space Agency</span><h3>RCM Data</h3><p>Radar SAR de Canadá</p><p class="science-meta"><b>Rol:</b> Candidato SAR especializado</p><p class="science-warning"><b>A tener en cuenta:</b> Acceso, licencias, cobertura y restricciones deben confirmarse</p><a href="https://donnees-data.asc-csa.gc.ca/en/dataset/rcm" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article><article class="science-resource"><span>Gobierno de Canadá</span><h3>GEO.ca</h3><p>Capas geoespaciales canadienses</p><p class="science-meta"><b>Rol:</b> Datos contextuales regionales</p><p class="science-warning"><b>A tener en cuenta:</b> Cobertura orientada a Canadá, no fuente ambiental global principal</p><a href="http://geo.ca/" target="_blank" rel="noopener noreferrer">Abrir recurso ↗</a></article></div>
+    <h3 class="science-subtitle">Catálogo de fuentes y productos</h3>
+    <p class="section-description">Incluye recursos de la competencia y productos complementarios registrados en el Excel del equipo.</p>
+    <div class="source-chip-grid"><a class="source-chip" href="https://giovanni.gsfc.nasa.gov/" target="_blank" rel="noopener noreferrer"><b>COMP-01 · NASA Giovanni</b><span>NASA GES DISC</span> ↗</a>
+<a class="source-chip" href="https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series" target="_blank" rel="noopener noreferrer"><b>COMP-02 · NASA Hydrology Time Series</b><span>NASA GES DISC</span> ↗</a>
+<a class="source-chip" href="https://appeears.earthdatacloud.nasa.gov/" target="_blank" rel="noopener noreferrer"><b>COMP-03 · NASA AppEEARS</b><span>NASA LP DAAC</span> ↗</a>
+<a class="source-chip" href="https://www.ncei.noaa.gov/cdo-web/" target="_blank" rel="noopener noreferrer"><b>COMP-04 · NOAA Climate Data Online</b><span>NOAA NCEI</span> ↗</a>
+<a class="source-chip" href="https://ntrs.nasa.gov/api/citations/20090042747/downloads/20090042747.pdf" target="_blank" rel="noopener noreferrer"><b>COMP-05 · Artículo SeaWiFS NASA NTRS</b><span>NASA NTRS</span> ↗</a>
+<a class="source-chip" href="https://climexp.knmi.nl/" target="_blank" rel="noopener noreferrer"><b>COMP-06 · KNMI Climate Explorer</b><span>KNMI</span> ↗</a>
+<a class="source-chip" href="https://medium.com/@snp.kriss/statistical-test-methods-to-detect-trends-in-time-series-data-b361a0ec530b" target="_blank" rel="noopener noreferrer"><b>COMP-07 · Artículo métodos estadísticos (Medium)</b><span>Autor externo</span> ↗</a>
+<a class="source-chip" href="https://www.statsig.com/perspectives/a-comprehensive-guide-to-statistical-significance" target="_blank" rel="noopener noreferrer"><b>COMP-08 · Guía de significancia Statsig</b><span>Statsig</span> ↗</a>
+<a class="source-chip" href="https://donnees-data.asc-csa.gc.ca/en/dataset/rcm" target="_blank" rel="noopener noreferrer"><b>COMP-09 · CSA RADARSAT Constellation (RCM)</b><span>CSA</span> ↗</a>
+<a class="source-chip" href="http://geo.ca/" target="_blank" rel="noopener noreferrer"><b>COMP-10 · GEO.ca</b><span>Gobierno de Canadá</span> ↗</a>
+<a class="source-chip" href="https://www.asc-csa.gc.ca/eng/satellites/swot/" target="_blank" rel="noopener noreferrer"><b>COMP-11 · CSA SWOT Mission Information</b><span>CSA/NASA/CNES</span> ↗</a>
+<a class="source-chip" href="https://www.asc-csa.gc.ca/eng/satellites/everyday-lives/monitoring-and-protecting-our-ecosystems-from-space.asp" target="_blank" rel="noopener noreferrer"><b>COMP-12 · CSA Monitoring Ecosystems from Space</b><span>CSA</span> ↗</a>
+<a class="source-chip" href="https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial" target="_blank" rel="noopener noreferrer"><b>COMP-13 · CSA Synthetic Aperture Radar Python Tutorial</b><span>CSA/GitHub</span> ↗</a>
+<a class="source-chip" href="https://cds.climate.copernicus.eu/" target="_blank" rel="noopener noreferrer"><b>ERA5 / ERA5-Land</b><span>ECMWF/Copernicus</span> ↗</a>
+<a class="source-chip" href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer"><b>NASA POWER</b><span>NASA</span> ↗</a>
+<a class="source-chip" href="https://gpm.nasa.gov/data/imerg" target="_blank" rel="noopener noreferrer"><b>GPM IMERG</b><span>NASA/JAXA</span> ↗</a>
+<a class="source-chip" href="https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily" target="_blank" rel="noopener noreferrer"><b>NOAA GHCN-D / estaciones</b><span>NOAA/servicios nacionales</span> ↗</a>
+<a class="source-chip" href="https://lpdaac.usgs.gov/products/mod11a2v061/" target="_blank" rel="noopener noreferrer"><b>MOD11A2</b><span>NASA MODIS</span> ↗</a>
+<a class="source-chip" href="https://www.usgs.gov/landsat-missions/landsat-collection-2" target="_blank" rel="noopener noreferrer"><b>Landsat Collection 2 Level-2</b><span>USGS/NASA</span> ↗</a>
+<a class="source-chip" href="https://dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer"><b>Sentinel-2 L2A</b><span>ESA/Copernicus</span> ↗</a>
+<a class="source-chip" href="https://lpdaac.usgs.gov/products/mod13q1v061/" target="_blank" rel="noopener noreferrer"><b>MOD13Q1</b><span>NASA MODIS</span> ↗</a>
+<a class="source-chip" href="https://lpdaac.usgs.gov/products/mcd12q1v061/" target="_blank" rel="noopener noreferrer"><b>MCD12Q1</b><span>NASA MODIS</span> ↗</a></div>
+  </section>
+  <section class="science-block" id="metodos">
+    <div class="science-heading"><div><p class="eyebrow">03 · Análisis y confiabilidad</p><h2>¿Cómo pasamos del dato a la evidencia?</h2></div><p>El análisis no termina al generar un gráfico. Cada resultado necesita contexto, control de calidad y una interpretación proporcional a la evidencia disponible.</p></div>
+    <div class="science-method-grid">
+      <article class="science-method"><span>01</span><h3>Preparar los datos</h3><p>Revisar unidades, resolución, fechas, cobertura, máscaras de calidad y valores faltantes.</p></article>
+      <article class="science-method"><span>02</span><h3>Detectar tendencias</h3><p>La matriz contempla pendiente de Sen y pruebas Mann-Kendall, incluyendo estacionalidad y autocorrelación cuando corresponda.</p></article>
+      <article class="science-method"><span>03</span><h3>Evaluar modelos</h3><p>Los modelos predictivos propuestos se comparan con líneas base y validación temporal, evitando mezclar información futura con el entrenamiento.</p></article>
+      <article class="science-method"><span>04</span><h3>Comunicar límites</h3><p>Reportar incertidumbre, intervalos, cobertura y restricciones. La falta de evidencia suficiente no demuestra ausencia del fenómeno.</p></article>
+    </div>
+    <h3 class="science-subtitle">Líneas iniciales de modelos predictivos</h3>
+    <div class="science-resource-grid"><article class="science-resource"><span>PRED-01 · MVP</span><h3>Precipitación mensual</h3><p><b>Variable objetivo:</b> Precipitación acumulada mes t+h (mm) y P[ SPI&lt;=-1 ]</p><p><b>Horizonte de prueba:</b> 1–3 meses</p><p><b>Modelo inicial:</b> SARIMA estacional y climatología como base; opcional ridge con ENSO rezagado</p><p><b>Evaluación:</b> MAE, CRPS/intervalos; Brier para déficit; skill vs climatología</p><p class="science-warning">No pronosticar SPI con futura lluvia observada</p></article><article class="science-resource"><span>PRED-02 · MVP</span><h3>NDVI / vigor</h3><p><b>Variable objetivo:</b> NDVI mediano área t+h + intervalo; p(anomalía &lt; P20)</p><p><b>Horizonte de prueba:</b> 1 período–2 meses</p><p><b>Modelo inicial:</b> Ridge/ElasticNet autorregresivo + estacionalidad; baseline climatología</p><p><b>Evaluación:</b> MAE, RMSE, cobertura IC, Brier si clasificación</p><p class="science-warning">No incluir lluvia/SM futuras reales</p></article><article class="science-resource"><span>PRED-03 · MVP</span><h3>Temperatura del aire mensual</h3><p><b>Variable objetivo:</b> T2m media t+h °C + intervalo</p><p><b>Horizonte de prueba:</b> 1–3 meses</p><p><b>Modelo inicial:</b> SARIMA/ETS; regressión dinámica si mejora baseline</p><p><b>Evaluación:</b> MAE, RMSE, skill climatológico, cobertura IC</p><p class="science-warning">Una tendencia lineal no es pronóstico fiable indefinido</p></article><article class="science-resource"><span>PRED-04 · P2</span><h3>LST mensual</h3><p><b>Variable objetivo:</b> Anomalía LST futura °C</p><p><b>Horizonte de prueba:</b> 1–2 períodos</p><p><b>Modelo inicial:</b> Modelo autorregresivo estacional</p><p><b>Evaluación:</b> MAE, % cobertura QA, intervalos</p><p class="science-warning">LST no predice temperatura aire</p></article><article class="science-resource"><span>PRED-05 · P2</span><h3>Fuego - peligro meteorológico</h3><p><b>Variable objetivo:</b> Probabilidad calibrada de condiciones meteorológicas favorables a fuego, NO ignición exacta</p><p><b>Horizonte de prueba:</b> 1–7 días</p><p><b>Modelo inicial:</b> FWI con pronóstico meteo; modelo calibrado si inventario etiquetado</p><p><b>Evaluación:</b> Brier, calibración, PR-AUC, skill persistencia</p><p class="science-warning">No prometer detección/predicción de foco específico</p></article><article class="science-resource"><span>PRED-06 · P3</span><h3>Área quemada</h3><p><b>Variable objetivo:</b> Área quemada por mes regional (ha) como escenario exploratorio</p><p><b>Horizonte de prueba:</b> 1 mes</p><p><b>Modelo inicial:</b> Baseline estacional + modelo conteo/zero-inflated solo si suficiente historia</p><p><b>Evaluación:</b> MAE, intervalos, precisión espacial contextual</p><p class="science-warning">No proyectar un perímetro exacto ni incendios futuros</p></article><article class="science-resource"><span>PRED-07 · P3</span><h3>Nivel de agua</h3><p><b>Variable objetivo:</b> WSE próxima observación / nivel estación (m)</p><p><b>Horizonte de prueba:</b> días–semanas</p><p><b>Modelo inicial:</b> AR + precipitación/cuenca; balance si caudal disponible</p><p><b>Evaluación:</b> MAE cm/m según fuente, cobertura intervalo, skill persistencia</p><p class="science-warning">No extrapolar a 20 años de SWOT</p></article><article class="science-resource"><span>PRED-08 · P3</span><h3>SST y clorofila</h3><p><b>Variable objetivo:</b> SST futura; clorofila futura por separado</p><p><b>Horizonte de prueba:</b> 1–4 semanas</p><p><b>Modelo inicial:</b> SARIMA SST; Ridge con viento y SST pasado para chlorophyll</p><p><b>Evaluación:</b> MAE por variable; skill climatológico; incertidumbre</p><p class="science-warning">No pronosticar HAB toxicológica desde clorofila</p></article></div>
+    <div class="caution-panel"><strong>Reglas científicas que no negociamos</strong><p>No confundir temperatura superficial (LST) con temperatura del aire (T2m); focos de calor con cantidad de incendios o superficie quemada; ni correlación con causalidad. Si la cobertura o la calidad no alcanza los criterios definidos, el resultado debe advertirlo o bloquearse.</p></div>
+  </section>
+  <section class="science-block" id="glosario">
+    <div class="science-heading"><div><p class="eyebrow">04 · Diccionario científico</p><h2>Entender las variables</h2></div><p>Consultá las siglas, definiciones, unidades y precauciones utilizadas en las matrices de investigación.</p></div>
+    <label class="glossary-search-label" for="glossary-search">Buscar una variable o concepto</label>
+    <input class="glossary-search" id="glossary-search" type="search" placeholder="Ej.: NDVI, temperatura, humedad..." oninput="const q=this.value.toLocaleLowerCase();document.querySelectorAll('.glossary-item').forEach(x=>x.hidden=!x.textContent.toLocaleLowerCase().includes(q))">
+    <div class="glossary-grid"><details class="glossary-item"><summary><b>LST</b><span>Temperatura Superficial del Suelo</span></summary><p>Qué tan caliente está la superficie física de la Tierra (asfalto, tierra desnuda, techos o copa de los árboles) medida por satélite. Es distinta a la temperatura del aire.</p><small>Unidad: °C o Kelvin (K)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>T2m (Tmax / Tmin)</b><span>Temperatura del Aire a 2 metros</span></summary><p>La temperatura ambiente del aire que respiramos, medida a 2 metros sobre el suelo (como en los termómetros meteorológicos).</p><small>Unidad: °C</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>NDVI</b><span>Índice de Vegetación de Diferencia Normalizada</span></summary><p>Mide qué tan verde, densa y sana está la vegetación usando luz roja e infrarroja. Cerca de 0 es suelo desnudo o ciudad; cerca de 0.8-1 son bosques frondosos.</p><small>Unidad: Índice (-1 a +1)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>EVI</b><span>Índice de Vegetación Mejorado</span></summary><p>Similar al NDVI pero corregido para no saturarse en selvas muy densas (como el Amazonas) y evitar distorsiones por humo o suelo.</p><small>Unidad: Índice (-1 a +1)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>ET / ET0</b><span>Evapotranspiración Real / Potencial</span></summary><p>ET es el agua total que vuelve al aire sumando evaporación del suelo más transpiración de plantas. ET0 es cuánta agua se evaporaría si hubiera agua ilimitada.</p><small>Unidad: mm/día o mm/mes</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SMAP / SM</b><span>Humedad del Suelo</span></summary><p>Cuánta agua líquida hay guardada entre los granos de tierra (en los primeros 5 cm superficiales o en la zona de raíces). Clave para sequías e inundaciones.</p><small>Unidad: m³/m³ o %</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>GPM / PRCP</b><span>Precipitación</span></summary><p>Cantidad de lluvia, llovizna o nieve caída en un lugar, medida tanto por satélites (GPM) como por pluviómetros en tierra (PRCP).</p><small>Unidad: mm/día o mm/mes</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SPI (SPI-6 / SPI-12)</b><span>Índice Estandarizado de Precipitación</span></summary><p>Mide cuántas desviaciones estándar se aleja la lluvia acumulada de los últimos 6 o 12 meses respecto a lo normal. Valores &lt; -1.0 indican sequía.</p><small>Unidad: Desviaciones estándar (σ)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>Runoff</b><span>Escorrentía Superficial</span></summary><p>El agua de lluvia o deshielo que no logra filtrarse en la tierra y corre por encima de la superficie hacia arroyos y ríos (causa crecidas rápidas).</p><small>Unidad: mm/día o mm/mes</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SLP / PS</b><span>Presión Atmosférica (Nivel del Mar / Superficie)</span></summary><p>El peso del aire sobre un lugar. SLP corrige la altura para comparar mapas; PS es la presión real en superficie que disminuye al subir una montaña.</p><small>Unidad: hPa (hectopascales)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>AOD / PM2.5</b><span>Espesor Óptico de Aerosoles / Material Particulado</span></summary><p>Mide qué tan cargada de partículas microscópicas (humo de incendios, polvo del desierto, hollín urbano o ceniza volcánica) está la atmósfera.</p><small>Unidad: Índice (0 a &gt;3) y µg/m³</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>COVs / HCHO</b><span>Compuestos Orgánicos Volátiles / Formaldehído</span></summary><p>Gases químicos emitidos por combustibles, industrias y vegetación que generan smog y ozono tóxico. Los satélites miden formaldehído (HCHO) para rastrearlos.</p><small>Unidad: moléculas/cm²</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>NO2 / SO2 / O3</b><span>Dióxido de Nitrógeno / Azufre / Ozono</span></summary><p>NO2 viene de escapes de autos e industrias; SO2 viene de volcanes y quema de combustibles; O3 troposférico es smog tóxico formado por sol + COVs + NO2.</p><small>Unidad: moléculas/cm² o ppb</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SWGDN / OLR</b><span>Radiación Solar Incidente / Radiación Saliente</span></summary><p>SWGDN es cuánta energía solar llega al suelo (baja si hay nubes o humo). OLR es cuánto calor infrarrojo escapa de la Tierra hacia el espacio.</p><small>Unidad: W/m² (vatios/m²)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>Albedo</b><span>Albedo Superficial (Reflectividad)</span></summary><p>Porcentaje de luz solar que rebota en una superficie. La nieve tiene albedo alto (~0.85, refleja casi todo); el asfalto o bosque quemado tienen albedo bajo (~0.10, absorben calor).</p><small>Unidad: Proporción (0 a 1)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>NDSI / SWE</b><span>Cobertura de Nieve / Equivalente en Agua de Nieve</span></summary><p>NDSI detecta qué área está cubierta de nieve. SWE indica cuánta agua líquida se obtendría si toda esa nieve se derritiera de golpe.</p><small>Unidad: Índice / mm de agua</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SWOT WSE</b><span>Elevación de la Superficie del Agua</span></summary><p>Altura exacta (con precisión de centímetros) de la lámina de agua de ríos, lagos y embalses medida desde el espacio por el satélite SWOT.</p><small>Unidad: metros (m)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SSH</b><span>Altura de la Superficie del Mar</span></summary><p>Nivel del mar respecto a una referencia fija. Permite ver el aumento global por calentamiento o caídas locales por levantamiento de la tierra.</p><small>Unidad: metros o cm</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SST</b><span>Temperatura Superficial del Mar</span></summary><p>Temperatura del agua en la capa superior del océano. Las anomalías en el Pacífico definen El Niño y La Niña.</p><small>Unidad: °C</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>Clorofila-a</b><span>Concentración de Clorofila-a Marina</span></summary><p>Pigmento verde del fitoplancton (microalgas marinas). Sirve como indicador directo de cuántos nutrientes hay en el océano y dónde hay vida marina.</p><small>Unidad: mg/m³</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SAR (VV/VH) / InSAR</b><span>Radar de Apertura Sintética</span></summary><p>Sensor que envía ondas de radio: atraviesa nubes y funciona de noche. Detecta inundaciones, bosques o si el suelo se movió milímetros en un sismo (InSAR).</p><small>Unidad: Decibeles (dB) o cm</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>DEM</b><span>Modelo Digital de Elevación</span></summary><p>Mapa 3D del relieve terrestre que indica la altura sobre el nivel del mar, la pendiente y hacia dónde mira cada ladera de una montaña.</p><small>Unidad: metros (m) y grados (°)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>GPP / NPP / LAI</b><span>Productividad Primaria y Área Foliar</span></summary><p>GPP/NPP miden cuánto carbono absorben las plantas al crecer. LAI mide cuántas capas de hojas hay por metro cuadrado de suelo.</p><small>Unidad: g C/m² y m²/m²</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>VPD</b><span>Déficit de Presión de Vapor</span></summary><p>Mide qué tanta &#x27;sed&#x27; tiene el aire (diferencia entre la humedad que podría retener y la que tiene). Un VPD muy alto seca las plantas rápido y dispara incendios.</p><small>Unidad: kPa (kilopascales)</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>FIRMS / FRP / dNBR</b><span>Focos de Calor / Potencia del Fuego / Severidad de Quema</span></summary><p>FIRMS detecta incendios activos en tiempo real; FRP mide la energía calorífica liberada (MW); dNBR mide qué tan severamente se quemó la vegetación tras el fuego.</p><small>Unidad: Conteo, MW e Índice</small><small>Precaución: Definición heredada v4; revisar metadatos de producto antes de implementar</small></details><details class="glossary-item"><summary><b>SPI</b><span>Índice estandarizado de precipitación</span></summary><p>Anomalía estadística de precipitación acumulada para una escala (1/3/6/12 meses); no humedad de suelo</p><small>Unidad: adimensional</small><small>Precaución: La distribución se calibra por región y periodo de referencia</small></details><details class="glossary-item"><summary><b>FRP</b><span>Potencia radiativa de fuego</span></summary><p>Potencia radiativa instantánea observada por sensor, NO superficie quemada</p><small>Unidad: MW</small><small>Precaución: Comparar dentro del mismo sensor/producto</small></details><details class="glossary-item"><summary><b>BA</b><span>Área quemada</span></summary><p>Superficie con evidencia de quema estimada por producto espacial</p><small>Unidad: ha/km²</small><small>Precaución: Areal burned ≠ # detecciones térmicas</small></details><details class="glossary-item"><summary><b>NBR</b><span>Índice normalizado de quema</span></summary><p>Índice espectral NIR-SWIR utilizado para detectar cambio en vegetación y cicatrices</p><small>Unidad: adimensional</small><small>Precaución: Interpretar con pre/post de fechas comparables</small></details><details class="glossary-item"><summary><b>dNBR</b><span>Diferencia de NBR</span></summary><p>NBR preincendio − NBR postincendio; proxy espectral del cambio</p><small>Unidad: adimensional</small><small>Precaución: No severidad ecológica universal sin validación</small></details><details class="glossary-item"><summary><b>WSE</b><span>Elevación superficie del agua</span></summary><p>Altura de agua referida a datum vertical explícito</p><small>Unidad: m</small><small>Precaución: No confundir nivel, volumen ni caudal</small></details><details class="glossary-item"><summary><b>T2m</b><span>Temperatura aire 2 m</span></summary><p>Temperatura del aire a dos metros, distinta de temperatura superficial terrestre</p><small>Unidad: °C</small><small>Precaución: No sustituir por LST</small></details><details class="glossary-item"><summary><b>HAB</b><span>Floración algal nociva</span></summary><p>Floración con impactos dañinos, no determinada por clorofila alta solamente</p><small>Unidad: categoría</small><small>Precaución: Requiere validación biológica y/o toxicológica</small></details><details class="glossary-item"><summary><b>FWI</b><span>Índice meteorológico de peligro de incendio</span></summary><p>Índice meteorológico basado en variables de atmósfera y combustibles bajo metodología definida</p><small>Unidad: índice</small><small>Precaución: No predice ubicación exacta de ignición</small></details><details class="glossary-item"><summary><b>IC</b><span>Intervalo de confianza</span></summary><p>Rango estadístico para parámetro estimado bajo supuestos del método</p><small>Unidad: según variable</small><small>Precaución: No es intervalo de predicción</small></details><details class="glossary-item"><summary><b>PI</b><span>Intervalo de predicción</span></summary><p>Rango de valores futuros, calibrado con errores históricos</p><small>Unidad: según variable</small><small>Precaución: Debe comprobarse cobertura empírica</small></details><details class="glossary-item"><summary><b>QA</b><span>Control de calidad</span></summary><p>Máscaras/banderas que indican confiabilidad de observación</p><small>Unidad: categoría</small><small>Precaución: Propagar a salida y mapas</small></details></div>
+  </section>
+  <div class="science-footer-note"><strong>Una nota sobre el alcance:</strong> el catálogo reúne fuentes oficiales y complementarias evaluadas por el equipo. La presencia de un recurso en esta página no significa que XURCA ya lo consulte automáticamente ni que todos sus productos estén verificados para cada región y período.</div>
+</section>
+    <!-- COMUNIDAD XURCA -->
+    <section class="view shell page-view" data-view="comunidad" id="vista-comunidad" hidden>
+      <div class="page-heading">
+        <p class="eyebrow">Proyecto XURCA · Comunidad</p>
+        <h1>Compartí lo que descubriste</h1>
+        <p class="intro">
+          Un espacio colaborativo para compartir ideas, análisis e investigaciones
+          sobre los cambios de nuestro planeta.
+        </p>
+      </div>
+
+      <div class="community-layout">
+        <section class="panel community-form-panel" aria-labelledby="community-form-title">
+          <span class="step-number">PUBLICACIÓN ANÓNIMA</span>
+          <h2 id="community-form-title">Compartí tu investigación</h2>
+          <p>
+            No necesitás crear un perfil. Tu publicación aparecerá sin mostrar
+            tu identidad personal.
+          </p>
+
+          <form id="publication-form" class="community-form">
+            <label for="publication-title">Título</label>
+            <input
+              id="publication-title"
+              name="title"
+              type="text"
+              maxlength="120"
+              placeholder="Ej.: Cambios de precipitación en Cuyo"
+              required
+            >
+
+            <label for="publication-category">Categoría</label>
+            <select id="publication-category" name="category" required>
+              <option value="" selected disabled>Seleccioná una categoría</option>
+              <option value="general">General</option>
+              <option value="temperatura">Temperatura</option>
+              <option value="precipitacion">Precipitación</option>
+              <option value="humedad">Humedad</option>
+              <option value="atmosfera">Atmósfera y ozono</option>
+              <option value="otros">Otros fenómenos</option>
+            </select>
+
+            <label for="publication-content">Contenido</label>
+            <textarea
+              id="publication-content"
+              name="content"
+              rows="7"
+              maxlength="3000"
+              placeholder="Contá qué investigaste, qué datos utilizaste y cuáles fueron tus resultados..."
+              required
+            ></textarea>
+            <p class="form-hint">Máximo 3000 caracteres. No incluyas datos personales.</p>
+
+            <button class="button button-primary" type="submit" id="publication-submit">
+              Publicar investigación →
+            </button>
+            <p id="publication-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <aside class="community-guidelines">
+          <h2>Antes de publicar</h2>
+          <ul>
+            <li>Compartí contenido relacionado con ciencia, ambiente y sistema Tierra.</li>
+            <li>Indicá las fuentes de datos cuando corresponda.</li>
+            <li>No publiques información personal ni material de terceros sin permiso.</li>
+            <li>Las publicaciones podrán ser revisadas y retiradas si incumplen las reglas.</li>
+          </ul>
+          <p class="muted">
+            La comunidad es anónima: no se muestran nombres ni perfiles públicos.
+            El anonimato no reemplaza la responsabilidad sobre el contenido publicado.
+          </p>
+        </aside>
+      </div>
+
+      <section class="community-feed" aria-labelledby="community-feed-title">
+        <div class="team-section-heading">
+          <p class="eyebrow">Conocimiento compartido</p>
+          <h2 id="community-feed-title">Publicaciones de la comunidad</h2>
+          <p>Explorá los aportes compartidos por otras personas.</p>
+        </div>
+
+        <div id="publications-list" class="publications-list" aria-live="polite">
+          <p class="muted" id="publications-loading">Cargando publicaciones...</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- QUIÉNES SOMOS: ACRUX -->
+    <section class="view shell page-view" data-view="equipo" id="vista-equipo" hidden>
+      <div class="page-heading">
+        <p class="eyebrow">Nuestra identidad · Universidad Nacional de San Luis</p>
+        <h1>Somos Acrux</h1>
+        <p class="intro">
+          Un equipo universitario que transforma curiosidad, conocimiento
+          y trabajo colaborativo en proyectos de ingeniería, ciencia y tecnología.
+        </p>
+      </div>
+      <!-- PRESENTACIÓN INSTITUCIONAL -->
+      <div class="team-layout team-identity">
+        <img
+          class="team-logo"
+          src="./assets/images/Logo%20Acrux.jpeg"
+          alt="Emblema institucional del equipo Acrux"
+        >
+        <div>
+          <span class="source-label">UNIVERSIDAD NACIONAL DE SAN LUIS · FICA</span>
+          <h2>Un equipo, distintas disciplinas, un mismo horizonte</h2>
+          <p>
+            Acrux es un equipo universitario vinculado a la Facultad de Ingeniería
+            y Ciencias Agropecuarias de la Universidad Nacional de San Luis.
+            Nace de la iniciativa de estudiantes que comparten el interés
+            por la ingeniería, la ciencia, la tecnología y el desarrollo aeroespacial.
+          </p>
+          <p>
+            Nos proponemos llevar los conocimientos adquiridos durante nuestra
+            formación académica al terreno de la experimentación y el desarrollo
+            tecnológico. Para ello, integramos distintas áreas de conocimiento,
+            organizamos equipos de trabajo y afrontamos desafíos que requieren
+            investigación, planificación, creatividad y compromiso.
+          </p>
+          <p>
+            Entendemos que un proyecto no se construye únicamente a partir
+            de una idea: necesita personas dispuestas a aprender, compartir
+            conocimientos, asumir responsabilidades y trabajar en conjunto.
+          </p>
+          <a class="social-link" href="https://www.instagram.com/proyecto_acrux/" target="_blank" rel="noopener noreferrer">
+            Instagram · @proyecto_acrux ↗
+          </a>
+        </div>
+      </div>
+      <!-- GALERÍA -->
+      <section class="team-gallery">
+        <div class="team-section-heading">
+          <p class="eyebrow">Nuestra historia</p>
+          <h2>Acrux en acción</h2>
+          <p>
+            Detrás de cada proyecto hay un equipo de personas que comparte ideas,
+            aprende, experimenta y trabaja para convertir desafíos en desarrollos reales.
+          </p>
+        </div>
+        <div class="gallery-grid">
+          <figure class="gallery-card gallery-card-portrait">
+            <a class="gallery-image-link" href="https://www.instagram.com/p/DZflxDQE8AN/?utm_source=ig_web_copy_link&xtok=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==" target="_blank" rel="noopener noreferrer" aria-label="Abrir publicación de Acrux en Instagram">
+              <img
+                src="./assets/images/acrux-equipo-fica.jpeg"
+                alt="Integrantes de Acrux en las instalaciones de la FICA"
+                loading="lazy"
+              >
+            </a>
+            <figcaption>
+              <strong>Identidad universitaria</strong>
+              <span>Equipo Acrux · FICA · UNSL</span>
+            </figcaption>
+          </figure>
+          <figure class="gallery-card gallery-card-landscape">
+            <a class="gallery-image-link" href="https://www.instagram.com/reel/DcpdCBANZAy/?utm_source=ig_web_copy_link&dlrf=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==" target="_blank" rel="noopener noreferrer" aria-label="Abrir reel de Acrux en Instagram">
+              <img
+                src="./assets/images/acrux-equipo-labta.jpeg"
+                alt="Integrantes de Acrux reunidos al aire libre junto al cartel del proyecto LabTA"
+                loading="lazy"
+              >
+            </a>
+            <figcaption>
+              <strong>Ingeniería y trabajo en equipo</strong>
+              <span>Experiencias y proyectos compartidos</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <!-- MISIÓN Y VISIÓN -->
+      <section class="team-content">
+        <div class="team-section-heading">
+          <p class="eyebrow">Nuestra razón de ser</p>
+          <h2>¿Qué nos impulsa?</h2>
+          <p>
+            Creemos en el potencial de la formación universitaria para generar
+            soluciones, construir conocimiento y participar activamente
+            en el desarrollo científico y tecnológico.
+          </p>
+        </div>
+        <div class="team-pillars">
+          <article class="panel team-pillar">
+            <span class="step-number">01 · MISIÓN</span>
+            <h3>Lo que hacemos</h3>
+            <p>
+              Promover el desarrollo de proyectos científicos y tecnológicos
+              mediante la aplicación de conocimientos de ingeniería,
+              la investigación, la experimentación y el trabajo interdisciplinario,
+              fortaleciendo la formación integral de nuestros integrantes.
+            </p>
+          </article>
+          <article class="panel team-pillar">
+            <span class="step-number">02 · VISIÓN</span>
+            <h3>Hacia dónde vamos</h3>
+            <p>
+              Consolidarnos como un equipo universitario referente en innovación
+              y desarrollo tecnológico, capaz de representar a la universidad
+              pública argentina en desafíos científicos y aeroespaciales,
+              generando oportunidades de aprendizaje, colaboración
+              y transferencia de conocimientos.
+            </p>
+          </article>
+        </div>
+      </section>
+      <!-- OBJETIVOS -->
+      <section class="team-content">
+        <div class="team-section-heading">
+          <p class="eyebrow">Nuestros compromisos</p>
+          <h2>Objetivos que orientan nuestro trabajo</h2>
+        </div>
+        <div class="team-objectives">
+          <article class="data-card">
+            <span>01</span>
+            <h3>Desarrollar</h3>
+            <p>
+              Diseñar y construir proyectos tecnológicos integrales,
+              desde la definición de sus objetivos hasta su implementación,
+              prueba y validación.
+            </p>
+          </article>
+          <article class="data-card">
+            <span>02</span>
+            <h3>Integrar</h3>
+            <p>
+              Vincular conocimientos de distintas disciplinas de ingeniería
+              para abordar problemas complejos desde una perspectiva interdisciplinaria.
+            </p>
+          </article>
+          <article class="data-card">
+            <span>03</span>
+            <h3>Investigar</h3>
+            <p>
+              Fomentar la curiosidad científica, la experimentación,
+              el análisis crítico y el aprendizaje continuo.
+            </p>
+          </article>
+          <article class="data-card">
+            <span>04</span>
+            <h3>Innovar</h3>
+            <p>
+              Explorar ideas, tecnologías y metodologías que permitan
+              desarrollar soluciones creativas y mejorar nuestros proyectos.
+            </p>
+          </article>
+          <article class="data-card">
+            <span>05</span>
+            <h3>Colaborar</h3>
+            <p>
+              Construir vínculos con instituciones, docentes, empresas
+              y comunidades interesadas en la ciencia, la ingeniería y la tecnología.
+            </p>
+          </article>
+          <article class="data-card">
+            <span>06</span>
+            <h3>Representar</h3>
+            <p>
+              Participar en competencias y desafíos científicos y tecnológicos,
+              llevando el trabajo universitario a espacios de intercambio y desarrollo.
+            </p>
+          </article>
+        </div>
+      </section>
+      <!-- METODOLOGÍA -->
+      <section class="team-content">
+        <div class="team-section-heading">
+          <p class="eyebrow">Ingeniería en equipo</p>
+          <h2>Cómo trabajamos</h2>
+          <p>
+            El desarrollo tecnológico requiere organización, coordinación
+            y un proceso de trabajo que permita transformar una idea
+            en un sistema funcional.
+          </p>
+        </div>
+        <div class="team-work-grid">
+          <article class="panel">
+            <h3>Planificación y gestión</h3>
+            <p>
+              Definimos objetivos, organizamos tareas, documentamos avances,
+              analizamos riesgos y coordinamos las distintas áreas del proyecto.
+            </p>
+          </article>
+          <article class="panel">
+            <h3>Diseño y desarrollo</h3>
+            <p>
+              Trabajamos en el diseño de soluciones, la integración de componentes
+              y la implementación de sistemas mecánicos, electrónicos y de software.
+            </p>
+          </article>
+          <article class="panel">
+            <h3>Pruebas y validación</h3>
+            <p>
+              Evaluamos el funcionamiento de los desarrollos, identificamos
+              problemas y realizamos mejoras para lograr sistemas confiables.
+            </p>
+          </article>
+          <article class="panel">
+            <h3>Comunicación y aprendizaje</h3>
+            <p>
+              Compartimos conocimientos, registramos resultados y promovemos
+              el intercambio de experiencias entre integrantes y colaboradores.
+            </p>
+          </article>
+        </div>
+      </section>
+      <!-- PROYECTOS -->
+      <section class="team-content">
+        <div class="team-section-heading">
+          <p class="eyebrow">Nuestros desarrollos</p>
+          <h2>Proyectos de Acrux</h2>
+          <p>
+            Cada proyecto representa una oportunidad para aprender,
+            experimentar y llevar los conocimientos a un desafío concreto.
+          </p>
+        </div>
+        <div class="team-projects">
+          <article class="panel team-project">
+            <span class="step-number">PROYECTO AEROESPACIAL</span>
+            <h3>Misión Acrux · CANSAT</h3>
+            <p>
+              Estamos trabajando para participar en la competencia CANSAT 2027.
+              Un CanSat es un satélite educativo en formato reducido, cuyo diseño
+              suele integrar una estructura, sensores, electrónica, energía,
+              programación y un sistema de comunicación con una estación terrena.
+            </p>
+            <p>
+              Nuestro objetivo es prepararnos para diseñar, integrar y probar
+              una misión completa: desde la definición de los requisitos y los
+              subsistemas hasta la adquisición y transmisión de datos, la validación
+              y la presentación de los resultados.
+            </p>
+          </article>
+          <article class="panel team-project">
+            <span class="step-number">DESARROLLO AEROESPACIAL EN CURSO</span>
+            <h3>PocketQube · Giro y despliegue de paneles</h3>
+            <p>
+              Actualmente estamos trabajando en el diseño de un modelo PocketQube,
+              un satélite de formato compacto. Este desarrollo explora el movimiento
+              de la estructura y el mecanismo de despliegue de sus paneles solares.
+            </p>
+            <div class="team-project-video-wrap">
+              <video class="team-project-video" controls preload="metadata" playsinline>
+                <source src="./assets/videos/PocketQube%20-%20Giro%20y%20despliegue%20paneles.webm" type="video/webm">
+                Tu navegador no puede reproducir este video.
+              </video>
+              <p class="team-project-video-caption">
+                Modelo en desarrollo · Diseño y exploración del mecanismo de despliegue
+              </p>
+            </div>
+          </article>
+          <article class="panel team-project">
+            <span class="step-number">NASA SPACE APPS CHALLENGE 2026</span>
+            <h3>XURCA</h3>
+            <p>
+              Una propuesta desarrollada por Acrux para el desafío
+              «Be An Earth System Trend Detective!». Busca acercar
+              la exploración de datos de observación de la Tierra
+              y el análisis de tendencias ambientales a través
+              de una experiencia digital.
+            </p>
+            <a class="button button-outline" href="#inicio" data-route="inicio">
+              Conocer XURCA →
+            </a>
+          </article>
+        </div>
+      </section>
+      <!-- VALORES -->
+      <section class="team-values">
+        <p class="eyebrow">Lo que nos representa</p>
+        <h2>La tecnología se construye en equipo</h2>
+        <p>
+          Nos identifican la responsabilidad, la cooperación, la empatía,
+          la humildad, el compromiso y la voluntad de aprender.
+          Entendemos que la calidad de un proyecto también depende
+          de las personas que lo hacen posible.
+        </p>
+        <blockquote>
+          «Nadie es mejor profesional que persona»
+        </blockquote>
+      </section>
+      <!-- CONTACTO -->
+      <div class="team-contact">
+        <div>
+          <p class="eyebrow">Conectá con Acrux</p>
+          <h2>Seguinos y conocé nuestro trabajo</h2>
+          <p>
+            Compartimos nuestros proyectos, actividades y avances
+            a través de nuestros canales institucionales.
+          </p>
+        </div>
+        <a class="button button-primary" href="https://www.instagram.com/proyecto_acrux/" target="_blank" rel="noopener noreferrer">
+          Instagram · @proyecto_acrux ↗
+        </a>
+      </div>
+    </section>
+    <!-- DESCARGA -->
+    <section class="view shell page-view" data-view="descargar" id="vista-descargar" hidden>
+      <div class="download-panel">
+        <p class="eyebrow">APLICACIÓN XURCA</p>
+        <h1>Tu próxima investigación empieza acá</h1>
+        <p class="intro">
+          Descargá la aplicación para seleccionar variables,
+          explorar regiones y analizar tendencias del sistema Tierra.
+        </p>
+        <div class="download-status" data-download-status>
+          <span class="status-dot"></span>
+          <div>
+            <strong>La aplicación todavía no está publicada</strong>
+            <p>
+              Estamos preparando la primera versión. El enlace oficial
+              aparecerá aquí cuando el equipo publique la aplicación.
+            </p>
+          </div>
+        </div>
+        <a class="button button-primary" data-download-link href="#" hidden>
+          Descargar XURCA ↓
+        </a>
+        <a class="text-link" href="#explorar" data-route="explorar">
+          Mientras tanto, conocé el recorrido de investigación →
+        </a>
+      </div>
     </section>
   </main>
+  <!-- PIE DE PÁGINA -->
   <footer class="site-footer">
     <div class="shell footer-inner">
-      <a class="brand" href="#inicio"><img src="./assets/icons/xurca.svg" width="28" height="28" alt=""> XURCA</a>
-      <span>Equipo Acrux · NASA Space Apps Challenge 2026</span>
-      <a href="https://github.com/Emajack512/XURCA-Space-Apps-Challenge-2026">GitHub <span aria-hidden="true">↗</span></a>
+      <a class="brand footer-brand" href="#inicio" data-route="inicio">
+        <img src="./assets/images/logo-xurca.png" alt="Logo de XURCA">
+        <span>XURCA</span>
+      </a>
+      <span>Universidad Nacional de San Luis · FICA</span>
+      <a href="https://www.instagram.com/proyecto_acrux/" target="_blank" rel="noopener noreferrer">
+        @proyecto_acrux ↗
+      </a>
     </div>
   </footer>
 </body>
