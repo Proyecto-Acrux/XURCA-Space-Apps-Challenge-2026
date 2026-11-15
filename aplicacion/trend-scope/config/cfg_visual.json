@@ -3,10 +3,7 @@
   "theme":"dark",
   "language":"es",
   "appearance":{"accent":"#57dfc1","font":"Inter","fontSize":13},
-  "workspace":{"settingsWidth":290,"resultsWidth":388,"assistantWidth":330,"settings":true,"results":true,"assistant":false,"layers":true},
-  "map":{"projection":"orthographic","camera":{"longitude":-66,"latitude":-26,"zoom":1},"layers":{"countries":true,"grid":true,"selection":true}},
-  "charts":[
-    {"id":"chart-trend","resultId":"demo-trend","type":"line","title":"Precipitación mensual","xLabel":"","yLabel":"mm/mes","scale":"linear","grid":true,"legend":true,"trend":true,"interval":true,"series":{"primary":{"visible":true,"color":"#57dfc1"},"secondary":{"visible":false,"color":"#77a6fb"}}}
-  ],
-  "expandedChart":null
+  "workspace":{"settingsWidth":290,"assistantWidth":388,"settings":true,"map":true,"assistantVisible":true,"layers":true},
+  "chartResolution":"auto",
+  "map":{"projection":"orthographic","camera":{"longitude":-66,"latitude":-26,"zoom":1},"layers":{"countries":true,"grid":true,"selection":true}}
 }

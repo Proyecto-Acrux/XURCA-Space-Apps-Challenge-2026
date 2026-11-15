@@ -1,3 +1,5 @@
+import { providers } from './sources.js';
+import dataDefaults from '../../../config/cfg_data.json';
 import { isTauri } from '@tauri-apps/api/core';
 import { pyInvoke } from 'tauri-plugin-pytauri-api';
 
@@ -19,6 +21,34 @@ export async function loadWorkspace() {
     if (snapshot?.[key] && snapshot[key].schemaVersion !== 1) {
       throw new Error('Versión de esquema incompatible en ' + files[key]);
     }
+  }
+  if (snapshot?.data?.provenance?.simulated) {
+    const data = snapshot.data;
+    data.sources = structuredClone(dataDefaults.sources);
+    data.methods = [];
+    data.time = { ...dataDefaults.time, start: data.time.start, end: data.time.end };
+    data.geography.selection.features = data.geography.selection.features.filter(feature => !feature.properties?.approximate);
+    data.id = data.id === 'investigacion-demo' ? dataDefaults.id : data.id;
+    delete data.provenance.simulated;
+  }
+  if (snapshot?.data?.sources) {
+    snapshot.data.sources = snapshot.data.sources.filter(source =>
+      providers.some(provider => provider.id === source.access)
+    );
+  }
+  if (snapshot?.visual) {
+    const layout = snapshot.visual.workspace;
+    if (layout) {
+      if (layout.assistantVisible === undefined) {
+        layout.assistantVisible = true;
+        layout.assistantWidth = layout.resultsWidth ?? 388;
+      }
+      delete layout.results;
+      delete layout.resultsWidth;
+      delete layout.assistant;
+    }
+    delete snapshot.visual.charts;
+    delete snapshot.visual.expandedChart;
   }
   return snapshot;
 }

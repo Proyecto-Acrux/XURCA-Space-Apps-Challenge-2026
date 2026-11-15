@@ -4,6 +4,16 @@ from numba import njit
 
 
 @njit(cache=True)
+def _checked_rhs(rhs, t, y):
+    if not np.isfinite(y).all():
+        raise FloatingPointError('Nonfinite RK45 intermediate state')
+    result = rhs(t, y.copy())
+    if result.shape != y.shape or not np.isfinite(result).all():
+        raise ValueError('RHS must return finite derivatives with the state shape')
+    return result.copy()
+
+
+@njit(cache=True)
 def rk45(
     rhs,
     y0,
@@ -14,6 +24,7 @@ def rk45(
     max_step=np.inf,
     min_step=1e-12,
     max_steps=100000,
+    max_output_bytes=256*1024*1024,
 ):
     """
     Dormand-Prince RK45 (5th/4th order).
@@ -45,16 +56,27 @@ def rk45(
 
     t0, tf = t_span
 
-    if tf <= t0:
+    if not np.isfinite(t0) or not np.isfinite(tf) or not np.isfinite(tf-t0) or tf <= t0:
         raise ValueError("Invalid time interval")
 
     y = np.asarray(y0, dtype=np.float64).copy()
+    if y0.dtype == np.dtype(np.int64) or y0.dtype == np.dtype(np.uint64):
+        if np.any(y0 > 2**53) or np.any(y0 < -(2**53)):
+            raise ValueError('Integer initial state exceeds exact float64 range')
+    if y.size == 0 or not np.isfinite(y).all() or y0.dtype == np.dtype(np.bool_):
+        raise ValueError('Initial state must be nonempty, finite and numeric')
 
-    if rtol <= 0.0 or atol <= 0.0:
+    if not np.isfinite(rtol) or not np.isfinite(atol) or rtol <= 0.0 or atol <= 0.0:
         raise ValueError("Tolerances must be positive")
 
-    if min_step <= 0.0 or max_step < min_step:
+    if not np.isfinite(min_step) or np.isnan(max_step) or min_step <= 0.0 or max_step < min_step:
         raise ValueError("Invalid step limits")
+    if not np.isfinite(initial_step) or initial_step < 0:
+        raise ValueError('initial_step must be finite and nonnegative')
+    if max_steps < 1 or int(max_steps) != max_steps:
+        raise ValueError('max_steps must be a positive integer')
+    if max_output_bytes < 1 or max_steps+1 > max_output_bytes // 8 // (y.size+1):
+        raise ValueError('RK45 output buffer budget exceeded')
 
     t = t0
 
@@ -81,15 +103,17 @@ def rk45(
             break
 
         h = min(h, max_step, tf - t)
+        if t+h <= t or t+h/5.0 <= t:
+            raise RuntimeError('RK45 step is not representable; rebase time')
 
-        k1 = rhs(t, y)
+        k1 = _checked_rhs(rhs, t, y)
 
-        k2 = rhs(
+        k2 = _checked_rhs(rhs,
             t + h / 5.0,
             y + h * (k1 / 5.0)
         )
 
-        k3 = rhs(
+        k3 = _checked_rhs(rhs,
             t + 3.0 * h / 10.0,
             y + h * (
                 3.0 * k1 / 40.0
@@ -97,7 +121,7 @@ def rk45(
             )
         )
 
-        k4 = rhs(
+        k4 = _checked_rhs(rhs,
             t + 4.0 * h / 5.0,
             y + h * (
                 44.0 * k1 / 45.0
@@ -106,7 +130,7 @@ def rk45(
             )
         )
 
-        k5 = rhs(
+        k5 = _checked_rhs(rhs,
             t + 8.0 * h / 9.0,
             y + h * (
                 19372.0 * k1 / 6561.0
@@ -116,7 +140,7 @@ def rk45(
             )
         )
 
-        k6 = rhs(
+        k6 = _checked_rhs(rhs,
             t + h,
             y + h * (
                 9017.0 * k1 / 3168.0
@@ -135,7 +159,7 @@ def rk45(
             + 11.0 * k6 / 84.0
         )
 
-        k7 = rhs(t + h, y5)
+        k7 = _checked_rhs(rhs, t + h, y5)
 
         y4 = y + h * (
             5179.0 * k1 / 57600.0
@@ -151,6 +175,8 @@ def rk45(
 
         for j in range(size):
             scale = atol + rtol * max(abs(y.flat[j]), abs(y5.flat[j]))
+            if not np.isfinite(scale):
+                raise FloatingPointError('RK45 error scale overflow')
             error = (y5.flat[j] - y4.flat[j]) / scale
             error_sum += error * error
 
@@ -166,6 +192,8 @@ def rk45(
             times_buffer[accepted] = t
             states_buffer[accepted] = y
             accepted += 1
+            if t >= tf:
+                break
 
         if error_norm == 0.0:
             factor = 5.0

@@ -1,6 +1,8 @@
 import numpy as np
 from numba import njit
-from trend_scope.models.stats.schemas import FitOutput
+from trend_scope.models.stats.linear_kernel import linear_kernel
+from trend_scope.models.stats.schemas import FitOutput, LinearFitOutput, PolynomialFitOutput
+from trend_scope.models.stats.polynomial import fit_polynomial
 
 # =====================================================================
 # 1. NÚCLEO COMPILADO CON NUMBA (@njit)
@@ -8,28 +10,10 @@ from trend_scope.models.stats.schemas import FitOutput
 
 @njit(cache=True)
 def _jit_linear_fit(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
-    """Mínimos cuadrados ordinarios en un solo recorrido: y = slope * x + intercept."""
-    n = x.shape[0]
-    sum_x = 0.0
-    sum_y = 0.0
-    sum_xy = 0.0
-    sum_xx = 0.0
-
-    for i in range(n):
-        xi = x[i]
-        yi = y[i]
-        sum_x += xi
-        sum_y += yi
-        sum_xy += xi * yi
-        sum_xx += xi * xi
-
-    denom = n * sum_xx - sum_x * sum_x
-    if denom == 0.0:
-        return 0.0, sum_y / n
-
-    slope = (n * sum_xy - sum_x * sum_y) / denom
-    intercept = (sum_y - slope * sum_x) / n
-    return slope, intercept
+    """Reuse the stable linear kernel for legacy transformed-response fits."""
+    # Reuse the preserved stable kernel for legacy transformed regressions.
+    result = linear_kernel(x, y)
+    return result[0], result[1]
 
 
 @njit(cache=True)
@@ -66,14 +50,16 @@ def _jit_ridge_poly_fit(
     """
     V = _jit_vandermonde(x, degree)
     cols = degree + 1
-    VtV = V.T @ V
-    Vty = V.T @ y
-
-    # Penalización L2 en todos los coeficientes excepto el intercepto (última columna)
-    for j in range(cols - 1):
-        VtV[j, j] += alpha
-
-    coeffs = np.linalg.solve(VtV, Vty)
+    # Same raw-monomial penalty, without squaring the condition number.
+    augmented = np.zeros((len(y)+cols, cols))
+    target = np.zeros(len(y)+cols)
+    augmented[:len(y)] = V
+    target[:len(y)] = y
+    for j in range(cols-1):
+        augmented[len(y)+j, j] = np.sqrt(alpha)
+    coeffs, _, rank, _ = np.linalg.lstsq(augmented, target)
+    if rank != cols:
+        raise ValueError('Ridge design is numerically rank deficient; rescale input')
     return coeffs
 
 
@@ -118,7 +104,9 @@ def _jit_harmonic_fit(
             X_mat[i, col_idx + 1] = np.sin(angle)
             col_idx += 2
 
-    coeffs, _, _, _ = np.linalg.lstsq(X_mat, y)
+    coeffs, _, rank, _ = np.linalg.lstsq(X_mat, y)
+    if rank != num_cols:
+        raise ValueError('Harmonic design is numerically rank deficient; rescale input')
     y_pred = X_mat @ coeffs
     return coeffs, y_pred
 
@@ -175,38 +163,97 @@ def _jit_compute_metrics(
 # 2. FUNCIONES PÚBLICAS (Para llamar desde los Handlers)
 # =====================================================================
 
-def linear_regression(x: list[float], y: list[float]) -> FitOutput:
-    """Ajuste lineal: y = slope * x + intercept."""
-    x_arr, y_arr = _validate_inputs(x, y)
-    slope, intercept = _jit_linear_fit(x_arr, y_arr)
-    y_pred = _jit_eval_poly(x_arr, np.array([slope, intercept], dtype=np.float64))
+def linear_regression(x: list[float], y: list[float]) -> LinearFitOutput:
+    """OLS descriptivo con kernel Numba centrado (versión 1.1, candidate).
 
-    params = {"slope": float(slope), "intercept": float(intercept)}
-    return _build_output("linear_regression", x_arr, y_arr, y_pred, params)
+    Requiere vectores reales finitos de igual longitud, n >= 2 y x variable.
+    No elimina nulos ni convierte fechas. Para tendencias, el llamador debe
+    expresar x como tiempo transcurrido y conservar su unidad y origen.
+    La pendiente tiene unidad y/x; intercepto, RMSE y MAE tienen unidad y.
+    Conserva el orden y permite réplicas e intervalos irregulares con avisos.
+    No estima incertidumbre ni valida pronósticos. Ver LINEAR_REGRESSION.md.
+    """
+    arrays = []
+    for name, values in (("x", x), ("y", y)):
+        try:
+            raw = np.asarray(values)
+            if raw.ndim != 1 or raw.dtype.kind not in "iuf":
+                raise ValueError(f"'{name}' debe ser un vector numérico real.")
+            if raw.dtype.kind in "iu" and (np.any(raw > 2**53) or np.any(raw < -(2**53))):
+                raise ValueError("Enteros fuera del rango exacto float64; convertir a tiempo relativo primero.")
+            if not isinstance(values, np.ndarray) and any(isinstance(value, (bool, np.bool_)) for value in values):
+                raise ValueError(f"'{name}' no admite booleanos.")
+            arr = np.ascontiguousarray(raw, dtype=np.float64)
+        except (TypeError, OverflowError) as error:
+            raise ValueError(f"'{name}' debe ser un vector numérico real finito.") from error
+        if not np.isfinite(arr).all():
+            raise ValueError(f"'{name}' contiene valores no finitos o faltantes.")
+        arrays.append(arr)
+    x_arr, y_arr = arrays
+    n = x_arr.size
+    if n != y_arr.size or n < 2:
+        raise ValueError("Se requieren al menos 2 pares y longitudes iguales.")
+    if np.all(x_arr == x_arr[0]):
+        raise ValueError("La pendiente no es identificable: 'x' es constante.")
+
+    warnings = [
+        "Ajuste descriptivo: autocorrelación, estacionalidad y heterocedasticidad no evaluadas.",
+        "No estima significancia ni incertidumbre; no es un pronóstico validado.",
+        "Pendiente en unidad(y)/unidad(x); el llamador conserva unidades, origen temporal y procedencia.",
+    ]
+    slope, intercept, y_pred, residuals, r2, rmse, mae, constant, descending, duplicate, irregular = linear_kernel(x_arr, y_arr)
+    r2 = None if constant else r2
+    adj_r2 = None if r2 is None or n <= 2 else 1.0 - (1.0 - r2) * (n - 1) / (n - 2)
+    aic = None if rmse == 0 or n == 2 else n * (np.log(2.0 * np.pi) + 1.0 + 2.0 * np.log(rmse)) + 6.0
+    numbers = [slope, intercept, rmse, mae] + [v for v in (r2, adj_r2, aic) if v is not None]
+    if not np.isfinite(numbers).all():
+        raise ValueError("El ajuste excede el rango numerico finito.")
+    if constant:
+        warnings.append("Serie constante: R² y R² ajustado no definidos (null).")
+    if n == 2:
+        warnings.append("Dos observaciones: sin grados de libertad residuales; R² ajustado null.")
+    if aic is None:
+        warnings.append("Error residual cero o ajuste saturado: AIC gaussiano no definido, representado como null.")
+    else:
+        warnings.append("AIC supone errores gaussianos independientes con varianza constante; supuestos no verificados.")
+    if duplicate or (descending and np.unique(x_arr).size != n):
+        warnings.append("Hay x duplicados: se conservan como réplicas con igual peso; revisar duplicados temporales.")
+    if descending:
+        warnings.append("x no está ordenado; se conserva el orden de los pares.")
+    if irregular:
+        warnings.append("Espaciado de x no uniforme: ajuste por observación, no ponderado por duración.")
+    return {
+        "algorithm": "linear_regression", "x": x_arr.tolist(),
+        "y_pred": y_pred.tolist(), "residuals": residuals.tolist(),
+        "parameters": {"slope": float(slope), "intercept": float(intercept)},
+        "metrics": {"r2": None if r2 is None else float(r2),
+                    "adj_r2": None if adj_r2 is None else float(adj_r2),
+                    "rmse": float(rmse), "mae": float(mae),
+                    "aic": None if aic is None else float(aic)},
+        "warnings": warnings, "uncertainty": "not_estimated",
+        "method_version": "1.1.0-candidate", "n_observations": int(n),
+    }
 
 
 def polynomial_regression(
     x: list[float], y: list[float], degree: int = 2
-) -> FitOutput:
-    """Ajuste polinómico: y = c_n*x^n + ... + c_1*x + c_0."""
-    if degree < 1:
-        raise ValueError("El grado del polinomio debe ser >= 1.")
+) -> PolynomialFitOutput:
+    """OLS polinómico escalado; conserva c_k originales y añade diagnóstico de rango.
 
-    x_arr, y_arr = _validate_inputs(x, y)
-    if x_arr.shape[0] <= degree:
-        raise ValueError("Se necesitan más puntos de datos que el grado del polinomio.")
-
-    coeffs = _jit_poly_fit(x_arr, y_arr, degree)
-    y_pred = _jit_eval_poly(x_arr, coeffs)
-
-    params = {f"c_{degree - i}": float(c) for i, c in enumerate(coeffs)}
-    return _build_output("polynomial_regression", x_arr, y_arr, y_pred, params)
+    Ver POLYNOMIAL_REGRESSION.md para unidades, límites y evaluación estable.
+    """
+    return fit_polynomial(x, y, degree)
 
 
 def ridge_regression(
     x: list[float], y: list[float], degree: int = 3, alpha: float = 1.0
 ) -> FitOutput:
     """Ajuste polinómico con regularización L2 (Ridge) para evitar sobreajuste."""
+    from ..numeric import integer, scalar
+    degree = integer(degree, 'degree')
+    alpha = scalar(alpha, 'alpha')
+    if degree > 20:
+        raise ValueError('Ridge degree exceeds supported resource budget')
     if degree < 1:
         raise ValueError("El grado del polinomio debe ser >= 1.")
     if alpha < 0.0:
@@ -228,6 +275,8 @@ def exponential_regression(x: list[float], y: list[float]) -> FitOutput:
 
     b, log_a = _jit_linear_fit(x_arr, np.log(y_arr))
     a = float(np.exp(log_a))
+    if not np.isfinite(a) or a <= 0:
+        raise ValueError('Exponential amplitude is not representable; rebase x explicitly')
     y_pred = a * np.exp(b * x_arr)
 
     params = {"a": a, "b": float(b)}
@@ -255,6 +304,8 @@ def power_regression(x: list[float], y: list[float]) -> FitOutput:
 
     b, log_a = _jit_linear_fit(np.log(x_arr), np.log(y_arr))
     a = float(np.exp(log_a))
+    if not np.isfinite(a) or a <= 0:
+        raise ValueError('Power-law amplitude is not representable; rescale inputs')
     y_pred = a * np.power(x_arr, b)
 
     params = {"a": a, "b": float(b)}
@@ -269,6 +320,12 @@ def harmonic_regression(
     trend_degree: int = 1,
 ) -> FitOutput:
     """Ajuste de tendencia polinómica + estacionalidad mediante series de Fourier."""
+    from ..numeric import integer, scalar
+    period = scalar(period, 'period', positive=True)
+    harmonics = integer(harmonics, 'harmonics')
+    trend_degree = integer(trend_degree, 'trend_degree', 0)
+    if harmonics > 100 or trend_degree > 20:
+        raise ValueError('Harmonic design resource budget exceeded')
     if period <= 0.0:
         raise ValueError("El periodo debe ser mayor que 0.")
     if harmonics < 1:
@@ -301,6 +358,10 @@ def harmonic_regression(
 # =====================================================================
 
 def _validate_inputs(x: list[float], y: list[float]) -> tuple[np.ndarray, np.ndarray]:
+    from ..numeric import array
+    x, y = array(x, 'x', minimum=2), array(y, 'y', minimum=2)
+    if np.all(x == x[0]):
+        raise ValueError('Regression requires distinct predictor values')
     if len(x) != len(y):
         raise ValueError("Las listas 'x' e 'y' deben tener la misma longitud.")
     if len(x) < 2:
@@ -324,9 +385,19 @@ def _build_output(
     y_pred: np.ndarray,
     parameters: dict[str, float],
 ) -> FitOutput:
-    residuals, r2, adj_r2, rmse, mae, aic = _jit_compute_metrics(
-        y_true, y_pred, len(parameters)
-    )
+    from ..numeric import finite
+    finite(y_pred)
+    finite(list(parameters.values()))
+    with np.errstate(over='raise', invalid='raise', divide='raise'):
+        residuals = finite(y_true-y_pred)
+        scale = max(float(np.max(np.abs(residuals))), 1.)
+        rmse = finite(scale*np.sqrt(np.mean((residuals/scale)**2)))
+        mae = finite(np.mean(np.abs(residuals)))
+        centered = y_true-y_true.mean()
+        total = finite(np.linalg.norm(centered))
+        r2 = None if total == 0 else float(finite(1-(np.linalg.norm(residuals)/total)**2))
+    # Transformed and penalized fits need model-specific likelihood/effective df.
+    adj_r2 = aic = None
     return {
         "algorithm": algorithm,
         "x": x_arr.tolist(),
@@ -334,10 +405,15 @@ def _build_output(
         "residuals": residuals.tolist(),
         "parameters": parameters,
         "metrics": {
-            "r2": float(r2),
-            "adj_r2": float(adj_r2),
+            "r2": r2,
+            "adj_r2": adj_r2,
             "rmse": float(rmse),
             "mae": float(mae),
-            "aic": float(aic),
+            "aic": aic,
         },
+        "warnings": ["Descriptive fit; uncertainty and predictive reliability are not estimated.",
+                     "Adjusted R2 and AIC are not estimated for this transformed/penalized model.",
+                     "Exponential and power fits minimize log-response error, not original-scale squared error."],
+        "uncertainty": "not_estimated",
+        "method_version": "1.1.0-candidate",
     }

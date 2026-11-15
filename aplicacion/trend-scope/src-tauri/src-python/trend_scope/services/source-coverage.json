@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-11-14",
+  "products": [
+    {
+      "id": "power-meteorology",
+      "access": "nasa.power.monthly",
+      "product": "NASA POWER / MERRA-2",
+      "variables": ["PRECTOTCORR", "RH2M", "WS2M", "GWETROOT", "T2M"],
+      "geography": "global-grid",
+      "selection": "Point",
+      "cadence": "monthly",
+      "from": "1981-01-01",
+      "endRule": "previous-calendar-year",
+      "reference": "https://power.larc.nasa.gov/docs/services/api/temporal/monthly/"
+    },
+    {
+      "id": "power-solar",
+      "access": "nasa.power.monthly",
+      "product": "NASA POWER / Surface Solar Radiation",
+      "variables": ["ALLSKY_SFC_SW_DWN"],
+      "geography": "global-grid",
+      "selection": "Point",
+      "cadence": "monthly",
+      "from": "1984-01-01",
+      "endRule": "previous-calendar-year",
+      "reference": "https://power.larc.nasa.gov/docs/services/api/temporal/monthly/"
+    },
+    {
+      "id": "era5",
+      "access": "openmeteo.archive.daily",
+      "product": "ECMWF ERA5",
+      "variables": ["precipitation_sum", "et0_fao_evapotranspiration"],
+      "geography": "global-grid",
+      "selection": "Point",
+      "cadence": "daily",
+      "spatialResolutionDegrees": 0.25,
+      "from": "1940-01-01",
+      "publicationLagDays": 5,
+      "reference": "https://open-meteo.com/en/docs/historical-weather-api"
+    },
+    {
+      "id": "era5-land",
+      "access": "openmeteo.archive.daily",
+      "product": "ECMWF ERA5-Land",
+      "variables": [
+        "soil_moisture_0_to_7cm_mean",
+        "soil_moisture_7_to_28cm_mean",
+        "soil_moisture_28_to_100cm_mean",
+        "soil_moisture_100_to_255cm_mean",
+        "temperature_2m_max",
+        "temperature_2m_min"
+      ],
+      "geography": "land-grid",
+      "selection": "Point",
+      "cadence": "daily",
+      "spatialResolutionDegrees": 0.1,
+      "from": "1950-01-01",
+      "publicationLagDays": 5,
+      "reference": "https://open-meteo.com/en/docs/historical-weather-api"
+    },
+    {
+      "id": "noaa-gsom",
+      "access": "noaa.ncei.station",
+      "product": "NOAA Global Summary of the Month",
+      "variables": ["PRCP", "TAVG"],
+      "geography": "station-network",
+      "selection": "Station",
+      "cadence": "monthly",
+      "collectionFrom": "1763-01-01",
+      "requiresEntityCoverage": true,
+      "reference": "https://www.ncei.noaa.gov/access/search/datasets/global-summary-of-the-month/"
+    },
+    {
+      "id": "swot-riversp-d",
+      "access": "nasa.swot.hydrocron",
+      "product": "SWOT_L2_HR_RiverSP_D",
+      "variables": ["wse"],
+      "geography": "indexed-river-reaches",
+      "selection": "Reach",
+      "cadence": "overpass",
+      "collectionFrom": "2022-12-16",
+      "requiresEntityCoverage": true,
+      "reference": "https://podaac.jpl.nasa.gov/dataset/SWOT_L2_HR_RiverSP_D"
+    },
+    {
+      "id": "swot-lakesp-d",
+      "access": "nasa.swot.hydrocron",
+      "product": "SWOT_L2_HR_LakeSP_D",
+      "variables": ["wse", "area_total"],
+      "geography": "indexed-lakes",
+      "selection": "PriorLake",
+      "cadence": "overpass",
+      "collectionFrom": "2022-12-16",
+      "requiresEntityCoverage": true,
+      "reference": "https://podaac.jpl.nasa.gov/dataset/SWOT_L2_HR_LakeSP_D"
+    }
+  ]
+}

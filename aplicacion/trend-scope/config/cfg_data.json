@@ -1,22 +1,39 @@
 {
   "schemaVersion": 1,
-  "id": "investigacion-demo",
+  "id": "investigacion",
   "title": "Tendencias ambientales",
   "objective": "",
   "description": "",
   "sources": [
-    {"id":"gldas-precipitation","provider":"NASA","dataset":"GLDAS","product":"GLDAS","version":null,"variable":"precipitation","unit":"mm/mes","processingUnit":"mm/mes","access":null,"reference":null}
+    {
+      "id": "power-precipitation",
+      "provider": "NASA",
+      "product": "NASA POWER",
+      "variable": "precipitation",
+      "access": "nasa.power.monthly",
+      "upstream": {
+        "variableId": "PRECTOTCORR",
+        "geometryId": null,
+        "selectors": {
+          "community": "AG"
+        }
+      }
+    }
   ],
-  "time": {"start":"2000-01-01","end":"2025-12-31","resolution":"Mensual","aggregation":"Media"},
-  "geography": {
-    "referenceSystem":"WGS84",
-    "selection":{"type":"FeatureCollection","features":[]},
-    "aggregation":"Media de la región","interpolation":"Ninguna"
+  "time": {
+    "start": "2000-01-01",
+    "end": "2024-12-31",
+    "resolution": "Mensual"
   },
-  "processing":{"missing":"Excluir","quality":true,"normalization":"Ninguna","anomalies":false,"deseasonalize":false},
-  "methods":[{"id":"linear","parameters":{},"algorithmVersion":null,"resultId":"demo-trend"}],
-  "significance":0.05,
-  "confidence":0.95,
-  "uncertainty":{"method":null,"seed":null},
-  "provenance":{"simulated":true,"references":[]}
+  "geography": {
+    "referenceSystem": "WGS84",
+    "selection": {
+      "type": "FeatureCollection",
+      "features": []
+    }
+  },
+  "methods": [],
+  "provenance": {
+    "references": []
+  }
 }

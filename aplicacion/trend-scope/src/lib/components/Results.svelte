@@ -1,68 +1,55 @@
 <script>
-  import { Activity, ChartNoAxesCombined, Maximize2, Minimize2, Plus, X } from '@lucide/svelte';
+  import { ChartNoAxesCombined } from '@lucide/svelte';
   import ChartView from './ChartView.svelte';
-  import { workspace, addChart, editChart, editVisual } from '$lib/stores/workspace.js';
-  import { chartTypes, statistics } from '$lib/services/demo.js';
+  import { catalog } from '$lib/services/sources.js';
+  import { translate } from '$lib/services/i18n.js';
 
-  let { chartId = $bindable(), resultStatus } = $props();
-  let visual = $derived($workspace.visual);
-  let charts = $derived(visual.expandedChart ? visual.charts.filter(chart => chart.id === visual.expandedChart) : visual.charts);
-  let tab = $state('charts');
-  let addType = $state('line');
-  function remove(id) {
-    editVisual(next => {
-      next.charts = next.charts.filter(chart => chart.id !== id);
-      if (next.expandedChart === id) next.expandedChart = null;
-      if (chartId === id) chartId = next.charts[0]?.id;
-    });
-  }
-  function add() {
-    addChart(addType);
-    editVisual(next => { next.expandedChart = null; chartId = next.charts.at(-1).id; });
+  import { workspace } from '$lib/stores/workspace.js';
+
+  let resolution = $derived($workspace.visual.chartResolution ?? 'auto');
+  let { series } = $props();
+
+  function location(item, t) {
+    const value = item.location ?? item.coordinates.join(', ') + ' (lon, lat)';
+    return value.replace(/^(Estación|Tramo de río|Lago|Punto) /, (_, kind) => t(kind) + ' ')
+      .replace(' · celda ', ' · ' + t('Celda').toLocaleLowerCase() + ' ');
   }
 </script>
 
 <section class="results-panel">
-  <header class="panel-heading"><span><ChartNoAxesCombined size={16}/> Resultados</span><span class="tag simulation-tag">Simulados</span></header>
-  <div class="result-tabs">
-    <button class:active={tab === 'charts'} onclick={() => tab = 'charts'}>Gráficas</button>
-    <button class:active={tab === 'stats'} onclick={() => tab = 'stats'}>Estadísticas</button>
-  </div>
+  <header class="panel-heading"><span><ChartNoAxesCombined size={16}/> {$translate('Resultados')}</span>
+  </header>
   <div class="results-scroll">
-    {#if tab === 'charts'}
-      <div class="result-actions">
-        <select aria-label="Tipo para nueva gráfica" bind:value={addType}>{#each chartTypes as item}<option value={item.id}>{item.label}</option>{/each}</select>
-        <button class="outlined" onclick={add}><Plus size={15}/> Agregar</button>
-      </div>
-      {#each charts as chart (chart.id)}
-        <article class:current={chartId === chart.id} class:expanded={visual.expandedChart === chart.id} class="chart-card">
-          <header>
-            <button class="chart-title" onclick={() => chartId = chart.id}>{chart.title || 'Gráfica sin título'}</button>
-            <button class="icon-button" title={visual.expandedChart ? 'Restaurar' : 'Maximizar'} aria-label={visual.expandedChart ? 'Restaurar' : 'Maximizar'} onclick={() => editVisual(next => next.expandedChart = next.expandedChart ? null : chart.id)}>
-              {#if visual.expandedChart}<Minimize2 size={14}/>{:else}<Maximize2 size={14}/>{/if}
-            </button>
-            <button class="icon-button" title="Eliminar gráfica" aria-label="Eliminar gráfica" onclick={() => remove(chart.id)}><X size={15}/></button>
-          </header>
-          <div class="chart-meta">
-            <Activity size={13}/><span>2000–2025</span>
-            <select aria-label={'Tipo de ' + chart.title} value={chart.type} onchange={event => editChart(chart.id, next => {
-              next.type = event.currentTarget.value;
-              next.yLabel = next.type === 'histogram' ? 'Frecuencia' : 'mm/mes';
-              if (next.type === 'comparison') next.series.secondary.visible = true;
-            })}>{#each chartTypes as item}<option value={item.id}>{item.label}</option>{/each}</select>
-          </div>
-          <ChartView {chart}/>
-        </article>
-      {:else}<p class="quiet">Agregá una gráfica para explorar las series de demostración.</p>{/each}
-    {/if}
-    {#if tab === 'stats' || !visual.expandedChart}
-      <div class="stats-heading"><span>Resumen estadístico</span><span>{resultStatus}</span></div>
-      <div class="stat-grid">
-        {#each statistics as [label,value,unit]}
-          <div class="stat"><small>{label}</small><strong>{value}</strong><span>{unit}</span></div>
-        {/each}
-      </div>
-      <p class="quiet">Valores de ejemplo. Ejecutar la demostración confirma el flujo con la configuración actual y conserva estas series de muestra.</p>
-    {/if}
+    {#each series as item (item.id)}
+      {@const available = item.points.filter(point => point.value !== null).length}
+      {@const label = $translate(catalog.find(source => source.id === item.id)?.label ?? item.label ?? item.variable)}
+      {@const period = item.cadence === 'daily' ? 'días con datos' : item.cadence && item.cadence !== 'monthly' ? 'observaciones con datos' : 'meses con datos'}
+      <article class="chart-card" data-series-id={item.id}>
+        <header><strong>{label}</strong></header>
+        <p class="quiet">{item.provider} · {$translate(item.unit)} · {location(item, $translate)}</p>
+        {#if item.message}<p>{item.message}</p>{/if}
+        {#if item.downloadPath}<p class="quiet"><code>{item.downloadPath}</code></p>{/if}
+        {#if !item.message}<p class="quiet">{available} {$translate('de')} {item.points.length} {$translate(period)}</p>{/if}
+        {#if available}
+          <ChartView series={item} {label} {resolution}/>
+        {:else if !item.message}
+          <p>{$translate('No hay valores para el período seleccionado.')}</p>
+        {/if}
+        {#if item.product}<p class="quiet">{item.product}</p>{/if}
+        {#if item.summary?.validCount}
+          <details>
+            <summary>Resumen calculado sobre la serie completa</summary>
+            <p>Promedio de observaciones: {item.summary.mean.toPrecision(5)} {item.unit} · mínimo: {item.summary.minimum.toPrecision(5)} · máximo: {item.summary.maximum.toPrecision(5)}</p>
+            {#if item.summary.trend}
+              <p>Tendencia lineal descriptiva: {item.summary.trend.perYear.toPrecision(4)} {item.unit}/año.</p>
+            {/if}
+            <p class="quiet">Sin ajuste estacional ni intervalo de confianza. No demuestra causalidad ni significancia estadística. El promedio corresponde a observaciones disponibles, no a un acumulado anual ni a un promedio regional.</p>
+          </details>
+        {/if}
+        {#if item.url}<a href={item.url} target="_blank" rel="noreferrer">{$translate('Consulta original')}</a>{/if}
+      </article>
+    {:else}
+      <p class="quiet">{$translate('Elegí un punto en el mapa y consultá la serie para ver los resultados.')}</p>
+    {/each}
   </div>
 </section>

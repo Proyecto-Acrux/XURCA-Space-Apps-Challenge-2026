@@ -1,8 +1,10 @@
 # Earth Detective
 
-Primera versión de la aplicación de escritorio de XURCA para el desafío Earth System Trend Detective. El mapa base es cartografía de Natural Earth a escala 1:110m. Las series, estadísticas, catálogos y conversación son ejemplos de demostración.
+Primera versión de la aplicación de escritorio de XURCA para el desafío Earth System Trend Detective. El mapa detallado usa MapLibre y OpenFreeMap con datos de OpenStreetMap. Disponible con conexión y WebGL. El globo sin conexión usa Natural Earth a escala 1:110m. La app consulta NASA POWER, NOAA NCEI, SWOT Hydrocron y Open-Meteo (ERA5 y ERA5-Land) desde Python.
 
 ## Ejecutar en Windows
+
+Con las dependencias preparadas, abrí **Iniciar Earth Detective.cmd**. En el panel derecho podés conectar Google Gemini u OpenAI con tu API key, describir una investigación y pedir explicaciones sobre los resultados. Seguí la [guía del chat de IA](docs/chat-ia.md).
 
 Desde esta carpeta, con Node.js, pnpm, Rust con toolchain MSVC, Microsoft C++ Build Tools, WebView2 y una instalación de Python compatible con PyTauri:
 
@@ -19,14 +21,14 @@ Tauri 2.8.3 se fija por compatibilidad con PyTauri 0.8. El archivo Cargo.lock co
 
 Para probar la interfaz en el navegador, usá `pnpm dev` y abrí `http://localhost:1420`. Este modo guarda la sesión en el almacenamiento del navegador. La aplicación nativa escribe `cfg_data.json` y `cfg_visual.json` en `%LOCALAPPDATA%\com.xurca.trend-scope`. El menú Proyecto permite guardar y recuperar ambos archivos. El menú Exportar permite descargar copias separadas.
 
-## Recorrer la demostración
+## Consultar datos
 
-1. Configurá fuentes, período y métodos en el panel izquierdo.
-2. Rotá el globo. Marcá puntos o vértices con las herramientas de la barra, o ingresá coordenadas con longitud y latitud. Para cerrar una región poligonal necesitás al menos tres vértices.
-3. Ejecutá el análisis de demostración. Explorá series, histogramas, comparaciones y dispersión. Seleccioná una gráfica para editar su apariencia en el panel izquierdo.
-4. Abrí Asistente IA y aplicá la propuesta de San Luis. La región dibujada es aproximada y los controles reflejan la propuesta.
-5. Guardá y recuperá la configuración desde Proyecto.
-
+1. Para POWER u Open-Meteo, marcá un punto, ingresá coordenadas o buscá una localidad o provincia argentina en Configuración geográfica. Georef centra el mapa y marca el centroide.
+2. Elegí el período y agregá variables por fuente. NOAA requiere el ID de estación y SWOT el ID de tramo o lago.
+3. Pulsá **Consultar datos** desde la app de escritorio.
+4. Explorá la serie. Los resultados muestran unidades, cobertura mensual y el enlace a la solicitud original.
 `pnpm check` comprueba el frontend y `pnpm build` genera `dist/`. Ambos son independientes del empaquetado de Python. Para distribución nativa consultá `scripts/README.md`.
 
 La interfaz usa D3 Geo y Natural Earth para el globo ortográfico, Chart.js para las gráficas y Lucide para los iconos. Las configuraciones base están en `config/`. Los recursos científicos del desafío están en `Memoria/General/Recursos_Earth_System_Trend_Detective.txt` desde la raíz del repositorio.
+
+Mirá [fuentes de datos](docs/fuentes-de-datos.md) para los requisitos de acceso y los campos de configuración.

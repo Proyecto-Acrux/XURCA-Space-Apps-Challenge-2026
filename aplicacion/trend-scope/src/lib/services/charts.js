@@ -1,60 +1,77 @@
-import { observations } from './demo.js';
+export const chartResolutions = [
+  ['auto', 'Automática'], ['low', 'Baja'], ['high', 'Alta'], ['full', 'Todos los datos']
+];
 
-const points = (field, x = 'year') => observations.map(row => ({ x: row[x], y: row[field] }));
-function histogram(field) {
-  return Array.from({ length: 8 }, (_, index) => {
-    const low = 40 + index * 10;
-    return { x: low + 5, y: observations.filter(row => row[field] >= low && row[field] < low + 10).length };
-  });
+export function displayPoints(points, resolution, width) {
+  const budget = resolution === 'low' ? 180 : resolution === 'high' ? 1000
+    : Math.max(240, Math.min(800, Math.round(width || 400)));
+  if (resolution === 'full' || points.length <= budget) return points;
+
+  const bucketCount = Math.max(1, Math.floor((budget - 2) / 3));
+  const start = Date.parse(points[0].month);
+  const end = Date.parse(points.at(-1).month);
+  const buckets = new Map();
+  for (let index = 1; index < points.length - 1; index++) {
+    const point = points[index];
+    const time = Date.parse(point.month);
+    const fraction = Number.isFinite(time) && end > start
+      ? (time - start) / (end - start) : index / (points.length - 1);
+    const key = Math.max(0, Math.min(bucketCount - 1, Math.floor(fraction * bucketCount)));
+    const bucket = buckets.get(key) ?? {};
+    if (point.value === null) {
+      bucket.gap ??= index;
+    } else {
+      if (bucket.min === undefined || point.value < points[bucket.min].value) bucket.min = index;
+      if (bucket.max === undefined || point.value > points[bucket.max].value) bucket.max = index;
+    }
+    buckets.set(key, bucket);
+  }
+  const keep = new Set([0, points.length - 1]);
+  for (const bucket of buckets.values()) {
+    for (const index of Object.values(bucket)) keep.add(index);
+  }
+  return points.filter((_, index) => keep.has(index));
 }
 
-export function chartSpec(chart) {
-  const { type, series } = chart;
-  const histogramMode = type === 'histogram';
-  const scatterMode = type === 'scatter';
-  const datasets = [];
-  for (const [id, style] of Object.entries(series)) {
-    if (!style.visible) continue;
-    const data = histogramMode ? histogram(id)
-      : scatterMode ? points(id, id === 'primary' ? 'secondary' : 'primary')
-      : points(id);
-    datasets.push({
-      label: id === 'primary' ? (scatterMode ? 'A en función de B' : 'Producto A') : (scatterMode ? 'B en función de A' : 'Producto B'),
-      data, borderColor: style.color, backgroundColor: style.color + (histogramMode ? 'a8' : 'ff'),
-      borderWidth: histogramMode ? 0 : 2, pointRadius: scatterMode ? 3 : 0, pointHoverRadius: 5
-    });
+export function chartSpec(series, label, translate, resolution, width, light) {
+  const period = series.cadence === 'daily' ? 'Día' : series.cadence === 'overpass' ? 'Fecha' : 'Mes';
+  const visible = displayPoints(series.points, resolution, width);
+  const timestamp = point => Date.parse(point.month);
+  const calendar = series.points.length > 0 && series.points.every(point => Number.isFinite(timestamp(point)));
+  const origin = calendar ? timestamp(series.points[0]) : 0;
+  const ink = light ? "#34475a" : "#abb8c9";
+  const line = light ? "#087568" : "#57dfc1";
+  const axis = text => ({
+    title: { display: true, text, color: ink },
+    ticks: { color: ink, maxTicksLimit: 8 },
+    grid: { color: light ? '#dce5ed' : '#26374b' }
+  });
+  const x = axis(translate(period));
+  if (calendar) {
+    x.type = 'linear';
+    x.min = 0;
+    const duration = timestamp(series.points.at(-1)) - origin;
+    if (duration > 0) x.max = duration;
+    else x.max = 86_400_000;
+    x.ticks.callback = value => new Date(origin + value).toISOString().slice(0, series.cadence === 'monthly' ? 7 : 10);
   }
-  if (type === 'line' && series.primary.visible) {
-    if (chart.interval) {
-      for (const offset of [-10, 10]) {
-        datasets.push({ label: 'IC simulado', interval: true, data: observations.map(row => ({ x: row.year, y: row.trend + offset })),
-          fill: offset > 0 ? '-1' : false, borderColor: 'transparent', pointRadius: 0, pointHoverRadius: 0, backgroundColor: series.primary.color + '22' });
+  return {
+    type: 'line',
+    data: {
+      labels: calendar ? undefined : visible.map(point => point.month),
+      datasets: [{
+        label, data: calendar ? visible.map(point => ({ x: timestamp(point) - origin, y: point.value })) : visible.map(point => point.value),
+        borderColor: line, backgroundColor: line, pointRadius: visible.length > 200 ? 0 : 2,
+        pointHitRadius: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      scales: { x, y: axis(series.unit) },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { title: items => visible[items[0]?.dataIndex]?.month ?? '' } }
       }
     }
-    if (chart.trend) datasets.push({ label: 'Tendencia', data: points('trend'), borderColor: '#f5ba7c', borderDash: [6,5], borderWidth: 1.5, pointRadius: 0 });
-  }
-  const axis = (label) => ({
-    title: { display: !!label, text: label, color: '#93a2b6' },
-    ticks: { color: '#93a2b6', maxTicksLimit: 6, font: { size: 10 } }, grid: { display: chart.grid, color: '#1f3044' },
-    border: { color: '#304057' }
-  });
-  const options = {
-    responsive: true, maintainAspectRatio: false, animation: false,
-    interaction: { mode: histogramMode || scatterMode ? 'nearest' : 'index', intersect: false },
-    scales: {
-      x: {
-        ...axis(chart.xLabel || (histogramMode || scatterMode ? 'mm/mes' : 'Año')),
-        type: 'linear',
-        ticks: { ...axis('').ticks, callback: value => String(value) }
-      },
-      y: { ...axis(chart.yLabel), type: chart.scale }
-    },
-    plugins: {
-      legend: { display: chart.legend, position: 'bottom', labels: { color: '#abb8c9', boxWidth: 10, usePointStyle: true, padding: 13, filter: item => item.text !== 'IC simulado' } },
-      tooltip: { filter: item => !item.dataset.interval, callbacks: {
-        title: items => items.length ? (histogramMode || scatterMode ? Number(items[0].parsed.x.toFixed(1)) + ' mm/mes' : Math.floor(items[0].parsed.x).toString()) : ''
-      } }
-    }
   };
-  return { type: histogramMode ? 'bar' : scatterMode ? 'scatter' : 'line', data: { datasets }, options };
 }

@@ -1,0 +1,49 @@
+{
+  "scope": "Source preservation at user strategy change; not independent validation",
+  "files_sha256": {
+    "contracts.py": "a9021d0ef39e44ee6feee3d22948eb33a6486ca9b142cbf95f7511214e426533",
+    "execution.py": "ec44a74e24f3c85bd9fa5b190a8bfd6ddde2c9a8068a988912e45998eca5e192",
+    "registry.py": "9886d58dc3bbdb3b4d98f6d9a36c3451c8338617599e30273f0086e00d6bf973",
+    "run_checks.py": "047ee4e28aa0486204b7c32c39e5438606b225827fdff0efa27fe5c2b678bce1",
+    "SCIENTIFIC_CORE.md": "82cdd61abca4323660f9d3b74327d6ed312ab010071b17399dc994f6f6cdab5a",
+    "serialization.py": "83ab2fd19338faca9f3fed9f12c6c7f34ae666da95b1d465eed617e38826f3ff",
+    "validation.py": "857e804bf14bd5633554cd9a0de92596cc7cf28c5d1a9a3f834038b3c7780f0a",
+    "adapters/linear.py": "f75836dbd5b01884c5ca5ca794920c689a7fd96d951834036027e531e8bb8a4e",
+    "adapters/polynomial.py": "108496fa4fea08a70c5850febbc3136defa158d0b34042a7e09af356e011325a",
+    "adapters/__init__.py": "57e64d20c49438d685e1f22ff3e17db75325e8332eacb67b31a389b2d6cce645",
+    "benchmarks/linear_baseline.py": "b2d4bfcedabc2e8db06e87be9f908ba882d8483d8e7daaa17b663bd42fb241b1",
+    "benchmarks/rk4_benchmark.py": "752b732a8ab22d87d6beec6392518b6c2903e4e2fa077399375189daae296ed8",
+    "benchmarks/rk4_reference.py": "1a9b02a3c0a91be8f5e0e6ac0e5350eedee21be50fbfe9600cc693279d140bd4",
+    "benchmarks/rk4_results.json": "d971b703a7aa5a7a3d779faa986e83cbcd0b35b889153150b5cf5e5b9af94f43",
+    "benchmarks/results/linear-100.json": "f3d5d65ac2022f507994523462ce8ad4a7f0b82b62ece4e97a3310f115917fb7",
+    "benchmarks/results/linear-10000.json": "18e50f6b79724c4c9a95fbbd23dccf44806f43a6958472231554fe9196b76bcd",
+    "benchmarks/results/linear-1000000.json": "a84337ed9ae16e47d959caeb01b5fa834a953c28e1b02cb43130c14694ac8953",
+    "dynamical/multi_ode.py": "5d48608e968ee709eaadec725999b46663630b4ab7f0a4a3eb36435ee4f9b60f",
+    "dynamical/RK4.md": "cc68789b4b2c22d6d064b59910b65136762561f455950269d1977b875d1d7283",
+    "dynamical/rk4.py": "1d87a47cfb3e6d0e4cde73bf54b5ff675d6e8eb5ff8952d78e7661f7377b5b73",
+    "dynamical/rk4_service.py": "ae7a58681a11d8b135fe77d39382914ecb859e406ebe617537628dacf6f68731",
+    "stats/benchmark_linear.py": "bc15767f8991726a0617860d657220f072ea98a8d8c7c631c8f4ea507d245b44",
+    "stats/benchmark_polynomial.py": "615d14c4d5c998ef065b39f9f9337a4449a9b2bab9f00175155497e6da53c2c3",
+    "stats/linear_kernel.py": "ddd76f41c9f0f393c9dff70619a3e2ebeded9f01273d89ca988646f79545ce0a",
+    "stats/linear_reference.py": "895eb97853006a2ef70c85e100cfb9e1feadb2debd9c99c50393321873a5cbc7",
+    "stats/LINEAR_REGRESSION.md": "48d3bffa4313c4e3ecd1df6eae3d39380d7e9456af9ce97a6128b78a61c831a6",
+    "stats/polynomial.py": "fd14e23733d307052370d8d5feffb9609780b9a86c03a62cb1a75477cd734ca7",
+    "stats/POLYNOMIAL_REGRESSION.md": "9f3598203c37f5ca7fcc01a87a480fad57f9deea52ccc64603a3f17bc2288978",
+    "stats/schemas.py": "1a1324b4941e74f1a78bb21ccf41a611a97ba554f52804b86b31d65a7b5ec48a",
+    "stats/STAGE1A.md": "04baa2f7601ee19f16d9fabd4d93fd0a8444430526a13858d015222a6f77f6ad",
+    "stats/stage1a_results.json": "2f2cfa9fd241bbeddfa0bd3a3b722348eebc5fb14d31c68cfd3e95235818d11b",
+    "stats/stage1b_results.json": "222f4d62af3d791ffb07faf67aa0b59c1c1d09fa6e12ec198c6349c3436fb9d8",
+    "stats/test_regression.py": "c8edfbcef3c0c27c67abad19f169bb5a2d8adb30ff67bf364b47fcfaf5be535c",
+    "tests/rk4_fixtures.py": "d939606795b2a3b9ed8e09f56387922a47d9fc0dbee5f8cc586fdf0ecfa9a2ee",
+    "tests/test_infrastructure.py": "32f314ad6554a9932f117aba1bd28ed15c32ec1529256cfe009aed8b6c794457",
+    "tests/test_rk4.py": "324241dbf6863181c4fe0e6fd107616797c428fcbd167aac16706c96b8c7409e"
+  },
+  "stats/regression.py_functions_sha256": {
+    "linear_regression": "241e25241d860bbca232a73a26c615813d252233e0a41c865c0f2e718328f77c",
+    "polynomial_regression": "e7dcb3c6610be8d0ce47a1153e7c3fa574090e7e6abb1c8ad0e22cd4ab6ab8d3"
+  },
+  "permitted_legacy_changes": [
+    "dynamical/rk45.py",
+    "Unprotected helpers and legacy methods in stats/regression.py"
+  ]
+}

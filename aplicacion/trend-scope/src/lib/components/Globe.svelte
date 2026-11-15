@@ -1,12 +1,13 @@
 <script>
+  import { translate } from '$lib/services/i18n.js';
   import { geoGraticule10, geoPath } from 'd3-geo';
   import { feature, mesh } from 'topojson-client';
   import atlas from 'world-atlas/countries-110m.json';
-  import { Compass, Crosshair, Layers, Minus, Plus, RotateCcw } from '@lucide/svelte';
+  import { Compass, Crosshair, Layers } from '@lucide/svelte';
   import { workspace, editVisual, selectGeometry } from '$lib/stores/workspace.js';
-  import { makeProjection, positionAt, closedRegion, rectangle, featurePath, coordinateLabel, initialCamera, wrapLongitude, clampLatitude } from '$lib/services/geography.js';
+  import { makeProjection, positionAt, closedRegion, rectangle, featurePath, coordinateLabel, wrapLongitude, clampLatitude } from '$lib/services/geography.js';
 
-  let { tool, vertices = $bindable([]), cursor = $bindable(null), notice = $bindable('') } = $props();
+  let { tool, vertices = $bindable([]), cursor = $bindable(null), notice = $bindable(''), showDetail } = $props();
   const land = feature(atlas, atlas.objects.land);
   const borders = mesh(atlas, atlas.objects.countries, (a, b) => a !== b);
   const grid = geoGraticule10();
@@ -15,7 +16,7 @@
   let height = $state(500);
   let drag;
   let camera = $derived($workspace.visual.map.camera);
-  let projection = $derived(makeProjection(width, height, camera));
+  let projection = $derived(makeProjection(width, height, { ...camera, zoom: Math.min(8, camera.zoom) }));
   let path = $derived(geoPath(projection));
   let center = $derived(projection.translate());
   let radius = $derived(projection.scale());
@@ -23,8 +24,7 @@
   let features = $derived($workspace.data.geography.selection.features);
 
   function setCamera(edit) { editVisual(visual => edit(visual.map.camera)); }
-  function zoom(factor) { setCamera(view => view.zoom = Math.min(8, Math.max(0.65, view.zoom * factor))); }
-  function reset() { editVisual(visual => visual.map.camera = { ...initialCamera }); }
+  function zoom(factor) { setCamera(view => view.zoom = Math.min(8, Math.max(0.65, Math.min(8, view.zoom) * factor))); }
   function pointerPosition(event) {
     const bounds = canvas.getBoundingClientRect();
     return positionAt(projection, event.clientX - bounds.left, event.clientY - bounds.top);
@@ -38,7 +38,7 @@
   function move(event) {
     cursor = pointerPosition(event);
     if (!drag || tool !== 'pan') return;
-    const gain = 0.29 / camera.zoom;
+    const gain = 0.29 / Math.min(8, camera.zoom);
     setCamera(view => {
       view.longitude = wrapLongitude(drag.longitude - (event.clientX - drag.x) * gain);
       view.latitude = clampLatitude(drag.latitude + (event.clientY - drag.y) * gain);
@@ -88,15 +88,15 @@
 </script>
 
 <section class="map-panel">
-  <header class="panel-heading"><span><Compass size={16}/> Exploración geográfica</span><span class="tag">Globo 3D</span></header>
+  <header class="panel-heading"><span><Compass size={16}/> {$translate("Exploración geográfica")}</span><button class="outlined" onclick={showDetail}>{$translate("Mapa detallado")}</button></header>
   <div class="map-view" bind:clientWidth={width} bind:clientHeight={height}>
-    <canvas class:selecting={tool !== 'pan'} bind:this={canvas} tabindex="0" aria-label="Globo interactivo"
+    <canvas class:selecting={tool !== 'pan'} bind:this={canvas} tabindex="0" aria-label={$translate("Globo interactivo")}
       onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={() => drag = null}
       onpointerleave={() => cursor = null} onkeydown={keyboard} onwheel={event => zoom(event.deltaY < 0 ? 1.09 : 1 / 1.09)}></canvas>
     <svg class="earth-render" {width} {height} aria-hidden="true">
       <defs>
         <radialGradient id="ocean" cx=".37" cy=".25" r=".82">
-          <stop stop-color="#19415a"/><stop offset="0.72" stop-color="#112a40"/><stop offset="1" stop-color="#081727"/>
+          <stop class="globe-ocean-start" stop-color="#19415a"/><stop offset="0.72" class="globe-ocean-middle" stop-color="#112a40"/><stop offset="1" class="globe-ocean-end" stop-color="#081727"/>
         </radialGradient>
         <radialGradient id="shade" cx=".33" cy=".26" r=".74">
           <stop offset=".43" stop-color="#050d18" stop-opacity="0"/><stop offset="1" stop-color="#050d18" stop-opacity=".58"/>
@@ -106,7 +106,7 @@
       <path d={path(land)} class="globe-land"/>
       {#if layers.countries}<path d={path(borders)} class="globe-border"/>{/if}
       {#if layers.grid}<path d={path(grid)} class="globe-grid"/>{/if}
-      <circle cx={center[0]} cy={center[1]} r={radius} fill="url(#shade)"/>
+      <circle cx={center[0]} cy={center[1]} r={radius} class="globe-shade" fill="url(#shade)"/>
       {#if layers.selection}
         {#each features as item (item.id)}
           <path d={featurePath(projection, item)} class:map-point={item.geometry.type === 'Point'} class="map-selection"/>
@@ -116,24 +116,19 @@
       {#each vertices as point}<path d={path({ type:'Point', coordinates:point })} class="map-point"/>{/each}
     </svg>
     <div class="map-top"><span class="map-pill"><span class="live-dot"></span> WGS 84</span><span class="map-pill">{coordinateLabel(cursor)}</span></div>
-    <div class="map-tools">
-      <button title="Acercar" aria-label="Acercar" onclick={() => zoom(1.25)}><Plus size={17}/></button>
-      <button title="Alejar" aria-label="Alejar" onclick={() => zoom(0.8)}><Minus size={17}/></button>
-      <button title="Restablecer vista" aria-label="Restablecer vista" onclick={reset}><RotateCcw size={15}/></button>
-    </div>
     <div class="map-bottom">
-      <span>{tool === 'pan' ? 'Arrastrá para rotar · Rueda para acercar' : tool === 'point' ? 'Hacé clic sobre el globo para marcar un punto' : tool === 'rectangle' ? 'Marcá dos esquinas opuestas' : 'Marcá tres o más vértices'}</span>
+      <span>{$translate(tool === 'pan' ? 'Arrastrá para rotar · Rueda para acercar' : tool === 'point' ? 'Hacé clic sobre el globo para marcar un punto' : tool === 'rectangle' ? 'Marcá dos esquinas opuestas' : 'Marcá tres o más vértices')}</span>
       {#if tool === 'polygon' && vertices.length}
-        <button onclick={finishPolygon} disabled={vertices.length < 3}>Cerrar polígono ({vertices.length})</button>
+        <button onclick={finishPolygon} disabled={vertices.length < 3}>{$translate("Cerrar polígono")} ({vertices.length})</button>
       {/if}
     </div>
     <small class="map-credit">Natural Earth · 1:110m</small>
   </div>
   {#if $workspace.visual.workspace.layers}
     <div class="layers-bar">
-      <span><Layers size={15}/> Capas</span>
+      <span><Layers size={15}/> {$translate("Capas")}</span>
       {#each [['countries','Fronteras'], ['grid','Grilla'], ['selection','Selección']] as [id, label]}
-        <label><input type="checkbox" checked={layers[id]} onchange={event => editVisual(visual => visual.map.layers[id] = event.currentTarget.checked)}/>{label}</label>
+        <label><input type="checkbox" checked={layers[id]} onchange={event => editVisual(visual => visual.map.layers[id] = event.currentTarget.checked)}/>{$translate(label)}</label>
       {/each}
       <span class="feature-count"><Crosshair size={14}/> {features.length}</span>
     </div>

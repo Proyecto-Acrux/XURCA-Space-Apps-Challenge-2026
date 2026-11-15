@@ -1,6 +1,7 @@
 
 import numpy as np
 from numba import njit, prange
+from .rk4 import rk4
 
 
 @njit(cache=True)
@@ -28,37 +29,7 @@ def rk4_multi(rhs, y0, t):
     """
     if y0.ndim != 1:
         raise ValueError("y0 must be a 1D array")
-
-    if t.ndim != 1 or t.size < 2:
-        raise ValueError("t must contain at least two points")
-
-    if np.any(np.diff(t) <= 0):
-        raise ValueError("t must be strictly increasing")
-
-    n_times = t.size
-    n_vars = y0.size
-
-    result = np.empty((n_times, n_vars), dtype=np.float64)
-    result[0] = y0
-
-    for i in range(n_times - 1):
-        ti = t[i]
-        h = t[i + 1] - ti
-
-        yi = result[i]
-
-        k1 = rhs(ti, yi)
-        k2 = rhs(ti + h / 2.0, yi + h * k1 / 2.0)
-        k3 = rhs(ti + h / 2.0, yi + h * k2 / 2.0)
-        k4 = rhs(ti + h, yi + h * k3)
-
-        for j in range(n_vars):
-            result[i + 1, j] = yi[j] + (h / 6.0) * (
-                k1[j] + 2.0 * k2[j] + 2.0 * k3[j] + k4[j]
-            )
-
-    return result
-
+    return rk4(rhs, y0, t)
 
 @njit(cache=True)
 def rk4_multi_independent(rhs, y0, t):

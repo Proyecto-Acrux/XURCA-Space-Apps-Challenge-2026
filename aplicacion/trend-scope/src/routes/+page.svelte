@@ -1,17 +1,24 @@
 <script>
-  import { onMount, onDestroy, tick } from 'svelte';
-  import { Aperture, Bot, ChevronDown, CircleHelp, Crosshair, Hand, MapPin, Play, Scan, Hexagon, Settings2, Square, Trash2, X, PanelLeft, PanelRight, Save, FolderOpen } from '@lucide/svelte';
+  import { chartResolutions } from '$lib/services/charts.js';
+  import { saveChartImage } from '$lib/services/chartExport.js';
+  import { catalog } from '$lib/services/sources.js';
+  import { translate } from '$lib/services/i18n.js';
+  import { onMount, tick } from 'svelte';
+  import { Earth, Aperture, Bot, ChartNoAxesCombined, ChevronDown, CircleHelp, Crosshair, Hand, MapPin, Play, Scan, Hexagon, Settings, Settings2, Trash2, X, Save, FolderOpen } from '@lucide/svelte';
+  import WorldMap from '$lib/components/WorldMap.svelte';
   import Globe from '$lib/components/Globe.svelte';
-  import Settings from '$lib/components/Settings.svelte';
+  import SettingsPanel from '$lib/components/Settings.svelte';
   import Results from '$lib/components/Results.svelte';
   import Assistant from '$lib/components/Assistant.svelte';
   import ResizeHandle from '$lib/components/ResizeHandle.svelte';
   import { workspace, defaults, editData, editVisual, selectGeometry } from '$lib/stores/workspace.js';
   import { loadWorkspace, saveWorkspace, downloadJson } from '$lib/services/configuration.js';
-  import { demoQuestion } from '$lib/services/demo.js';
+  import { acquireData } from '$lib/services/acquisition.js';
   import { coordinateLabel, closedRegion, validCoordinates } from '$lib/services/geography.js';
   import '$lib/styles/dashboard.css';
 
+  let detailedMap = $state(true);
+  $effect(() => { document.documentElement.lang = $workspace.visual.language === 'en' ? 'en' : 'es'; });
   let tool = $state('pan');
   let vertices = $state([]);
   let cursor = $state(null);
@@ -25,21 +32,23 @@
   let editingFeature = $state(null);
   let coordinateMode = $state('point');
   let modalError = $state('');
-  let chartId = $state('chart-trend');
   let running = $state(false);
-  let resultsData = $state(null);
+  let result = $state(null);
+  let chartId = $state(null);
   let savedConfig = $state('');
   let storageBusy = $state(true);
-  let timer;
   let panels = $derived($workspace.visual.workspace);
+  let mapVisible = $derived(panels.map !== false);
+  let assistantVisible = $derived(panels.assistantVisible !== false);
+  let currentSeries = $derived(result?.key === configKey ? result.series : []);
+  let activeChart = $derived(currentSeries.find(item => item.id === chartId));
+  let exportableSeries = $derived(currentSeries.filter(item => item.points.some(point => point.value !== null)));
+  let exportId = $state('');
+  let exporting = $state(false);
   let dirty = $derived(JSON.stringify($workspace) !== savedConfig);
   let configKey = $derived(JSON.stringify($workspace.data));
-  let resultStatus = $derived(running ? 'En ejecución' : resultsData === null ? 'Vista previa' : resultsData === configKey ? 'Demostración completada' : 'Configuración modificada');
+  let resultStatus = $derived(running ? 'Procesando…' : result?.key === configKey ? 'Consulta completada' : result ? 'Configuración modificada' : 'Sin resultados');
   let selected = $derived($workspace.data.geography.selection.features.at(-1));
-  let messages = $state([
-    { role:'user', text:demoQuestion },
-    { role:'assistant', text:'Esta demostración propone comparar series de precipitación y humedad del suelo para una región aproximada de San Luis.', proposal:true }
-  ]);
   const tools = [
     ['pan','Desplazar globo',Hand], ['point','Seleccionar punto',MapPin],
     ['rectangle','Selección rectangular',Scan], ['polygon','Selección poligonal',Hexagon]
@@ -49,34 +58,86 @@
     try {
       const saved = await loadWorkspace();
       if (saved) workspace.set({ ...defaults(), ...Object.fromEntries(Object.entries(saved).filter(([, value]) => value != null)) });
-      chartId = $workspace.visual.charts[0]?.id;
       savedConfig = JSON.stringify($workspace);
     } catch (error) {
-      notify('No se pudo recuperar la configuración. ' + (error.message ?? error));
+      notify($translate('No se pudo recuperar la configuración.') + ' ' + $translate(String(error.message ?? error)));
     } finally { storageBusy = false; }
   });
-  onDestroy(() => clearTimeout(timer));
 
   function notify(text) { notice = text; }
-  function togglePanel(id, value = !panels[id]) { editVisual(visual => visual.workspace[id] = value); }
+  function togglePanel(id, value = panels[id] === false) {
+    chartId = null;
+    editVisual(visual => visual.workspace[id] = value);
+    if (id === 'map' && !value) cursor = null;
+  }
+
+  function toggleCharts() {
+    chartId = activeChart ? null : currentSeries[0]?.id ?? null;
+  }
+
+  async function openChartExport() {
+    if (!exportableSeries.length) {
+      notify('Consultá datos antes de exportar una gráfica.');
+      return;
+    }
+    exportId = exportableSeries.find(item => item.id === chartId)?.id ?? exportableSeries[0].id;
+    await showDialog('chart-export');
+  }
+
+  async function exportChart(event) {
+    event.preventDefault();
+    if (exporting) return;
+    chartId = exportId;
+    await tick();
+    const card = [...document.querySelectorAll('[data-series-id]')].find(item => item.dataset.seriesId === exportId);
+    const canvas = card?.querySelector('canvas');
+    if (!canvas) { modalError = 'La gráfica ya no está disponible.'; return; }
+    modalError = '';
+    exporting = true;
+    try {
+      if (await saveChartImage(canvas, exportId.replace(/[^a-z0-9_-]/gi, '-') + '.png', $workspace.visual.theme === 'light')) {
+        dialog.close();
+        notify('Gráfica guardada.');
+      }
+    } catch {
+      modalError = 'No se pudo guardar la gráfica.';
+    } finally {
+      exporting = false;
+    }
+  }
   function chooseTool(id) { tool = id; vertices = []; }
   function clearSelection() { vertices = []; editData(data => data.geography.selection.features = []); }
-  function run() {
-    if (running) return;
-    const { sources, methods, time } = $workspace.data;
-    if (!sources.length || !methods.length || !time.start || !time.end || time.start > time.end) {
-      notify('Seleccioná una variable, un método y un intervalo de fechas válido.');
+  async function run() {
+    if (running || storageBusy) return;
+    const investigation = JSON.parse(configKey);
+    const point = investigation.geography.selection.features.filter(item => item.geometry.type === 'Point');
+    if (!investigation.sources.length) {
+      notify('Agregá al menos una variable.');
       return;
+    }
+    for (const source of investigation.sources) {
+      if (!['nasa.power.monthly', 'openmeteo.archive.daily'].includes(source.access)) continue;
+      if (point.some(item => item.id === source.upstream.geometryId)) continue;
+      if (point.length !== 1) {
+        notify('Marcá un punto o elegí cuál usar en cada variable puntual.');
+        return;
+      }
+      source.upstream.geometryId = point[0].id;
     }
     const startedWith = configKey;
     running = true;
-    notify('Ejecutando demostración…');
-    timer = setTimeout(() => { running = false; resultsData = startedWith; notify('Demostración completada'); }, 850);
-  }
-  function cancel() {
-    clearTimeout(timer);
-    running = false;
-    notify('Demostración cancelada');
+    result = null;
+    chartId = null;
+    notice = '';
+    try {
+      const series = await acquireData(investigation);
+      result = { key: startedWith, series };
+      if (startedWith === configKey) chartId = series[0]?.id ?? null;
+    } catch (error) {
+      notify(String(error.message ?? error));
+    } finally {
+      running = false;
+    }
   }
   async function save() {
     if (storageBusy) return;
@@ -87,7 +148,7 @@
       savedConfig = JSON.stringify(snapshot);
       notify('Configuración guardada');
     } catch (error) {
-      notify('No se pudo guardar. ' + (error.message ?? error));
+      notify($translate('No se pudo guardar.') + ' ' + $translate(String(error.message ?? error)));
     } finally { storageBusy = false; }
   }
   async function restore() {
@@ -97,11 +158,10 @@
       const saved = await loadWorkspace();
       if (!saved) { notify('Todavía no hay una configuración guardada.'); return; }
       workspace.set({ ...defaults(), ...Object.fromEntries(Object.entries(saved).filter(([, value]) => value != null)) });
-      chartId = $workspace.visual.charts[0]?.id;
       savedConfig = JSON.stringify($workspace);
       notify('Configuración recuperada');
     } catch (error) {
-      notify('No se pudo recuperar. ' + (error.message ?? error));
+      notify($translate('No se pudo recuperar.') + ' ' + $translate(String(error.message ?? error)));
     } finally { storageBusy = false; }
   }
   async function showDialog(id) {
@@ -166,14 +226,14 @@
   const menus = [
     ['Proyecto', [['Guardar configuración',save],['Recuperar configuración',() => dirty ? showDialog('restore') : restore()]]],
     ['Datos', [['Abrir configuración',() => togglePanel('settings',true)],['Ingresar coordenadas',() => openCoordinates()]]],
-    ['Análisis', [['Ejecutar demostración',run],['Mostrar resultados',() => togglePanel('results',true)]]],
-    ['Visualización', [['Alternar configuración',() => togglePanel('settings')],['Alternar resultados',() => togglePanel('results')]]],
+    ['Análisis', [['Procesar',run],['Mostrar resultados',() => chartId = currentSeries[0]?.id ?? null]]],
+    ['Visualización', [['Resolución gráfica',() => showDialog('chart-resolution')],['Alternar configuración',() => togglePanel('settings')],['Alternar asistente',() => togglePanel('assistantVisible', !assistantVisible)]]],
     ['Capas', [['Alternar controles de capas',() => togglePanel('layers')]]],
-    ['Exportar', [['Descargar cfg_data.json',() => downloadJson('cfg_data.json',$workspace.data)],['Descargar cfg_visual.json',() => downloadJson('cfg_visual.json',$workspace.visual)]]]
+    ['Exportar', [['Guardar gráfica…',openChartExport],['Descargar cfg_data.json',() => downloadJson('cfg_data.json',$workspace.data)],['Descargar cfg_visual.json',() => downloadJson('cfg_visual.json',$workspace.visual)]]]
   ];
 </script>
 
-<svelte:head><title>Earth Detective</title><meta name="description" content="Espacio de trabajo para explorar tendencias del sistema terrestre."/></svelte:head>
+<svelte:head><title>Earth Detective</title><meta name="description" content={$translate("Espacio de trabajo para explorar tendencias del sistema terrestre.")}/></svelte:head>
 <svelte:window onkeydown={event => {
   if (event.key === 'Escape') menu = '';
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); save(); }
@@ -182,92 +242,121 @@
 <div class="app-shell" class:light={$workspace.visual.theme === 'light'} style:--accent={$workspace.visual.appearance.accent} style:--base-size={$workspace.visual.appearance.fontSize + 'px'}>
   <header class="topbar">
     <div class="identity"><span class="brand-mark"><Aperture size={24} strokeWidth={1.7}/></span><strong>Earth Detective</strong></div>
-    <nav aria-label="Menú principal">
+    <nav aria-label={$translate("Menú principal")}>
       {#each menus as [name,actions]}
         <div class="menu-anchor">
-          <button class:active={menu === name} aria-expanded={menu === name} onclick={() => menu = menu === name ? '' : name}>{name}<ChevronDown size={12}/></button>
-          {#if menu === name}<div class="dropdown">{#each actions as [label,action]}<button onclick={() => menuAction(action)}>{label}</button>{/each}</div>{/if}
+          <button class:active={menu === name} aria-expanded={menu === name} onclick={() => menu = menu === name ? '' : name}>{$translate(name)}<ChevronDown size={12}/></button>
+          {#if menu === name}<div class="dropdown">{#each actions as [label,action]}<button disabled={label === 'Mostrar resultados' && !currentSeries.length} onclick={() => menuAction(action)}>{$translate(label)}</button>{/each}</div>{/if}
         </div>
       {/each}
     </nav>
-    <div class="project-tag" title={$workspace.data.title}><span class="live-dot"></span>{$workspace.data.title || 'Proyecto sin nombre'}</div>
-    <button class="icon-button top-icon" aria-label="Preferencias" title="Preferencias" onclick={() => showDialog('preferences')}><Settings2 size={17}/></button>
+    <button class="icon-button top-icon" aria-label={$translate("Preferencias")} title={$translate("Preferencias")} onclick={() => showDialog('preferences')}><Settings2 size={17}/></button>
   </header>
 
-  <div class="toolbar" aria-label="Herramientas">
-    <div class="segmented">
-      <button class:active={!panels.assistant} aria-pressed={!panels.assistant} onclick={() => togglePanel('assistant',false)}><Hand size={15}/> Manual</button>
-      <button class:active={panels.assistant} aria-pressed={panels.assistant} onclick={() => togglePanel('assistant')}><Bot size={16}/> Asistente IA</button>
-    </div>
+  <div class="toolbar" aria-label={$translate("Herramientas")}>
     <div class="geo-tools">
       {#each tools as [id,label,Icon]}
-        <button class="tool-button" class:active={id === tool} aria-pressed={id === tool} title={label} aria-label={label} onclick={() => chooseTool(id)}><Icon size={17}/></button>
+        <button class="tool-button" class:active={id === tool} aria-pressed={id === tool} title={$translate(label)} aria-label={$translate(label)} onclick={() => chooseTool(id)}><Icon size={17}/></button>
       {/each}
-      <button class="tool-button" title="Ingresar coordenadas" aria-label="Ingresar coordenadas" onclick={() => openCoordinates()}><Crosshair size={17}/></button>
-      <button class="tool-button" title="Limpiar selecciones" aria-label="Limpiar selecciones" onclick={clearSelection}><Trash2 size={16}/></button>
+      <button class="tool-button" title={$translate("Ingresar coordenadas")} aria-label={$translate("Ingresar coordenadas")} onclick={() => openCoordinates()}><Crosshair size={17}/></button>
+      <button class="tool-button" title={$translate("Limpiar selecciones")} aria-label={$translate("Limpiar selecciones")} onclick={clearSelection}><Trash2 size={16}/></button>
     </div>
     <div class="panel-buttons">
-      <button class="tool-button" class:active={panels.settings} title="Configuración" aria-label="Alternar panel de configuración" onclick={() => togglePanel('settings')}><PanelLeft size={17}/></button>
-      <button class="tool-button" class:active={panels.results} title="Resultados" aria-label="Alternar panel de resultados" onclick={() => togglePanel('results')}><PanelRight size={17}/></button>
+      <button class="tool-button" class:active={mapVisible} aria-pressed={mapVisible}
+        title={$translate('Alternar mapa')} aria-label={$translate('Alternar mapa')}
+        onclick={() => togglePanel('map', !mapVisible)}><Earth size={17}/></button>
+      <button class="tool-button" class:active={panels.settings} aria-pressed={panels.settings} title={$translate("Configuración")} aria-label={$translate("Alternar panel de configuración")} onclick={() => togglePanel('settings')}><Settings size={17}/></button>
+      <button class="tool-button" class:active={!!activeChart} aria-pressed={!!activeChart} disabled={!currentSeries.length} title={$translate("Gráficas")} aria-label={$translate("Alternar gráficas")} onclick={toggleCharts}><ChartNoAxesCombined size={17}/></button>
+      <button class="tool-button" class:active={assistantVisible} aria-pressed={assistantVisible} title={$translate("Asistente de IA")} aria-label={$translate("Alternar asistente")} onclick={() => togglePanel('assistantVisible', !assistantVisible)}><Bot size={17}/></button>
+    </div>
+    <div class="view-tabs" role="group" aria-label={$translate('Vistas de la consulta')}>
+      <button class:active={!activeChart} aria-pressed={!activeChart} onclick={() => chartId = null}>{$translate('Espacio de trabajo')}</button>
+      {#each currentSeries as item (item.id)}
+        {@const label = $translate(catalog.find(source => source.id === item.id)?.label ?? item.label ?? item.variable)}
+        <button class:active={activeChart?.id === item.id} aria-pressed={activeChart?.id === item.id} title={label} onclick={() => chartId = item.id}><span>{label}</span></button>
+      {/each}
     </div>
     <div class="run-actions">
-      <button class="primary run" onclick={run} disabled={running}><Play size={15} fill="currentColor"/> {running ? 'Ejecutando…' : 'Ejecutar análisis'}</button>
-      <button class="tool-button outlined" disabled={!running} title="Cancelar" aria-label="Cancelar" onclick={cancel}><Square size={15}/></button>
+      <button class="primary run" onclick={run} disabled={running}><Play size={15} fill="currentColor"/> {$translate(running ? 'Procesando…' : 'Procesar')}</button>
     </div>
   </div>
 
-  <main class="desktop" class:with-assistant={panels.assistant}
-    style:--settings-width={panels.settingsWidth + 'px'} style:--results-width={panels.resultsWidth + 'px'} style:--assistant-width={panels.assistantWidth + 'px'}>
+  <main class="view-content">
+  <div class="desktop workspace-view" hidden={!!activeChart}
+    style:--settings-width={panels.settingsWidth + 'px'} style:--assistant-width={(panels.assistantWidth ?? 330) + 'px'}>
     {#if panels.settings}
-      <Settings {chartId} {openCoordinates}/>
-      <ResizeHandle label="Ancho del panel de configuración" value={panels.settingsWidth} min={220} max={450} resize={value => editVisual(visual => visual.workspace.settingsWidth = value)}/>
+      <SettingsPanel {openCoordinates}/>
+      {#if mapVisible || assistantVisible}<ResizeHandle label={$translate("Ancho del panel de configuración")} value={panels.settingsWidth} min={220} max={450} resize={value => editVisual(visual => visual.workspace.settingsWidth = value)}/>{/if}
     {/if}
-    <Globe {tool} bind:vertices bind:cursor bind:notice/>
-    {#if panels.results}
-      <ResizeHandle label="Ancho del panel de resultados" value={panels.resultsWidth} min={300} max={600} direction={-1} resize={value => editVisual(visual => visual.workspace.resultsWidth = value)}/>
-      <Results bind:chartId {resultStatus}/>
+    {#if mapVisible && detailedMap}
+      <WorldMap {tool} bind:vertices bind:cursor bind:notice fallback={() => detailedMap = false}/>
+    {:else if mapVisible}
+      <Globe {tool} bind:vertices bind:cursor bind:notice showDetail={() => detailedMap = true}/>
     {/if}
-    {#if panels.assistant}
-      <ResizeHandle label="Ancho del asistente" value={panels.assistantWidth} min={270} max={470} direction={-1} resize={value => editVisual(visual => visual.workspace.assistantWidth = value)}/>
-      <Assistant bind:messages close={() => togglePanel('assistant',false)} {notify}/>
-    {/if}
+    {#if assistantVisible && mapVisible}<ResizeHandle label={$translate('Ancho del asistente')} value={panels.assistantWidth ?? 388} min={265} max={600} direction={-1} resize={value => editVisual(visual => visual.workspace.assistantWidth = value)}/>{/if}
+    <aside class="assistant-panel" hidden={!assistantVisible}>
+      <header class="panel-heading"><span><Bot size={16}/> {$translate('Asistente de IA')}</span></header>
+      <Assistant series={currentSeries} processing={running || storageBusy} onprocess={run}/>
+    </aside>
+  </div>
+  {#if activeChart}
+    <div class="chart-workspace"><Results series={[activeChart]}/></div>
+  {/if}
   </main>
 
   <footer class="statusbar">
-    <span><span class="live-dot"></span>{running ? 'En ejecución' : 'Listo'}</span>
-    <span>{panels.assistant ? 'Asistido · demo' : 'Manual'}</span>
-    <span class="status-coordinates"><Crosshair size={12}/> {cursor ? coordinateLabel(cursor) : selected?.geometry.type === 'Point' ? coordinateLabel(selected.geometry.coordinates) : selected?.properties.name || 'Sin selección'}</span>
-    <span>{$workspace.data.sources.length} variables</span>
-    <button onclick={save} disabled={storageBusy} title="Guardar configuración (Ctrl+S)"><Save size={13}/> {storageBusy ? 'Procesando' : dirty ? 'Sin guardar' : 'Guardado'}</button>
-    <span class="status-results">{resultStatus}</span>
-    <span class="footer-demo">Datos simulados</span>
+    <span class="status-coordinates"><Crosshair size={12}/> {cursor ? coordinateLabel(cursor) : selected?.geometry.type === 'Point' ? coordinateLabel(selected.geometry.coordinates) : $translate(selected?.properties.name || 'Sin selección')}</span>
+    <span>{$workspace.data.sources.length} {$translate('variables')}</span>
+    <button onclick={save} disabled={storageBusy} title={$translate("Guardar configuración (Ctrl+S)")}><Save size={13}/> {$translate(storageBusy ? 'Procesando' : dirty ? 'Sin guardar' : 'Guardado')}</button>
+    <span class="status-results">{$translate(resultStatus)}</span>
   </footer>
 
-  {#if notice}<div class="toast" role="status"><CircleHelp size={17}/><span>{notice}</span><button aria-label="Cerrar aviso" class="icon-button" onclick={() => notice = ''}><X size={15}/></button></div>{/if}
+  {#if notice}<div class="toast" role="status"><CircleHelp size={17}/><span>{$translate(notice)}</span><button aria-label={$translate("Cerrar aviso")} class="icon-button" onclick={() => notice = ''}><X size={15}/></button></div>{/if}
 
   <dialog bind:this={dialog} aria-labelledby="dialog-title">
-    <header><strong id="dialog-title">{modal === 'coordinates' ? 'Coordenadas WGS 84' : modal === 'restore' ? 'Recuperar configuración' : 'Preferencias'}</strong><button class="icon-button" aria-label="Cerrar" onclick={() => dialog.close()}><X size={17}/></button></header>
+    <header><strong id="dialog-title">{$translate(modal === 'coordinates' ? 'Coordenadas WGS 84' : modal === 'restore' ? 'Recuperar configuración' : modal === 'chart-resolution' ? 'Resolución gráfica' : modal === 'chart-export' ? 'Guardar gráfica…' : 'Preferencias')}</strong><button class="icon-button" aria-label={$translate("Cerrar")} onclick={() => dialog.close()}><X size={17}/></button></header>
     {#if modal === 'coordinates'}
       <form onsubmit={submitCoordinates}>
-        <label>Geometría<select bind:value={coordinateMode}><option value="point">Punto</option><option value="polygon">Polígono</option></select></label>
+        <label>{$translate("Geometría")}<select bind:value={coordinateMode}><option value="point">{$translate("Punto")}</option><option value="polygon">{$translate("Polígono")}</option></select></label>
         {#if coordinateMode === 'point'}
-          <div class="field-pair"><label>Longitud<input type="number" min="-180" max="180" step="any" value={longitude} oninput={event => longitude = event.currentTarget.value}/></label><label>Latitud<input type="number" min="-90" max="90" step="any" value={latitude} oninput={event => latitude = event.currentTarget.value}/></label></div>
+          <div class="field-pair"><label>{$translate("Longitud")}<input type="number" min="-180" max="180" step="any" value={longitude} oninput={event => longitude = event.currentTarget.value}/></label><label>{$translate("Latitud")}<input type="number" min="-90" max="90" step="any" value={latitude} oninput={event => latitude = event.currentTarget.value}/></label></div>
         {:else}
-          <label>Vértices (longitud, latitud)<textarea rows="5" bind:value={polygonInput} placeholder={'-67.1, -33.8\n-66.4, -33.8\n-66.7, -33.2'}></textarea></label>
+          <label>{$translate("Vértices (longitud, latitud)")}<textarea rows="5" bind:value={polygonInput} placeholder={'-67.1, -33.8\n-66.4, -33.8\n-66.7, -33.2'}></textarea></label>
         {/if}
-        {#if modalError}<p role="alert">{modalError}</p>{/if}
-        <button class="primary"><MapPin size={16}/> {editingFeature ? 'Guardar selección' : 'Agregar selección'}</button>
+        {#if modalError}<p role="alert">{$translate(modalError)}</p>{/if}
+        <button class="primary"><MapPin size={16}/> {$translate(editingFeature ? 'Guardar selección' : 'Agregar selección')}</button>
       </form>
     {:else if modal === 'restore'}
       <form onsubmit={event => { event.preventDefault(); dialog.close(); restore(); }}>
-        <p>Se reemplazarán los cambios actuales con la última configuración guardada.</p>
-        <button class="primary"><FolderOpen size={16}/> Recuperar</button>
+        <p>{$translate("Se reemplazarán los cambios actuales con la última configuración guardada.")}</p>
+        <button class="primary"><FolderOpen size={16}/> {$translate("Recuperar")}</button>
+      </form>
+    {:else if modal === 'chart-resolution'}
+      <div class="preferences">
+        <label>{$translate('Resolución gráfica')}
+          <select value={$workspace.visual.chartResolution ?? 'auto'} onchange={event => editVisual(visual => visual.chartResolution = event.currentTarget.value)}>
+            {#each chartResolutions as [id, label]}<option value={id}>{$translate(label)}</option>{/each}
+          </select>
+        </label>
+      </div>
+    {:else if modal === 'chart-export'}
+      <form onsubmit={exportChart}>
+        <label>{$translate('Gráfica')}
+          <select bind:value={exportId}>
+            {#each exportableSeries as item (item.id)}
+              <option value={item.id}>{$translate(catalog.find(source => source.id === item.id)?.label ?? item.variable)}</option>
+            {/each}
+          </select>
+        </label>
+        {#if modalError}<p role="alert">{$translate(modalError)}</p>{/if}
+        <button class="primary" disabled={exporting}>{$translate('Guardar como PNG…')}</button>
       </form>
     {:else}
       <div class="preferences">
-        <label>Tema<select value={$workspace.visual.theme} onchange={event => editVisual(visual => visual.theme = event.currentTarget.value)}><option value="dark">Oscuro</option><option value="light">Claro</option></select></label>
-        <label>Tamaño del texto<select value={$workspace.visual.appearance.fontSize} onchange={event => editVisual(visual => visual.appearance.fontSize = Number(event.currentTarget.value))}><option value="12">Compacto</option><option value="13">Normal</option><option value="15">Grande</option></select></label>
-        <label>Color de acento<input type="color" value={$workspace.visual.appearance.accent} oninput={event => editVisual(visual => visual.appearance.accent = event.currentTarget.value)}/></label>
+        <label>{$translate('Idioma')}<select value={$workspace.visual.language} onchange={event => editVisual(visual => visual.language = event.currentTarget.value)}><option value="es">Español</option><option value="en">English</option></select></label>
+        <label>{$translate("Tema")}<select value={$workspace.visual.theme} onchange={event => editVisual(visual => visual.theme = event.currentTarget.value)}><option value="dark">{$translate("Oscuro")}</option><option value="light">{$translate("Claro")}</option></select></label>
+        <label>{$translate("Tamaño del texto")}<select value={$workspace.visual.appearance.fontSize} onchange={event => editVisual(visual => visual.appearance.fontSize = Number(event.currentTarget.value))}><option value="12">{$translate("Compacto")}</option><option value="13">{$translate("Normal")}</option><option value="15">{$translate("Grande")}</option></select></label>
+        <label>{$translate("Color de acento")}<input type="color" value={$workspace.visual.appearance.accent} oninput={event => editVisual(visual => visual.appearance.accent = event.currentTarget.value)}/></label>
       </div>
     {/if}
   </dialog>
