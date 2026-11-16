@@ -2,20 +2,17 @@
 
 Abrí `Iniciar Earth Detective.cmd` en la carpeta de la app. Inicia la versión de escritorio con Python; la primera compilación puede tardar. Conservá la terminal abierta mientras trabajás.
 
-1. En el panel derecho, abrí **Conectar IA / cambiar proveedor**.
-2. Elegí Google Gemini u OpenAI. El modelo propuesto puede reemplazarse por otro modelo del mismo proveedor que admita respuestas estructuradas.
-3. Ingresá una API key obtenida en el portal del proveedor y pulsá **Conectar y verificar**. Se realiza una consulta breve que puede consumir cuota. Un correo o una cuenta del chat del proveedor no reemplazan la clave API.
-4. Pedí, por ejemplo: «Quiero ver cómo cambió la temperatura en un punto de la ciudad de San Luis, Argentina, entre 2000 y 2024». El asistente pregunta cuando falta una precisión importante.
-5. Los cambios válidos aparecen en los controles. Podés inspeccionar el JSON de cambios en el mensaje, modificar los controles o continuar: «Mejor desde 2010».
-6. Pulsá **Procesar investigación**. La app consulta las fuentes y grafica una pestaña por serie.
-7. Pulsá **Explicar resultados** o pedí conclusiones. La IA recibe estadísticas calculadas en Python sobre la serie completa, sus unidades, procedencia y límites. Si cambiás la investigación, hay que procesarla de nuevo.
-8. Guardá desde **Proyecto**; el menú Exportar permite obtener los JSON completos. El JSON mostrado dentro del chat contiene solo el cambio aplicado, no el proyecto entero.
+1. Escribí en el panel derecho, por ejemplo «Quiero ver la radiación solar en San Luis capital y 9 de Julio, Buenos Aires, de 2005 a 2024».
+2. Los cambios válidos aparecen en los controles. Podés continuar con «Mejor desde 2010».
+3. Pulsá **Procesar investigación** para consultar las fuentes. Las pestañas muestran el nombre del lugar cuando la selección tiene uno. Para etiquetar un área dibujada, editá la selección y completá **Nombre del lugar**.
+4. Pulsá **Explicar resultados** o pedí conclusiones. Si cambiás la investigación, procesala de nuevo.
+5. Guardá desde **Proyecto**.
 
-## Credenciales y proveedores
+Ante una interrupción temporal o una propuesta inválida, la app intenta recuperar la consulta una vez. Si el problema sigue, **Reintentar consulta** vuelve a enviar el pedido y conserva el historial.
 
-La clave ingresada se conserva únicamente en memoria de Python hasta cerrar el proceso o pulsar **Olvidar clave de esta sesión**. No se guarda en los JSON, el historial, el repositorio ni el instalador. Un intento de conexión fallido conserva la conexión anterior. Si hay claves configuradas en variables de entorno, olvidar la clave de sesión vuelve a esa configuración.
+## Servicio del equipo
 
-La app envía al proveedor elegido la pregunta, el contexto reciente, la configuración relevante y los resúmenes de resultados. Las series completas se procesan localmente. Los únicos adaptadores directos habilitados son Google y OpenAI; no se hace sustitución automática entre proveedores. Si no hay conexión propia, sigue disponible el servicio del equipo definido por `VITE_ASSISTANT_ENDPOINT`, cuando fue configurado durante la compilación.
+La app usa Gemini a través de https://gemini-tauri-api.bilbaojuani.workers.dev. Envía un POST con `prompt` y valida la propuesta contenida en `answer`. La clave `GEMINI_API_KEY` se guarda como secreto del Worker.
 
 ## Qué hace y qué todavía no hace
 
@@ -28,7 +25,7 @@ La app envía al proveedor elegido la pregunta, el contexto reciente, la configu
 
 ## Desarrollo y comprobaciones
 
-El contrato común está en `services/assistant-contract.json` dentro de Python. `assistant_providers.py` implementa los transportes; OpenAI usa Responses y transforma los campos opcionales a nulables para su esquema estricto. `assistant.py` valida la salida. `evidence.py` calcula evidencia reproducible. `AssistantConnection.svelte` administra la conexión; `Assistant.svelte` comparte el estado con los controles y recibe solo resultados vigentes.
+El Worker envía el contrato común a Gemini. Python valida la respuesta y la interfaz valida los cambios antes de aplicarlos. Los cálculos científicos quedan en Python.
 
 Desde la carpeta de la app:
 
@@ -41,4 +38,7 @@ node --test src/lib/services/assistantConfiguration.test.js
 
 Las pruebas de proveedores simulan respuestas; no verifican credenciales, cuotas ni calidad de interpretación de un modelo real. La prueba en vivo se hace mediante **Conectar y verificar** y una conversación con la clave propia.
 
-Referencias: [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses), [Gemini Structured Outputs](https://ai.google.dev/gemini-api/docs/structured-output), [prerrequisitos de Tauri](https://v2.tauri.app/start/prerequisites/).
+
+## Lugares escritos en el chat
+
+El asistente puede resolver uno o varios nombres de localidades mediante el buscador geográfico. Incluí provincia y país cuando haya homónimos. Las coordenadas corresponden a puntos de referencia de las localidades, no a promedios de sus áreas. Para varios lugares se crea una serie por fuente y punto (hasta 25 series). Una búsqueda ambigua o fallida no aplica cambios parciales. La disponibilidad de estaciones NOAA se comprueba al procesar.

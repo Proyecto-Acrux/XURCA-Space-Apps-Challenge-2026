@@ -4,6 +4,7 @@ import json
 import os
 from getpass import getpass
 from importlib.resources import files
+from time import sleep
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -21,13 +22,24 @@ def generate_text(prompt: str, api_key: str) -> str:
 
 
 def gemini_text(payload, api_key):
-    data = post_json(ENDPOINT, payload, {"x-goog-api-key": api_key})
+    data = post_json(ENDPOINT, payload, {"x-goog-api-key": api_key}, provider="Gemini")
     candidates = data.get("candidates") or []
     parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
     reply = "".join(part.get("text", "") for part in parts if not part.get("thought")).strip()
     if not reply:
         raise ValueError("Gemini no devolvió texto.")
     return reply
+
+
+def open_assistant_request(request, retry_unavailable):
+    try:
+        return urlopen(request, timeout=60)
+    except HTTPError as error:
+        if error.code != 503 or not retry_unavailable:
+            raise
+        error.close()
+    sleep(2)
+    return urlopen(request, timeout=60)
 
 
 def post_json(url, payload, headers=None, provider="Servicio de IA"):
@@ -38,7 +50,7 @@ def post_json(url, payload, headers=None, provider="Servicio de IA"):
         method="POST",
     )
     try:
-        with urlopen(request, timeout=60) as response:
+        with open_assistant_request(request, retry_unavailable=provider == "Gemini") as response:
             data = json.load(response)
             if not isinstance(data, dict):
                 raise ValueError()
@@ -50,8 +62,12 @@ def post_json(url, payload, headers=None, provider="Servicio de IA"):
             403: "Revisá los permisos y restricciones de la clave.",
             404: "Revisá que el modelo esté disponible para tu proyecto.",
             429: "Se alcanzó la cuota del proveedor. Revisá el saldo o intentá más tarde.",
+            503: "El servicio no está disponible en este momento. Volvé a intentar más tarde.",
         }
         hint = hints.get(error.code, "Volvé a intentar más tarde.")
+        retry_after = error.headers.get("Retry-After", "") if error.headers else ""
+        if error.code == 429 and retry_after.isascii() and retry_after.isdecimal() and len(retry_after) <= 6:
+            hint = f"Retry-After: {retry_after}"
         raise ValueError(f"{provider} devolvió HTTP {error.code}. {hint}") from None
     except (URLError, TimeoutError):
         raise ValueError(f"No se pudo conectar con {provider}.") from None

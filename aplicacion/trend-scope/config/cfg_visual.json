@@ -3,7 +3,8 @@
   "theme":"dark",
   "language":"es",
   "appearance":{"accent":"#57dfc1","font":"Inter","fontSize":13},
-  "workspace":{"settingsWidth":290,"assistantWidth":388,"settings":true,"map":true,"assistantVisible":true,"layers":true},
+  "workspace":{"settingsWidth":290,"assistantWidth":388,"settings":false,"map":true,"assistantVisible":true,"layers":true},
   "chartResolution":"auto",
+  "chartCadence":"native",
   "map":{"projection":"orthographic","camera":{"longitude":-66,"latitude":-26,"zoom":1},"layers":{"countries":true,"grid":true,"selection":true}}
 }

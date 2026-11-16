@@ -36,6 +36,13 @@ export async function loadWorkspace() {
       providers.some(provider => provider.id === source.access)
     );
   }
+  const geography = snapshot?.data?.geography;
+  if (geography && !Object.hasOwn(geography, 'scope')) {
+    const features = geography.selection?.features ?? [];
+    const point = features.some(feature => feature.geometry?.type === 'Point');
+    const area = features.some(feature => ['Polygon', 'MultiPolygon'].includes(feature.geometry?.type));
+    geography.scope = point && area ? 'both' : point ? 'point' : area ? 'area' : null;
+  }
   if (snapshot?.visual) {
     const layout = snapshot.visual.workspace;
     if (layout) {

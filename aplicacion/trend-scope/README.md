@@ -4,7 +4,7 @@ Primera versión de la aplicación de escritorio de XURCA para el desafío Earth
 
 ## Ejecutar en Windows
 
-Con las dependencias preparadas, abrí **Iniciar Earth Detective.cmd**. En el panel derecho podés conectar Google Gemini u OpenAI con tu API key, describir una investigación y pedir explicaciones sobre los resultados. Seguí la [guía del chat de IA](docs/chat-ia.md).
+Con las dependencias preparadas, abrí **Iniciar Earth Detective.cmd**. En el panel derecho podés describir una investigación y pedir explicaciones con Gemini cuando el servicio del equipo está habilitado. Seguí la [guía del chat de IA](docs/chat-ia.md).
 
 Desde esta carpeta, con Node.js, pnpm, Rust con toolchain MSVC, Microsoft C++ Build Tools, WebView2 y una instalación de Python compatible con PyTauri:
 
@@ -23,10 +23,10 @@ Para probar la interfaz en el navegador, usá `pnpm dev` y abrí `http://localho
 
 ## Consultar datos
 
-1. Para POWER u Open-Meteo, marcá un punto, ingresá coordenadas o buscá una localidad o provincia argentina en Configuración geográfica. Georef centra el mapa y marca el centroide.
-2. Elegí el período y agregá variables por fuente. NOAA requiere el ID de estación y SWOT el ID de tramo o lago.
-3. Pulsá **Consultar datos** desde la app de escritorio.
-4. Explorá la serie. Los resultados muestran unidades, cobertura mensual y el enlace a la solicitud original.
+1. En **Investigación**, elegí **Punto geográfico**, **Zona geográfica** o **Ambos**. Elegí o dibujá la geometría en el mapa, o buscá una localidad o provincia argentina en **Configuración geográfica**.
+2. Elegí el período y agregá una variable en **Fuentes de información**. La aplicación busca automáticamente los identificadores de estación de NOAA y los tramos o lagos de SWOT.
+3. Pulsá **Procesar** desde la app de escritorio.
+4. Explorá la serie y, cuando la fuente lo permita, el mapa del área. CHIRPS diario usa un archivo por día. Para períodos largos con frecuencia mensual, elegí **CHIRPS v3 · UCSB**.
 `pnpm check` comprueba el frontend y `pnpm build` genera `dist/`. Ambos son independientes del empaquetado de Python. Para distribución nativa consultá `scripts/README.md`.
 
 La interfaz usa D3 Geo y Natural Earth para el globo ortográfico, Chart.js para las gráficas y Lucide para los iconos. Las configuraciones base están en `config/`. Los recursos científicos del desafío están en `Memoria/General/Recursos_Earth_System_Trend_Detective.txt` desde la raíz del repositorio.

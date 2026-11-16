@@ -1,19 +1,16 @@
 <script>
   import { ChartNoAxesCombined } from '@lucide/svelte';
   import ChartView from './ChartView.svelte';
+  import EventMap from './EventMap.svelte';
   import { catalog } from '$lib/services/sources.js';
   import { translate } from '$lib/services/i18n.js';
 
   import { workspace } from '$lib/stores/workspace.js';
 
   let resolution = $derived($workspace.visual.chartResolution ?? 'auto');
+  let cadence = $derived($workspace.visual.chartCadence ?? 'native');
   let { series } = $props();
 
-  function location(item, t) {
-    const value = item.location ?? item.coordinates.join(', ') + ' (lon, lat)';
-    return value.replace(/^(Estación|Tramo de río|Lago|Punto) /, (_, kind) => t(kind) + ' ')
-      .replace(' · celda ', ' · ' + t('Celda').toLocaleLowerCase() + ' ');
-  }
 </script>
 
 <section class="results-panel">
@@ -22,20 +19,21 @@
   <div class="results-scroll">
     {#each series as item (item.id)}
       {@const available = item.points.filter(point => point.value !== null).length}
-      {@const label = $translate(catalog.find(source => source.id === item.id)?.label ?? item.label ?? item.variable)}
-      {@const period = item.cadence === 'daily' ? 'días con datos' : item.cadence && item.cadence !== 'monthly' ? 'observaciones con datos' : 'meses con datos'}
+      {@const label = $translate(catalog.find(source => source.id === item.id.split('::')[0])?.label ?? item.label ?? item.variable)}
       <article class="chart-card" data-series-id={item.id}>
         <header><strong>{label}</strong></header>
-        <p class="quiet">{item.provider} · {$translate(item.unit)} · {location(item, $translate)}</p>
-        {#if item.message}<p>{item.message}</p>{/if}
         {#if item.downloadPath}<p class="quiet"><code>{item.downloadPath}</code></p>{/if}
-        {#if !item.message}<p class="quiet">{available} {$translate('de')} {item.points.length} {$translate(period)}</p>{/if}
+        {#if item.map}
+          {#key item.map}
+            <EventMap layer={item.map} {label} unit={$translate(item.map.unit ?? item.unit)}/>
+          {/key}
+        {/if}
+        {#if item.mapMessage}<p>{item.mapMessage}</p>{/if}
         {#if available}
-          <ChartView series={item} {label} {resolution}/>
+          <ChartView series={item} {label} {resolution} {cadence}/>
         {:else if !item.message}
           <p>{$translate('No hay valores para el período seleccionado.')}</p>
         {/if}
-        {#if item.product}<p class="quiet">{item.product}</p>{/if}
         {#if item.summary?.validCount}
           <details>
             <summary>Resumen calculado sobre la serie completa</summary>

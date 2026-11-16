@@ -1,0 +1,1388 @@
+TREND DETECTIVE — CATÁLOGO CIENTÍFICO SIMPLIFICADO PARA IA
+FUENTE: dos tablas originales adjuntas (Nivel 1 y Nivel 2).
+36 fenómenos N1 + 37 fenómenos N2 = 73 fenómenos.
+FORMATO: texto plano; un bloque por fenómeno; sin columnas de versiones antiguas ni trazabilidad redundante.
+NOTA: conserva los IDs originales. El contenido resume fielmente las columnas operativas; no agrega ecuaciones predictivas inexistentes en las tablas.
+
+======================================================================
+NIVEL 1 — DETECCIÓN DE TENDENCIAS
+======================================================================
+
+[01] N1.1.0 — Tendencia de temperatura del aire y LST (por separado)
+Familia: N1.1
+Indicadores: T2m; LST
+Variables: Obligatorias: T2m; LST | Explicativas solo para N2
+Preprocesamiento: QA/nubes LST; °C; media por área; anomalías por mes y sensor; separar día/noche
+Análisis: Sen + MK estacional/autocorrelación; IC95; serie y climatología
+Conclusión permitida: Reportar pendiente °C/década, IC, p ajustada y período; no significación = evidencia insuficiente
+No afirmar: No confundir LST con temperatura del aire
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS); X07 · MODIS MOD11A2
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X07 · MODIS MOD11A2
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/; X07: https://lpdaac.usgs.gov/products/mod11a2v061/
+Fuentes opcionales: X03 · NASA POWER
+Enlaces opcionales: X03: https://power.larc.nasa.gov/
+
+[02] N1.1.1 — Temperatura superficial de cuerpos de agua
+Familia: N1.1
+Indicadores: SST/LSWT
+Variables: Obligatorias: SST/LSWT | Explicativas solo para N2
+Preprocesamiento: Máscara agua estable; QA; sensor apropiado; anomalía mensual
+Análisis: Sen; MK; estacionalidad; cobertura
+Conclusión permitida: Mostrar cambios observados sobre agua, distinguiendo oceánico/lacustre
+No afirmar: No inferir mezcla vertical ni temperatura profunda
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X18 · GHRSST (NASA PO.DAAC)
+Fuentes adicionales: X18 · GHRSST (NASA PO.DAAC)
+Enlaces adicionales: X18: https://podaac.jpl.nasa.gov/
+Fuentes opcionales: X27 · NOAA OISST / otras series SST
+Enlaces opcionales: X27: https://www.ncei.noaa.gov/products/optimum-interpolation-sst
+
+[03] N1.1A — Calentamiento regional sostenido
+Familia: N1.1
+Indicadores: T2m
+Variables: Obligatorias: T2m | Explicativas solo para N2
+Preprocesamiento: Series homogéneas; anomalías climatológicas; control de cambios de estación
+Análisis: Sen + IC; contraste en subperíodos; representatividad
+Conclusión permitida: Tendencia de T2m positiva consistente con calentamiento regional
+No afirmar: No atribuir causas antropogénicas mediante un solo indicador local
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X03 · NASA POWER; X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X03: https://power.larc.nasa.gov/; X25: https://www.smn.gob.ar/
+
+[04] N1.1B — Frecuencia y duración de olas de calor
+Familia: N1.1
+Indicadores: Tmax/Tmin diaria
+Variables: Obligatorias: Tmax/Tmin diaria | Explicativas solo para N2
+Preprocesamiento: Umbrales calendarizados de referencia fija; días consecutivos; cobertura
+Análisis: Índices ETCCDI o definición local explícita; conteo anual
+Conclusión permitida: Detectar episodios con duración mínima definida y tendencia de frecuencia
+No afirmar: Presión alta o suelo seco no son requisitos de ola de calor
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X03 · NASA POWER; X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X03: https://power.larc.nasa.gov/; X25: https://www.smn.gob.ar/
+
+[05] N1.1C — Diferencial térmico urbano-rural superficial
+Familia: N1.1
+Indicadores: LST urbana y rural
+Variables: Obligatorias: LST urbana y rural | Explicativas solo para N2
+Preprocesamiento: Emparejar hora/estación, elevación y coberturas rurales de referencia
+Análisis: ΔLST pareado; IC bootstrap espacial-temporal
+Conclusión permitida: Diferencia térmica superficial urbana-rural, sin exigir patrón nocturno
+No afirmar: No confundir SUHI con isla de calor del aire
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X07 · MODIS MOD11A2
+Fuentes adicionales: X07 · MODIS MOD11A2
+Enlaces adicionales: X07: https://lpdaac.usgs.gov/products/mod11a2v061/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2
+
+[06] N1.2.0 — Precipitación: déficit, exceso y evolución temporal
+Familia: N1.2
+Indicadores: Precipitación acumulada
+Variables: Obligatorias: Precipitación acumulada | Explicativas solo para N2
+Preprocesamiento: Acumular correctamente mm/día→mes; series completas; climatología por mes; QA
+Análisis: Anomalía absoluta/%, SPI (1/3/6/12), Sen+MK en totales, mapas
+Conclusión permitida: Déficit/exceso por región y período, duración, persistencia y evolución
+No afirmar: No etiquetar causalidad ni sequía hidrológica solo con lluvia
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X01 · NASA GPM IMERG
+Fuentes adicionales: X01 · NASA GPM IMERG
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X25: https://www.smn.gob.ar/
+
+[07] N1.2A — Sequía meteorológica y aridificación (diagnósticos separados)
+Familia: N1.2
+Indicadores: Precipitación; SPI; índice de aridez
+Variables: Obligatorias: Precipitación; SPI; índice de aridez | Explicativas solo para N2
+Preprocesamiento: Ajuste SPI válido por región/ventana; PET explícita para aridificación
+Análisis: SPI por escala; tendencia P/PET con IC y ventanas largas
+Conclusión permitida: SPI negativo indica déficit relativo; aridificación requiere indicador climático de largo plazo
+No afirmar: SPI no confirma aridificación ni impactos sobre agua superficial
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X01 · NASA GPM IMERG
+Fuentes adicionales: X01 · NASA GPM IMERG
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X25: https://www.smn.gob.ar/
+
+[08] N1.2B — Cambios en lluvias intensas y períodos secos
+Familia: N1.2
+Indicadores: Precipitación diaria
+Variables: Obligatorias: Precipitación diaria | Explicativas solo para N2
+Preprocesamiento: QA de serie diaria; umbrales según días húmedos; acumulaciones
+Análisis: RX1day, RX5day, R95pTOT, SDII, CDD; tendencia por índice
+Conclusión permitida: Informar cada indicador por separado y coincidencias sin forzarlas
+No afirmar: R95pTOT↑ y CDD↑ no prueban por sí solos tormentas más violentas
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X01 · NASA GPM IMERG
+Fuentes adicionales: X01 · NASA GPM IMERG
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X25: https://www.smn.gob.ar/
+
+[09] N1.3.0 — Vigor de vegetación: NDVI/EVI y fenología
+Familia: N1.3
+Indicadores: NDVI; EVI
+Variables: Obligatorias: NDVI; EVI | Explicativas solo para N2
+Preprocesamiento: QA nube/aerosol; máscara de cobertura; compuestos temporales; anomalías estacionales
+Análisis: Sen por estación; percentiles; amplitud y comienzo de estación
+Conclusión permitida: Comparar vigor respecto de su propio ciclo histórico y clase de vegetación
+No afirmar: NDVI no equivale a biomasa ni a salud ecológica completa
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[10] N1.3A — Pérdida persistente de cobertura vegetal
+Familia: N1.3
+Indicadores: NDVI/EVI; cobertura arbórea
+Variables: Obligatorias: NDVI/EVI; cobertura arbórea | Explicativas solo para N2
+Preprocesamiento: Máscara bosque previa; segmentación temporal; nubes/sombra; comprobar transición cobertura
+Análisis: BFAST/ruptura + comparación pre/post + land cover
+Conclusión permitida: Reportar pérdida de verdor; llamar deforestación solo con evidencia de bosque→no bosque
+No afirmar: No llamar deforestación a cosecha, incendio o sequía
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[11] N1.3B — Anomalías negativas del vigor y posible estrés vegetal
+Familia: N1.3
+Indicadores: NDVI/EVI
+Variables: Obligatorias: NDVI/EVI | Explicativas solo para N2
+Preprocesamiento: Desestacionalizar por cultivo/bioma; QA; lags en variables externas solo en N2
+Análisis: Percentiles, duración de anomalías, Sen
+Conclusión permitida: Disminución de vigor detectada; estrés hídrico queda como hipótesis
+No afirmar: NDVI bajo no identifica causa única
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[12] N1.3C — Reverdecimiento y aumento persistente del vigor
+Familia: N1.3
+Indicadores: NDVI/EVI
+Variables: Obligatorias: NDVI/EVI | Explicativas solo para N2
+Preprocesamiento: Control fenología, cambios uso suelo y calidad de píxel
+Análisis: Sen; rupturas; comparación entre estaciones iguales
+Conclusión permitida: Incremento de verdor, sin clasificar origen natural o por riego
+No afirmar: Reverdecimiento + ET alta no confirma irrigación
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[13] N1.4.0 — Focos de calor activos: conteos y mapas históricos
+Familia: N1.4
+Indicadores: Detecciones térmicas FIRMS
+Variables: Obligatorias: Detecciones térmicas FIRMS | Explicativas solo para N2
+Preprocesamiento: Filtrar confianza, sensor, QA y duplicados; cuadrícula espacial y fecha
+Análisis: Conteo por sensor, área/tiempo normalizado; densidad, series
+Conclusión permitida: Reportar detecciones, ubicaciones y cambios de actividad observada
+No afirmar: Cada foco NO es un incendio distinto ni hectárea quemada
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X04 · NASA FIRMS
+Fuentes adicionales: X04 · NASA FIRMS
+Enlaces adicionales: X04: https://firms.modaps.eosdis.nasa.gov/
+Fuentes opcionales: X05 · MODIS MCD64A1
+Enlaces opcionales: X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+
+[14] N1.4A — Estacionalidad y recurrencia de actividad térmica
+Familia: N1.4
+Indicadores: Detecciones FIRMS
+Variables: Obligatorias: Detecciones FIRMS | Explicativas solo para N2
+Preprocesamiento: Separar plataformas, cobertura nubosa y cambios sensores; definir unidades espaciales
+Análisis: Eventos agrupados opcionales; recuentos por temporada; intervalo
+Conclusión permitida: Cambios de cantidad de detecciones/temporada y persistencia
+No afirmar: No inferir incidencia real sin corregir detectabilidad
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X04 · NASA FIRMS
+Fuentes adicionales: X04 · NASA FIRMS
+Enlaces adicionales: X04: https://firms.modaps.eosdis.nasa.gov/
+Fuentes opcionales: X05 · MODIS MCD64A1
+Enlaces opcionales: X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+
+[15] N1.4B — Radiación de incendios y anomalías de potencia
+Familia: N1.4
+Indicadores: FRP
+Variables: Obligatorias: FRP | Explicativas solo para N2
+Preprocesamiento: Calidad FIRMS, sensor, saturación, tiempo y geometría
+Análisis: Percentiles FRP por sensor y distribución
+Conclusión permitida: Detectar potencia radiativa alta entre detecciones válidas
+No afirmar: FRP alta no implica megaincendio ni severidad ecológica
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X04 · NASA FIRMS
+Fuentes adicionales: X04 · NASA FIRMS
+Enlaces adicionales: X04: https://firms.modaps.eosdis.nasa.gov/
+Fuentes opcionales: X05 · MODIS MCD64A1
+Enlaces opcionales: X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+
+[16] N1.4C — Superficie quemada: mapas históricos y evolución
+Familia: N1.4
+Indicadores: Área quemada mensual/anual
+Variables: Obligatorias: Área quemada mensual/anual | Explicativas solo para N2
+Preprocesamiento: Producto burned-area; reproyección y área geodésica de píxeles; máscara QA
+Análisis: Unión espacial por fecha; km²/ha y porcentaje del área válida; tendencia
+Conclusión permitida: Área quemada estimada por producto, mapa temporal y comparativa anual
+No afirmar: No derivar hectáreas a partir del número de focos FIRMS
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X05 · MODIS MCD64A1
+Fuentes adicionales: X05 · MODIS MCD64A1
+Enlaces adicionales: X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+Fuentes opcionales: X04 · NASA FIRMS; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X04: https://firms.modaps.eosdis.nasa.gov/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[17] N1.4D — Cicatrices y recuperación inicial postincendio
+Familia: N1.4
+Indicadores: NBR; dNBR; NDVI
+Variables: Obligatorias: NBR; dNBR; NDVI | Explicativas solo para N2
+Preprocesamiento: Imágenes pre/post de misma estación y sensor; máscaras nube/sombra
+Análisis: dNBR/RdNBR según ecosistema; diferencia NDVI
+Conclusión permitida: Mapas de cambio espectral tras incendio, con rangos y cobertura
+No afirmar: dNBR no es automáticamente severidad de suelo validada
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X11 · Landsat Collection 2 L2 (USGS)
+Fuentes adicionales: X11 · Landsat Collection 2 L2 (USGS)
+Enlaces adicionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2
+Fuentes opcionales: X06 · MODIS MOD13Q1; X12 · Sentinel-2 L2A (Copernicus); X05 · MODIS MCD64A1
+Enlaces opcionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/; X12: https://dataspace.copernicus.eu/; X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+
+[18] N1.5.0 — Humedad superficial y de zona radicular (separadas)
+Familia: N1.5
+Indicadores: SM superficial/modelada
+Variables: Obligatorias: SM superficial/modelada | Explicativas solo para N2
+Preprocesamiento: Unidades m³/m³; distinguir observación vs modelo y profundidad
+Análisis: Anomalía por estación y percentiles; series
+Conclusión permitida: Mostrar cantidad relativa de agua para producto/profundidad precisos
+No afirmar: No comparar porcentaje de saturación con humedad volumétrica
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X09 · SMAP (NASA NSIDC)
+Fuentes adicionales: X09 · SMAP (NASA NSIDC)
+Enlaces adicionales: X09: https://nsidc.org/data/smap
+Fuentes opcionales: X10 · GLDAS (NASA GES DISC)
+Enlaces opcionales: X10: https://ldas.gsfc.nasa.gov/gldas
+
+[19] N1.5A — Déficit de humedad del suelo
+Familia: N1.5
+Indicadores: SM
+Variables: Obligatorias: SM | Explicativas solo para N2
+Preprocesamiento: Climatología y QA; máscaras suelo congelado y vegetación densa
+Análisis: Percentiles e intensidad/duración de déficit
+Conclusión permitida: Anomalía seca de suelo, con duración y extensión
+No afirmar: No exigir tendencia a largo plazo para sequía actual
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X09 · SMAP (NASA NSIDC)
+Fuentes adicionales: X09 · SMAP (NASA NSIDC)
+Enlaces adicionales: X09: https://nsidc.org/data/smap
+Fuentes opcionales: X10 · GLDAS (NASA GES DISC)
+Enlaces opcionales: X10: https://ldas.gsfc.nasa.gov/gldas
+
+[20] N1.5B — Exceso de humedad antecedente del suelo
+Familia: N1.5
+Indicadores: SM
+Variables: Obligatorias: SM | Explicativas solo para N2
+Preprocesamiento: Percentiles locales; profundidad; agregación antecedente
+Análisis: P90/P95 del producto; seguimiento temporal
+Conclusión permitida: Condiciones de humedad del suelo excepcionalmente altas
+No afirmar: P90 no equivale a saturación física ni umbral universal de inundación
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X09 · SMAP (NASA NSIDC)
+Fuentes adicionales: X09 · SMAP (NASA NSIDC)
+Enlaces adicionales: X09: https://nsidc.org/data/smap
+Fuentes opcionales: X10 · GLDAS (NASA GES DISC)
+Enlaces opcionales: X10: https://ldas.gsfc.nasa.gov/gldas
+
+[21] N1.6.0 — Evapotranspiración real y demanda potencial
+Familia: N1.6
+Indicadores: ET real; PET/ET0
+Variables: Obligatorias: ET real; PET/ET0 | Explicativas solo para N2
+Preprocesamiento: Unidades mm/intervalo; cobertura; no mezclar ET0/PET con ET real
+Análisis: Estacionalidad, anomalías y razones explícitas
+Conclusión permitida: Mostrar ET real y PET por separado, fuente y unidades
+No afirmar: No llamar déficit hídrico sin un modelo definido
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X20 · MODIS MOD16A2 / MOD16A2GF
+Fuentes adicionales: X20 · MODIS MOD16A2 / MOD16A2GF
+Enlaces adicionales: X20: https://lpdaac.usgs.gov/
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X09 · SMAP (NASA NSIDC)
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X09: https://nsidc.org/data/smap
+
+[22] N1.6A — Cambios de evapotranspiración bajo disponibilidad de agua
+Familia: N1.6
+Indicadores: ET real
+Variables: Obligatorias: ET real | Explicativas solo para N2
+Preprocesamiento: QA, vegetación/uso suelo y balance energético
+Análisis: Tendencia ET y sensibilidad a radiación en N2
+Conclusión permitida: Cambio de ET real observado
+No afirmar: ET↑ no prueba aceleración general del ciclo hidrológico
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X20 · MODIS MOD16A2 / MOD16A2GF
+Fuentes adicionales: X20 · MODIS MOD16A2 / MOD16A2GF
+Enlaces adicionales: X20: https://lpdaac.usgs.gov/
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X09 · SMAP (NASA NSIDC)
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X09: https://nsidc.org/data/smap
+
+[23] N1.6B — Descenso anómalo de evapotranspiración
+Familia: N1.6
+Indicadores: ET real
+Variables: Obligatorias: ET real | Explicativas solo para N2
+Preprocesamiento: Ajuste estacional; QA y cobertura
+Análisis: Anomalía ET y persistencia
+Conclusión permitida: Detectar ET por debajo de climatología
+No afirmar: ET↓ no implica únicamente desecación
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X20 · MODIS MOD16A2 / MOD16A2GF
+Fuentes adicionales: X20 · MODIS MOD16A2 / MOD16A2GF
+Enlaces adicionales: X20: https://lpdaac.usgs.gov/
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X09 · SMAP (NASA NSIDC)
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X09: https://nsidc.org/data/smap
+
+[24] N1.7.0 — Carga óptica de aerosoles en columna atmosférica
+Familia: N1.7
+Indicadores: AOD
+Variables: Obligatorias: AOD | Explicativas solo para N2
+Preprocesamiento: QA nubes; AOD longitud de onda consistente; comparabilidad espacial
+Análisis: Mediana y anomalías; Sen+MK
+Conclusión permitida: Tendencia en profundidad óptica de columna, no en PM2.5
+No afirmar: AOD no mide directamente PM2.5 superficial
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X28 · NASA MODIS/VIIRS aerosol (AOD)
+Fuentes adicionales: X28 · NASA MODIS/VIIRS aerosol (AOD)
+Enlaces adicionales: X28: https://earthdata.nasa.gov/
+Fuentes opcionales: X19 · Sentinel-5P / TROPOMI; X26 · AERONET NASA
+Enlaces opcionales: X19: https://dataspace.copernicus.eu/; X26: https://aeronet.gsfc.nasa.gov/
+
+[25] N1.7A — Cambios de NO2 y AOD atmosféricos
+Familia: N1.7
+Indicadores: NO2; AOD
+Variables: Obligatorias: NO2; AOD | Explicativas solo para N2
+Preprocesamiento: Normalizar geometría, nubes y escala; tratar cada producto separado
+Análisis: Series de anomalías y cambio relativo
+Conclusión permitida: Tendencia de gases y aerosoles observados
+No afirmar: No identificar fuente industrial ni exposición PM2.5 de forma concluyente
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X19 · Sentinel-5P / TROPOMI; X28 · NASA MODIS/VIIRS aerosol (AOD)
+Fuentes adicionales: X19 · Sentinel-5P / TROPOMI; X28 · NASA MODIS/VIIRS aerosol (AOD)
+Enlaces adicionales: X19: https://dataspace.copernicus.eu/; X28: https://earthdata.nasa.gov/
+Fuentes opcionales: X26 · AERONET NASA
+Enlaces opcionales: X26: https://aeronet.gsfc.nasa.gov/
+
+[26] N1.7B — Episodios de aerosoles extremos
+Familia: N1.7
+Indicadores: AOD
+Variables: Obligatorias: AOD | Explicativas solo para N2
+Preprocesamiento: P95 estacional; rastreo de calidad
+Análisis: Anomalías episódicas y mapas
+Conclusión permitida: Detectar pulso de carga óptica; investigar humo/polvo en N2
+No afirmar: Ausencia FIRMS local no descarta humo transportado
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X28 · NASA MODIS/VIIRS aerosol (AOD)
+Fuentes adicionales: X28 · NASA MODIS/VIIRS aerosol (AOD)
+Enlaces adicionales: X28: https://earthdata.nasa.gov/
+Fuentes opcionales: X19 · Sentinel-5P / TROPOMI; X26 · AERONET NASA
+Enlaces opcionales: X19: https://dataspace.copernicus.eu/; X26: https://aeronet.gsfc.nasa.gov/
+
+[27] N1.8.0 — Evolución de presión atmosférica
+Familia: N1.8
+Indicadores: SLP o presión de estación
+Variables: Obligatorias: SLP o presión de estación | Explicativas solo para N2
+Preprocesamiento: No mezclar presión superficial con presión reducida al mar
+Análisis: Estacionalidad, extremos y anomalías
+Conclusión permitida: Describir presión y extremos según referencia
+No afirmar: Una baja presión no demuestra tormenta severa
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X17 · SRTM / NASADEM
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[28] N1.8.1 — Perfil altitudinal de presión (educativo)
+Familia: N1.8
+Indicadores: Presión; elevación
+Variables: Obligatorias: Presión; elevación | Explicativas solo para N2
+Preprocesamiento: Perfil vertical, temperatura y corrección de altura
+Análisis: Ecuación hipsométrica con supuestos claros
+Conclusión permitida: Comparar presión esperada según altura
+No afirmar: No tratar gradiente vertical estático como tendencia climática
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X17 · SRTM / NASADEM
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[29] N1.8A — Episodios persistentes de presión alta
+Familia: N1.8
+Indicadores: SLP; geopotencial
+Variables: Obligatorias: SLP; geopotencial | Explicativas solo para N2
+Preprocesamiento: Campos espaciales, persistencia y normalización
+Análisis: Índices de bloqueo validados en N2
+Conclusión permitida: Reportar persistencia de altas presiones como precursor
+No afirmar: SLP media ↑ no confirma bloqueos atmosféricos
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X17 · SRTM / NASADEM
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[30] N1.8B — Ciclones y anomalías de baja presión
+Familia: N1.8
+Indicadores: SLP
+Variables: Obligatorias: SLP | Explicativas solo para N2
+Preprocesamiento: Datos diarios/subdiarios y coherencia espacial
+Análisis: Extremos y trayectorias identificadas
+Conclusión permitida: Detectar eventos de presión baja, no daños
+No afirmar: Mínimo bajo no significa automáticamente tormenta intensa
+Evidencia: Observación / detección
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X17 · SRTM / NASADEM
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[31] N1.9.0 — Evolución del nivel de agua en ríos, lagos y embalses
+Familia: N1.9
+Indicadores: WSE; altura de estación
+Variables: Obligatorias: WSE; altura de estación | Explicativas solo para N2
+Preprocesamiento: Datum vertical consistente; series satelitales discontinuas; estaciones
+Análisis: Anomalías de nivel, cambios entre fechas y cobertura
+Conclusión permitida: Comparar nivel de agua dentro del mismo datum y lugar
+No afirmar: SWOT no cubre décadas por sí solo
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X13 · Sentinel-1 SAR (Copernicus)
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X13: https://dataspace.copernicus.eu/
+
+[32] N1.9A — Descenso sostenido del nivel de agua
+Familia: N1.9
+Indicadores: WSE; almacenamiento opcional
+Variables: Obligatorias: WSE; almacenamiento opcional | Explicativas solo para N2
+Preprocesamiento: Ajustar operaciones y curvas altura-volumen cuando existen
+Análisis: Sen/ruptura, anomalía de nivel
+Conclusión permitida: Bajante observada; hipótesis causal en N2
+No afirmar: No atribuir extracción de riego solo por NDVI agrícola
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X13 · Sentinel-1 SAR (Copernicus)
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X13: https://dataspace.copernicus.eu/
+
+[33] N1.9B — Crecida y expansión de aguas superficiales
+Familia: N1.9
+Indicadores: WSE; extensión de agua
+Variables: Obligatorias: WSE; extensión de agua | Explicativas solo para N2
+Preprocesamiento: Unir fechas comparables; SAR para extensión; datum
+Análisis: P95 nivel, cambio de extensión y mapas
+Conclusión permitida: Alza/expansión observada con incertidumbre
+No afirmar: No atribuir a deshielo sin balances adicionales
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales; X13 · Sentinel-1 SAR (Copernicus)
+Enlaces opcionales: X25: https://www.smn.gob.ar/; X13: https://dataspace.copernicus.eu/
+
+[34] N1.1D — Anomalías de LST y mapas de calentamiento anormal
+Familia: N1.1
+Indicadores: LST
+Variables: Obligatorias: LST | Explicativas solo para N2
+Preprocesamiento: Emisividad, QA nube y máscara uso suelo; climatología por píxel y mes; día/noche
+Análisis: Z-score robusto/percentil; mapas de anomalía; hotspots persistentes
+Conclusión permitida: Señalar píxeles excepcionalmente calientes respecto de sí mismos y pares comparables
+No afirmar: Un píxel cálido no equivale a temperatura del aire ni foco de incendio
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X07 · MODIS MOD11A2
+Fuentes adicionales: X07 · MODIS MOD11A2
+Enlaces adicionales: X07: https://lpdaac.usgs.gov/products/mod11a2v061/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2
+
+[35] N1.2C — Persistencia y transición de déficit/exceso pluviométrico
+Familia: N1.2
+Indicadores: Precipitación; SPI
+Variables: Obligatorias: Precipitación; SPI | Explicativas solo para N2
+Preprocesamiento: Ventanas móviles 1/3/6/12 meses; climatología fija; cobertura
+Análisis: SPI secuencial, duración, frecuencia e intensidad
+Conclusión permitida: Mapa animado de anomalía y transición déficit→normal→exceso
+No afirmar: No sumar SPI de escalas ni usar SPI sin serie suficiente
+Evidencia: Observación / detección
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C04 · NOAA Climate Data Online; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C04: https://www.ncei.noaa.gov/cdo-web/; C06: https://climexp.knmi.nl/
+Productos necesarios: X01 · NASA GPM IMERG
+Fuentes adicionales: X01 · NASA GPM IMERG
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/; X25: https://www.smn.gob.ar/
+
+[36] N1.3D — Posibles indicios de degradación ambiental
+Familia: N1.3
+Indicadores: NDVI/EVI; land cover
+Variables: Obligatorias: NDVI/EVI; land cover | Explicativas solo para N2
+Preprocesamiento: Control cultivos, incendios, tendencia de largo plazo; comparación contextual
+Análisis: Declive persistente + cambios cobertura + rupturas
+Conclusión permitida: Clasificar como señal de alerta que requiere validación en terreno
+No afirmar: No etiquetar degradación definitiva por NDVI solo
+Evidencia: Observación / detección
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+======================================================================
+NIVEL 2 — DIAGNÓSTICO MULTIVARIABLE
+======================================================================
+
+[01] B1.1 — Expansión urbana y conversión de cobertura vegetal
+Familia: B1
+Indicadores: Cobertura urbana; land cover; NDVI
+Variables: Cobertura urbana; land cover; NDVI
+Preprocesamiento: Clasificación multifecha, matriz de transición y QA
+Análisis: Cambios bosque/vegetación→urbano y tendencia NDVI
+Conclusión permitida: Expansión urbana cartografiada más disminución de verdor en áreas convertidas
+No afirmar: NDVI solo no prueba impermeabilización
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C12 · CSA monitoreo de ecosistemas
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C12: https://www.asc-csa.gc.ca/eng/satellites/everyday-lives/monitoring-and-protecting-our-ecosystems-from-space.asp
+Productos necesarios: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Fuentes adicionales: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Enlaces adicionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X12 · Sentinel-2 L2A (Copernicus); X11 · Landsat Collection 2 L2 (USGS)
+Enlaces opcionales: X12: https://dataspace.copernicus.eu/; X11: https://www.usgs.gov/landsat-missions/landsat-collection-2
+
+[02] B1.2 — Isla de calor superficial y pérdida de vegetación
+Familia: B1
+Indicadores: LST; NDVI; ET; cobertura
+Variables: LST; NDVI; ET; cobertura
+Preprocesamiento: Emparejar fechas, día/noche, altitud, tipo de superficie y área rural
+Análisis: ΔLST urbano-rural y análisis condicionado de NDVI/ET
+Conclusión permitida: Asociación consistente, no atribución única de temperatura
+No afirmar: No afirmar isla de calor atmosférica a partir de LST
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X07 · MODIS MOD11A2; X06 · MODIS MOD13Q1; X08 · MODIS MCD12Q1
+Fuentes adicionales: X07 · MODIS MOD11A2; X06 · MODIS MOD13Q1; X08 · MODIS MCD12Q1
+Enlaces adicionales: X07: https://lpdaac.usgs.gov/products/mod11a2v061/; X06: https://lpdaac.usgs.gov/products/mod13q1v061/; X08: https://lpdaac.usgs.gov/products/mcd12q1v061/
+Fuentes opcionales: X20 · MODIS MOD16A2 / MOD16A2GF
+Enlaces opcionales: X20: https://lpdaac.usgs.gov/
+
+[03] B1.3 — Aerosoles urbanos y ventilación atmosférica
+Familia: B1
+Indicadores: AOD; NO2; viento; PBLH
+Variables: AOD; NO2; viento; PBLH
+Preprocesamiento: QA nubes/sensor; coincidencia temporal; ajuste meteorológico
+Análisis: Análisis multivariable NO2/AOD-viento-PBLH
+Conclusión permitida: Condiciones favorables a acumulación de contaminantes en columna
+No afirmar: AOD no confirma concentración superficial ni exposición
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C04 · NOAA Climate Data Online
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C04: https://www.ncei.noaa.gov/cdo-web/
+Productos necesarios: X28 · NASA MODIS/VIIRS aerosol (AOD); X19 · Sentinel-5P / TROPOMI; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X28 · NASA MODIS/VIIRS aerosol (AOD); X19 · Sentinel-5P / TROPOMI; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X28: https://earthdata.nasa.gov/; X19: https://dataspace.copernicus.eu/; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X26 · AERONET NASA
+Enlaces opcionales: X26: https://aeronet.gsfc.nasa.gov/
+
+[04] B1.4 — Patrones de HCHO y NO2, sin atribución exclusiva de COV
+Familia: B1
+Indicadores: HCHO; NO2; T2m; vegetación
+Variables: HCHO; NO2; T2m; vegetación
+Preprocesamiento: Normalizar columnas/sensor; estacionalidad y meteo
+Análisis: Correlaciones parciales/modelo explicativo
+Conclusión permitida: Compatibilidad con posibles fuentes fotoquímicas/biogénicas/antrópicas
+No afirmar: No clasificar fuente VOC con HCHO/NO2 únicamente
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X19 · Sentinel-5P / TROPOMI; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X19 · Sentinel-5P / TROPOMI; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X19: https://dataspace.copernicus.eu/; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X06 · MODIS MOD13Q1
+Enlaces opcionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+
+[05] B2.1 — Pérdida de bosque por cambio de uso del suelo
+Familia: B2
+Indicadores: Cobertura forestal; NDVI; LST
+Variables: Cobertura forestal; NDVI; LST
+Preprocesamiento: Máscara bosque original, imágenes ópticas y clasificación temporal
+Análisis: Transición bosque→no bosque corroborada con espectro
+Conclusión permitida: Pérdida forestal confirmada por transición de clase con nivel de certeza
+No afirmar: No deducir expansión agropecuaria sin clase destino verificada
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C12 · CSA monitoreo de ecosistemas
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C12: https://www.asc-csa.gc.ca/eng/satellites/everyday-lives/monitoring-and-protecting-our-ecosystems-from-space.asp
+Productos necesarios: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Fuentes adicionales: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Enlaces adicionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[06] B2.2 — Estrés vegetal asociado a déficit de agua
+Familia: B2
+Indicadores: NDVI/EVI; P; SM; T2m
+Variables: NDVI/EVI; P; SM; T2m
+Preprocesamiento: Anomalías estacionales, desfases ecológicamente plausibles y tipo de cobertura
+Análisis: Regresión dinámica con lags; sensibilidad; controles
+Conclusión permitida: Disminución vigor coincide/precedida por déficit hídrico; hipótesis explícita
+No afirmar: No declarar causalidad mediante correlación simple
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X06 · MODIS MOD13Q1; X01 · NASA GPM IMERG; X09 · SMAP (NASA NSIDC); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X06 · MODIS MOD13Q1; X01 · NASA GPM IMERG; X09 · SMAP (NASA NSIDC); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/; X01: https://gpm.nasa.gov/data/imerg; X09: https://nsidc.org/data/smap; X02: https://cds.climate.copernicus.eu/
+
+[07] B2.3 — Cambios de productividad primaria terrestre
+Familia: B2
+Indicadores: GPP/NPP; LAI; T2m; P
+Variables: GPP/NPP; LAI; T2m; P
+Preprocesamiento: Separar GPP de NPP anual, unidades carbono y producto
+Análisis: Tendencia GPP/NPP + regresión explicativa
+Conclusión permitida: Variación de productividad, no balance neto del ecosistema
+No afirmar: NPP positiva no equivale a sumidero neto de carbono
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X21 · MODIS MOD17 (GPP/NPP); X02 · ERA5 / ERA5-Land (Copernicus CDS); X01 · NASA GPM IMERG
+Fuentes adicionales: X21 · MODIS MOD17 (GPP/NPP); X02 · ERA5 / ERA5-Land (Copernicus CDS); X01 · NASA GPM IMERG
+Enlaces adicionales: X21: https://lpdaac.usgs.gov/; X02: https://cds.climate.copernicus.eu/; X01: https://gpm.nasa.gov/data/imerg
+Fuentes opcionales: X06 · MODIS MOD13Q1
+Enlaces opcionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+
+[08] B2.4 — Cambios estructurales potenciales en vegetación con SAR
+Familia: B2
+Indicadores: Retrodispersión SAR; cobertura; NDVI
+Variables: Retrodispersión SAR; cobertura; NDVI
+Preprocesamiento: Órbitas/ángulos, speckle, polarización, humedad y geometría
+Análisis: Change detection SAR + verificación óptica
+Conclusión permitida: Cambio estructural probable con incertidumbre y validación
+No afirmar: Retrodispersión SAR baja no confirma tala ni drenaje
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C09 · CSA RADARSAT RCM; C13 · Tutorial SAR Python CSA
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm; C13: https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial
+Productos necesarios: X13 · Sentinel-1 SAR (Copernicus); X06 · MODIS MOD13Q1
+Fuentes adicionales: X13 · Sentinel-1 SAR (Copernicus); X06 · MODIS MOD13Q1
+Enlaces adicionales: X13: https://dataspace.copernicus.eu/; X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X08 · MODIS MCD12Q1
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/
+
+[09] B3.1 — Sequía hidrológica y bajantes multicausales
+Familia: B3
+Indicadores: P; SM; WSE; caudal; ET
+Variables: P; SM; WSE; caudal; ET
+Preprocesamiento: Precipitación a escala de cuenca y lags; datum; operaciones conocidas
+Análisis: Anomalías conjuntas + balance hídrico cuando sea posible
+Conclusión permitida: Bajante coincide con déficit de aporte; causas alternativas abiertas
+No afirmar: No atribuir toda bajante al clima o al riego
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X01 · NASA GPM IMERG; X14 · SWOT datos científicos NASA PO.DAAC; X09 · SMAP (NASA NSIDC)
+Fuentes adicionales: X01 · NASA GPM IMERG; X14 · SWOT datos científicos NASA PO.DAAC; X09 · SMAP (NASA NSIDC)
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X14: https://podaac.jpl.nasa.gov/SWOT; X09: https://nsidc.org/data/smap
+Fuentes opcionales: X10 · GLDAS (NASA GES DISC); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X10: https://ldas.gsfc.nasa.gov/gldas; X25: https://www.smn.gob.ar/
+
+[10] B3.2 — Anegamiento e inundación observada
+Familia: B3
+Indicadores: P; SM; WSE; extensión SAR
+Variables: P; SM; WSE; extensión SAR
+Preprocesamiento: Ventanas antecedentes; máscara SAR y QA; escala cuenca
+Análisis: Mapa de agua observada pre/post; análisis de lluvia antecedente
+Conclusión permitida: Inundación/extensión de agua observada y factores compatibles
+No afirmar: P95 lluvia y SM alta no prueban inundación
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C09 · CSA RADARSAT RCM; C13 · Tutorial SAR Python CSA
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm; C13: https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial
+Productos necesarios: X01 · NASA GPM IMERG; X13 · Sentinel-1 SAR (Copernicus); X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X01 · NASA GPM IMERG; X13 · Sentinel-1 SAR (Copernicus); X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X13: https://dataspace.copernicus.eu/; X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X09 · SMAP (NASA NSIDC); X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X09: https://nsidc.org/data/smap; X25: https://www.smn.gob.ar/
+
+[11] B3.3 — Limitación energética versus hídrica de evapotranspiración
+Familia: B3
+Indicadores: ET; PET; SM; radiación; NDVI
+Variables: ET; PET; SM; radiación; NDVI
+Preprocesamiento: ET y PET compatibles, anomalías estacionales y uso suelo
+Análisis: Sensibilidades y regresión de ET vs energía/agua
+Conclusión permitida: Clasificación indicativa de régimen bajo supuestos declarados
+No afirmar: No deducir disponibilidad hídrica solo de ET0–ET
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X20 · MODIS MOD16A2 / MOD16A2GF; X09 · SMAP (NASA NSIDC); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X20 · MODIS MOD16A2 / MOD16A2GF; X09 · SMAP (NASA NSIDC); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X20: https://lpdaac.usgs.gov/; X09: https://nsidc.org/data/smap; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X06 · MODIS MOD13Q1
+Enlaces opcionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+
+[12] B3.4 — Variaciones de altura, ancho, pendiente y descarga fluvial
+Familia: B3
+Indicadores: WSE; ancho; pendiente; caudal modelado
+Variables: WSE; ancho; pendiente; caudal modelado
+Preprocesamiento: Datum y geometría; estaciones repetidas; error de medición
+Análisis: Comparaciones longitudinales con IC
+Conclusión permitida: Cambios hidrológicos estimados con limitaciones de descarga
+No afirmar: No llamar caudal «centimétrico» ni inferir morfología de dos niveles
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X25: https://www.smn.gob.ar/
+
+[13] B4.1 — Retroceso glaciar y pérdida de masa (por separado)
+Familia: B4
+Indicadores: Área glaciar; elevación; nieve
+Variables: Área glaciar; elevación; nieve
+Preprocesamiento: Máscara hielo multifecha; DEM co-registrados; estacionalidad
+Análisis: Cambio de área; diferencia DEM si disponible
+Conclusión permitida: Reportar área; masa/espesor solo con datos altimétricos apropiados
+No afirmar: Menor área no cuantifica adelgazamiento
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C06 · KNMI Climate Explorer; C09 · CSA RADARSAT RCM
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C06: https://climexp.knmi.nl/; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm
+Productos necesarios: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS); X29 · ICESat-2 / geodesia glaciar
+Fuentes adicionales: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS); X29 · ICESat-2 / geodesia glaciar
+Enlaces adicionales: X24: https://nsidc.org/data/mod10a1; X02: https://cds.climate.copernicus.eu/; X29: https://nsidc.org/data/icesat-2
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus); X17 · SRTM / NASADEM
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[14] B4.2 — Duración de cobertura nival y deshielo
+Familia: B4
+Indicadores: NDSI; nieve; T2m; SWE
+Variables: NDSI; nieve; T2m; SWE
+Preprocesamiento: QA nubes, nieve por altitud y meses comparables
+Análisis: Inicio-fin nieve, duración y asociación con T2m
+Conclusión permitida: Temporada nival más corta/larga con diferencias altitudinales
+No afirmar: Cobertura de nieve no equivale SWE
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X24: https://nsidc.org/data/mod10a1; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus); X17 · SRTM / NASADEM
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[15] B4.3 — Avance glaciar potencial y balance nival
+Familia: B4
+Indicadores: Área glaciar; acumulación nieve; T2m
+Variables: Área glaciar; acumulación nieve; T2m
+Preprocesamiento: Clasificación cobertura estacional y geometría estable
+Análisis: Cambios frente glaciar; validación geodésica
+Conclusión permitida: Avance geométrico observado, mecanismo nival como hipótesis
+No afirmar: Un invierno nivoso no prueba glaciar creciendo en masa
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X24 · Catálogos de nieve MODIS (MOD10A1); X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X24: https://nsidc.org/data/mod10a1; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus); X17 · SRTM / NASADEM
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[16] B4.4 — Indicadores de degradación de permafrost
+Familia: B4
+Indicadores: Temperatura suelo; InSAR; hielo
+Variables: Temperatura suelo; InSAR; hielo
+Preprocesamiento: Líneas de base InSAR, desfases, nieve/cobertura
+Análisis: Tendencias térmicas y subsidencia geodésica
+Conclusión permitida: Compatibilidad con deformación por deshielo, no confirmación automática
+No afirmar: Subsidencia sola no prueba permafrost degradado
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C09 · CSA RADARSAT RCM; C13 · Tutorial SAR Python CSA
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm; C13: https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS); X13 · Sentinel-1 SAR (Copernicus)
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X13 · Sentinel-1 SAR (Copernicus)
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/; X13: https://dataspace.copernicus.eu/
+Fuentes opcionales: X17 · SRTM / NASADEM
+Enlaces opcionales: X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[17] B5.1 — Elevación absoluta del mar y cambios costeros separados
+Familia: B5
+Indicadores: SSH absoluta; SST; línea costa
+Variables: SSH absoluta; SST; línea costa
+Preprocesamiento: Datum altimétrico consistente, mareas y sesgos; segmentación costa
+Análisis: Tendencia SSH + cartografía litoral por separado
+Conclusión permitida: Alza geocéntrica del mar; erosión costera requiere otra prueba
+No afirmar: SST al alza no cuantifica expansión térmica local
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X14 · SWOT datos científicos NASA PO.DAAC; X18 · GHRSST (NASA PO.DAAC)
+Fuentes adicionales: X14 · SWOT datos científicos NASA PO.DAAC; X18 · GHRSST (NASA PO.DAAC)
+Enlaces adicionales: X14: https://podaac.jpl.nasa.gov/SWOT; X18: https://podaac.jpl.nasa.gov/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[18] B5.2 — Nivel relativo del mar y movimiento vertical del terreno
+Familia: B5
+Indicadores: Mareógrafo; GNSS; SSH
+Variables: Mareógrafo; GNSS; SSH
+Preprocesamiento: Datum mareográfico, movimiento vertical y comparación
+Análisis: Diferencia tendencia mareógrafo-SSH y GNSS
+Conclusión permitida: Identificar posible movimiento vertical con compatibilidad metrológica
+No afirmar: No atribuir al rebote isostático sin evidencia geodésica/geológica
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X22 · NOAA / estaciones mareográficas + GNSS; X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X22 · NOAA / estaciones mareográficas + GNSS; X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X22: https://tidesandcurrents.noaa.gov/; X14: https://podaac.jpl.nasa.gov/SWOT
+
+[19] B5.3 — Olas de calor marinas y cambios de clorofila
+Familia: B5
+Indicadores: SST; clorofila; viento
+Variables: SST; clorofila; viento
+Preprocesamiento: Climatología SST diaria y percentiles; QA ocean color
+Análisis: Definición MHW ≥P90 y duración; clorofila como variable independiente
+Conclusión permitida: Ola de calor + anomalía de clorofila; HAB requiere validación toxicológica
+No afirmar: Clorofila alta NO significa marea roja tóxica
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C05 · Artículo NASA sobre SeaWiFS clorofila; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C05: https://ntrs.nasa.gov/api/citations/20090042747/downloads/20090042747.pdf; C06: https://climexp.knmi.nl/
+Productos necesarios: X18 · GHRSST (NASA PO.DAAC); X15 · NASA Ocean Color / OB.DAAC
+Fuentes adicionales: X18 · GHRSST (NASA PO.DAAC); X15 · NASA Ocean Color / OB.DAAC
+Enlaces adicionales: X18: https://podaac.jpl.nasa.gov/; X15: https://oceancolor.gsfc.nasa.gov/
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/
+
+[20] B5.4 — Indicios de surgencia y productividad marina
+Familia: B5
+Indicadores: Viento paralelo costa; SST; clorofila; nutrientes
+Variables: Viento paralelo costa; SST; clorofila; nutrientes
+Preprocesamiento: Orientación litoral, Ekman y desfase; SST costeña; QA
+Análisis: Composites/event-study y regresión con lags físicos
+Conclusión permitida: Patrón compatible con surgencia si viento, enfriamiento y respuesta coexisten
+No afirmar: No medir nutrientes por SST/Chl indirectamente
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C05 · Artículo NASA sobre SeaWiFS clorofila; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C05: https://ntrs.nasa.gov/api/citations/20090042747/downloads/20090042747.pdf; C06: https://climexp.knmi.nl/
+Productos necesarios: X18 · GHRSST (NASA PO.DAAC); X15 · NASA Ocean Color / OB.DAAC; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X18 · GHRSST (NASA PO.DAAC); X15 · NASA Ocean Color / OB.DAAC; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X18: https://podaac.jpl.nasa.gov/; X15: https://oceancolor.gsfc.nasa.gov/; X02: https://cds.climate.copernicus.eu/
+
+[21] B6.1 — Teleconexiones ENSO y anomalías regionales
+Familia: B6
+Indicadores: Niño3.4; P; T2m
+Variables: Niño3.4; P; T2m
+Preprocesamiento: Anomalías simultáneas, lags declarados, estratificar estaciones
+Análisis: Correlaciones parciales y validación fuera de muestra; lags limitados
+Conclusión permitida: Asociación regional con ENSO según lugar y época
+No afirmar: Correlación ENSO-local no prueba efecto causal invariable
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X16: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php; X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X25: https://www.smn.gob.ar/
+
+[22] B6.2 — Contrastes espaciales asociados a ENSO
+Familia: B6
+Indicadores: Niño3.4; P/T regional
+Variables: Niño3.4; P/T regional
+Preprocesamiento: Climatologías propias para cada región y período
+Análisis: Patrones de correlación regional + incertidumbre múltiple
+Conclusión permitida: Regiones pueden responder diferencialmente al mismo índice
+No afirmar: No sumar regiones para cancelar anomalías ni extrapolar teleconexión
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X16: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php; X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X25: https://www.smn.gob.ar/
+
+[23] B6.3 — Tendencias en radiación y aerosoles atmosféricos
+Familia: B6
+Indicadores: Radiación; AOD; nube
+Variables: Radiación; AOD; nube
+Preprocesamiento: Homogeneidad radiométrica y QA; estacionalidad
+Análisis: Sen/MK de radiación + modelo multivariante
+Conclusión permitida: Oscurecimiento/abrillantamiento detectado; fuentes propuestas
+No afirmar: AOD y nubosidad no atribuyen todo cambio radiativo
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X16 · NOAA índices ENSO (ONI / Niño 3.4); X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X16: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php; X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X25: https://www.smn.gob.ar/
+
+[24] B7.1 — Plumas volcánicas y posibles perturbaciones radiativas
+Familia: B7
+Indicadores: SO2; aerosol estratosférico; T2m
+Variables: SO2; aerosol estratosférico; T2m
+Preprocesamiento: Altitud de pluma, dispersión, controles climatológicos
+Análisis: Detección de SO2 y estudio de eventos
+Conclusión permitida: Perturbación radiativa plausible en erupciones relevantes
+No afirmar: No exigir enfriamiento tras toda erupción
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/
+Productos necesarios: X19 · Sentinel-5P / TROPOMI; X28 · NASA MODIS/VIIRS aerosol (AOD)
+Fuentes adicionales: X19 · Sentinel-5P / TROPOMI; X28 · NASA MODIS/VIIRS aerosol (AOD)
+Enlaces adicionales: X19: https://dataspace.copernicus.eu/; X28: https://earthdata.nasa.gov/
+Fuentes opcionales: X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces opcionales: X02: https://cds.climate.copernicus.eu/
+
+[25] B7.2 — Deformación cortical relacionada con sismos
+Familia: B7
+Indicadores: InSAR; sismos
+Variables: InSAR; sismos
+Preprocesamiento: Corrección atmosférica, línea de visión y coherencia
+Análisis: Interferometría diferencial + ubicación sismos
+Conclusión permitida: Desplazamiento en línea de visión asociado temporalmente
+No afirmar: No afirmar vector 3D con única geometría SAR
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C09 · CSA RADARSAT RCM; C13 · Tutorial SAR Python CSA
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm; C13: https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial
+Productos necesarios: X13 · Sentinel-1 SAR (Copernicus); X23 · Servicio Geológico USGS eventos sísmicos
+Fuentes adicionales: X13 · Sentinel-1 SAR (Copernicus); X23 · Servicio Geológico USGS eventos sísmicos
+Enlaces adicionales: X13: https://dataspace.copernicus.eu/; X23: https://earthquake.usgs.gov/earthquakes/search/
+
+[26] B7.3 — Condiciones predisponentes a deslizamiento
+Familia: B7
+Indicadores: P; pendiente; SM; land cover
+Variables: P; pendiente; SM; land cover
+Preprocesamiento: Res. espacial compatible; inventario de deslizamientos
+Análisis: Modelo susceptibilidad calibrado localmente; alerta no operativa
+Conclusión permitida: Condiciones favorables; verificar con inventario/validación local
+No afirmar: No usar pendiente>20° y lluvia>P99 como riesgo crítico universal
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C09 · CSA RADARSAT RCM; C13 · Tutorial SAR Python CSA
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C09: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm; C13: https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial
+Productos necesarios: X01 · NASA GPM IMERG; X09 · SMAP (NASA NSIDC); X17 · SRTM / NASADEM
+Fuentes adicionales: X01 · NASA GPM IMERG; X09 · SMAP (NASA NSIDC); X17 · SRTM / NASADEM
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X09: https://nsidc.org/data/smap; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+Fuentes opcionales: X08 · MODIS MCD12Q1; X13 · Sentinel-1 SAR (Copernicus)
+Enlaces opcionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X13: https://dataspace.copernicus.eu/
+
+[27] B8.1 — Gradientes orográficos de precipitación
+Familia: B8
+Indicadores: P; viento; DEM
+Variables: P; viento; DEM
+Preprocesamiento: Bandas de elevación; climatología y sotavento/barlovento
+Análisis: Contrastes apareados por orientación y estación
+Conclusión permitida: Diferencias espaciales compatibles con sombra de lluvia
+No afirmar: No inferir foehn sin datos dinámicos/termodinámicos
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS); X17 · SRTM / NASADEM
+Fuentes adicionales: X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS); X17 · SRTM / NASADEM
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+
+[28] B8.2 — Calentamiento dependiente de elevación
+Familia: B8
+Indicadores: T2m; DEM; nieve
+Variables: T2m; DEM; nieve
+Preprocesamiento: Bandas altitudinales; evitar sesgo cambios estación
+Análisis: Tendencias °C/década por banda + interacción elevación-tiempo
+Conclusión permitida: Diferencia de tendencias térmicas por altura
+No afirmar: No inferir mecanismo hielo-albedo solo por correlación
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C06 · KNMI Climate Explorer
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C06: https://climexp.knmi.nl/
+Productos necesarios: X02 · ERA5 / ERA5-Land (Copernicus CDS); X17 · SRTM / NASADEM
+Fuentes adicionales: X02 · ERA5 / ERA5-Land (Copernicus CDS); X17 · SRTM / NASADEM
+Enlaces adicionales: X02: https://cds.climate.copernicus.eu/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+Fuentes opcionales: X24 · Catálogos de nieve MODIS (MOD10A1)
+Enlaces opcionales: X24: https://nsidc.org/data/mod10a1
+
+[29] B8.3 — Cambio altitudinal de distribución vegetal
+Familia: B8
+Indicadores: Cobertura arbórea; NDVI; DEM
+Variables: Cobertura arbórea; NDVI; DEM
+Preprocesamiento: Clasificación estructural multifecha y pendiente; QA
+Análisis: Cambio altitudinal de límites de clase bosque
+Conclusión permitida: Desplazamiento de cobertura observado si hay cambio de clase
+No afirmar: NDVI en alta cota no demuestra treeline ascendente
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P3
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1; X08 · MODIS MCD12Q1; X17 · SRTM / NASADEM
+Fuentes adicionales: X06 · MODIS MOD13Q1; X08 · MODIS MCD12Q1; X17 · SRTM / NASADEM
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/; X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X17: https://lpdaac.usgs.gov/products/nasadem_hgtv001/
+Fuentes opcionales: X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X12: https://dataspace.copernicus.eu/
+
+[30] B9.1 — Recurrencia y estacionalidad de fuego y superficie quemada
+Familia: B9
+Indicadores: FIRMS; área quemada; P; T2m
+Variables: FIRMS; área quemada; P; T2m
+Preprocesamiento: Distinguir detecciones, eventos agrupados y área quemada
+Análisis: Frecuencia, temporada, km² y lags meteorológicos
+Conclusión permitida: Mostrar evolución por métrica independiente y asociaciones climáticas
+No afirmar: No inferir número de incendios desde detecciones FIRMS
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X04 · NASA FIRMS; X05 · MODIS MCD64A1; X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Fuentes adicionales: X04 · NASA FIRMS; X05 · MODIS MCD64A1; X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces adicionales: X04: https://firms.modaps.eosdis.nasa.gov/; X05: https://lpdaac.usgs.gov/products/mcd64a1v061/; X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/
+
+[31] B9.2 — Condiciones meteorológicas de peligro de incendio
+Familia: B9
+Indicadores: T; RH; viento; P; combustible
+Variables: T; RH; viento; P; combustible
+Preprocesamiento: Datos a escala horaria/diaria, combustibles y calibración local
+Análisis: FWI u otro índice validado; pronóstico meteo disponible
+Conclusión permitida: Peligro meteorológico relativo, nunca predicción del incendio exacto
+No afirmar: Regla 30-30-30 no es criterio universal ni define megaincendio
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC)
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series
+Productos necesarios: X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS); X09 · SMAP (NASA NSIDC)
+Fuentes adicionales: X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS); X09 · SMAP (NASA NSIDC)
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/; X09: https://nsidc.org/data/smap
+Fuentes opcionales: X04 · NASA FIRMS
+Enlaces opcionales: X04: https://firms.modaps.eosdis.nasa.gov/
+
+[32] B9.3 — Severidad espectral y recuperación postfuego
+Familia: B9
+Indicadores: NBR/dNBR; NDVI/EVI; lluvia
+Variables: NBR/dNBR; NDVI/EVI; lluvia
+Preprocesamiento: Comparación pre/post misma estación; máscara área quemada
+Análisis: dNBR + trayectorias de recuperación, clasificación regional
+Conclusión permitida: Cambio espectral por incendio; recuperación de verdor comparativa
+No afirmar: No equivaler dNBR con daño ecológico absoluto
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1; X05 · MODIS MCD64A1
+Fuentes adicionales: X06 · MODIS MOD13Q1; X05 · MODIS MCD64A1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/; X05: https://lpdaac.usgs.gov/products/mcd64a1v061/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[33] B9.4 — Atlas histórico de incendios y cicatrices por región
+Familia: B9
+Indicadores: Área quemada; FIRMS; NBR
+Variables: Área quemada; FIRMS; NBR
+Preprocesamiento: Productos comparables, mosaico por año, resolución y QA documentados
+Análisis: Series de ha, mapas anuales; persistencia y recurrencia por píxel
+Conclusión permitida: Separar capas de focos, superficie quemada y cambio espectral
+No afirmar: No sustituir burned-area por mapa de densidad FIRMS
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X05 · MODIS MCD64A1; X04 · NASA FIRMS
+Fuentes adicionales: X05 · MODIS MCD64A1; X04 · NASA FIRMS
+Enlaces adicionales: X05: https://lpdaac.usgs.gov/products/mcd64a1v061/; X04: https://firms.modaps.eosdis.nasa.gov/
+Fuentes opcionales: X11 · Landsat Collection 2 L2 (USGS); X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X11: https://www.usgs.gov/landsat-missions/landsat-collection-2; X12: https://dataspace.copernicus.eu/
+
+[34] B2.5 — Degradación ambiental potencial multiseñal
+Familia: B2
+Indicadores: NDVI/EVI; cobertura; LST; P; SM
+Variables: NDVI/EVI; cobertura; LST; P; SM
+Preprocesamiento: Anomalías comparables, estratos ecológicos y perturbaciones
+Análisis: Regresión con controles, rupturas, coincidencia espacial
+Conclusión permitida: Alerta multievidencia sobre pérdida sostenida de función/cobertura
+No afirmar: No diagnosticar desertificación irreversible sin evidencia de suelo
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Fuentes adicionales: X08 · MODIS MCD12Q1; X06 · MODIS MOD13Q1
+Enlaces adicionales: X08: https://lpdaac.usgs.gov/products/mcd12q1v061/; X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X01 · NASA GPM IMERG; X02 · ERA5 / ERA5-Land (Copernicus CDS)
+Enlaces opcionales: X01: https://gpm.nasa.gov/data/imerg; X02: https://cds.climate.copernicus.eu/
+
+[35] B2.6 — Recuperación de vegetación y resiliencia tras sequía
+Familia: B2
+Indicadores: NDVI/EVI; P; SM; LST
+Variables: NDVI/EVI; P; SM; LST
+Preprocesamiento: Definir evento y referencia estacional; controlar cultivos
+Análisis: Tiempo de recuperación a banda de referencia + IC
+Conclusión permitida: Recuperación espectral observada tras retorno de lluvia
+No afirmar: No interpretar recuperación NDVI como restauración ecosistémica total
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X01 · NASA GPM IMERG; X12 · Sentinel-2 L2A (Copernicus)
+Enlaces opcionales: X01: https://gpm.nasa.gov/data/imerg; X12: https://dataspace.copernicus.eu/
+
+[36] B3.5 — Déficit/exceso de lluvia y respuesta del territorio
+Familia: B3
+Indicadores: P; SPI; SM; NDVI; WSE
+Variables: P; SPI; SM; NDVI; WSE
+Preprocesamiento: Precipitación por cuenca; ventanas 1/3/6/12; lags y QA
+Análisis: Cambio de estados SPI y respuesta diferida multivariable
+Conclusión permitida: Evolución del episodio pluviométrico y posibles impactos observados
+No afirmar: No suponer impacto directo sin sensibilidad local
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: MVP
+Estado: Implementar
+Fuentes de competencia: C01 · NASA Giovanni; C02 · Hydrology Time Series (NASA GES DISC); C11 · CSA SWOT - información de misión
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C02: https://disc.gsfc.nasa.gov/information/tools?title=Hydrology%20Time%20Series; C11: https://www.asc-csa.gc.ca/eng/satellites/swot/
+Productos necesarios: X01 · NASA GPM IMERG; X14 · SWOT datos científicos NASA PO.DAAC
+Fuentes adicionales: X01 · NASA GPM IMERG; X14 · SWOT datos científicos NASA PO.DAAC
+Enlaces adicionales: X01: https://gpm.nasa.gov/data/imerg; X14: https://podaac.jpl.nasa.gov/SWOT
+Fuentes opcionales: X25 · Datos estaciones y organismos nacionales/locales
+Enlaces opcionales: X25: https://www.smn.gob.ar/
+
+[37] B1.5 — Zonas de calentamiento anormal y pérdida de cubierta
+Familia: B1
+Indicadores: LST; T2m; NDVI; land cover
+Variables: LST; T2m; NDVI; land cover
+Preprocesamiento: Alinear por estación/hora, clase de uso, urbanización y sensor
+Análisis: Hotspots persistentes de anomalía LST + control regional T2m
+Conclusión permitida: Mapas de zonas cálidas anómalas y coincidencia con pérdida vegetal
+No afirmar: No atribuir a urbanización o degradación sin transiciones observadas
+Evidencia: Evidencia asociativa; validar hipótesis
+Prioridad: P2
+Estado: Backlog
+Fuentes de competencia: C01 · NASA Giovanni; C03 · NASA AppEEARS
+Enlaces de competencia: C01: https://giovanni.gsfc.nasa.gov/; C03: https://appeears.earthdatacloud.nasa.gov/
+Productos necesarios: X06 · MODIS MOD13Q1
+Fuentes adicionales: X06 · MODIS MOD13Q1
+Enlaces adicionales: X06: https://lpdaac.usgs.gov/products/mod13q1v061/
+Fuentes opcionales: X01 · NASA GPM IMERG
+Enlaces opcionales: X01: https://gpm.nasa.gov/data/imerg

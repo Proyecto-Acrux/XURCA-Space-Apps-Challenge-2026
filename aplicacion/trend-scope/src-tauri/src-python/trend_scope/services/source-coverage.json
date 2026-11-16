@@ -3,6 +3,86 @@
   "reviewedOn": "2026-11-14",
   "products": [
     {
+      "id": "chirps-v3-daily",
+      "access": "ucsb.chirps.daily",
+      "product": "CHIRPS v3 diario",
+      "variables": [
+        "precipitation"
+      ],
+      "geography": "land-grid",
+      "selection": "Point/Area",
+      "cadence": "daily",
+      "from": "1981-01-01",
+      "maxDays": 366,
+      "publisherCatalog": true,
+      "reference": "https://www.chc.ucsb.edu/data/chirps3"
+    },
+    {
+      "id": "usgs-comcat-count",
+      "access": "usgs.earthquakes",
+      "product": "USGS ComCat",
+      "variables": [
+        "count"
+      ],
+      "geography": "event-catalog",
+      "selection": "Area",
+      "cadence": "daily",
+      "from": "1900-01-01",
+      "publisherCatalog": true,
+      "reference": "https://earthquake.usgs.gov/data/comcat/availability.php"
+    },
+    {
+      "id": "usgs-comcat-events",
+      "access": "usgs.earthquakes",
+      "product": "USGS ComCat",
+      "variables": [
+        "magnitude",
+        "depth"
+      ],
+      "geography": "event-catalog",
+      "selection": "Area",
+      "cadence": "event",
+      "from": "1900-01-01",
+      "publisherCatalog": true,
+      "reference": "https://earthquake.usgs.gov/data/comcat/availability.php"
+    },
+    {
+      "id": "chirps-v3-monthly",
+      "access": "ucsb.chirps.monthly",
+      "product": "CHIRPS v3 final",
+      "variables": ["precipitation"],
+      "geography": "land-grid",
+      "selection": "Point/Area",
+      "cadence": "monthly",
+      "from": "1981-01-01",
+      "publisherCatalog": true,
+      "reference": "https://www.chc.ucsb.edu/data/chirps3"
+    },
+    {
+      "id": "pmra-v1-monthly",
+      "access": "argentina.pmra.monthly",
+      "product": "PMRAv1 · Argentina",
+      "variables": ["precipitation"],
+      "geography": "argentina-land-grid",
+      "selection": "Point/Area",
+      "cadence": "monthly",
+      "from": "2000-01-01",
+      "through": "2023-12-31",
+      "reference": "https://sedici.unlp.edu.ar/handle/10915/175062"
+    },
+    {
+      "id": "noaa-enso",
+      "access": "noaa.cpc.oni",
+      "product": "NOAA CPC ENSO",
+      "variables": ["anomaly", "total", "roni"],
+      "geography": "nino-3.4",
+      "selection": "Index",
+      "cadence": "monthly",
+      "from": "1950-01-01",
+      "publisherCatalog": true,
+      "reference": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt"
+    },
+    {
       "id": "power-meteorology",
       "access": "nasa.power.monthly",
       "product": "NASA POWER / MERRA-2",

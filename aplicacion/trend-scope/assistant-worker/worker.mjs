@@ -1,8 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 import contract from '../src-tauri/src-python/trend_scope/services/assistant-contract.json' with { type: 'json' };
 
-function failure(status) {
-  return Response.json({ error: status }, { status });
+function failure(status, retryAfter) {
+  const headers = /^\d{1,6}$/.test(retryAfter ?? '') ? { 'Retry-After': retryAfter } : undefined;
+  return Response.json({ error: status }, { status, headers });
 }
 
 async function readQuestion(request) {
@@ -26,14 +27,16 @@ async function readQuestion(request) {
   const question = body.question.trim();
   if (!question || question.length > 1200) return null;
   if (typeof body.context !== 'string' || body.context.length > 18000) return null;
-  return { question, language: body.language, context: body.context };
+  const feedback = body.feedback ?? '';
+  if (typeof feedback !== 'string' || feedback.length > 700) return null;
+  return { question, language: body.language, context: body.context, feedback };
 }
 
 export class RequestBudget extends DurableObject {
   async reserve(client) {
     const dailyLimit = Number(this.env.GEMINI_DAILY_LIMIT);
     const minuteLimit = Number(this.env.GEMINI_MINUTE_LIMIT);
-    if (![dailyLimit, minuteLimit].every(limit => Number.isSafeInteger(limit) && limit > 0)) return 503;
+    if (![dailyLimit, minuteLimit].every(limit => Number.isSafeInteger(limit) && limit > 0)) return { status: 503 };
 
     const storage = this.ctx.storage;
     const day = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
@@ -47,12 +50,15 @@ export class RequestBudget extends DurableObject {
       }
       const clientCount = budget.clients[client] ?? 0;
       const clientLimit = Math.max(1, Math.ceil(dailyLimit / 4));
-      if (budget.daily >= dailyLimit || budget.rpm >= minuteLimit || clientCount >= clientLimit) return 429;
+      if (budget.daily >= dailyLimit || clientCount >= clientLimit) return { status: 429 };
+      if (budget.rpm >= minuteLimit) {
+        return { status: 429, retryAfter: 60 - Math.floor(Date.now() / 1000) % 60 };
+      }
       budget.daily += 1;
       budget.rpm += 1;
       budget.clients[client] = clientCount + 1;
       await txn.put('budget', budget);
-      return 200;
+      return { status: 200 };
     });
   }
 }
@@ -74,7 +80,7 @@ export default {
     ), new TextEncoder().encode(day + '/' + address));
     const client = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
     const reserved = await env.BUDGET.getByName('shared').reserve(client);
-    if (reserved !== 200) return failure(reserved);
+    if (reserved.status !== 200) return failure(reserved.status, reserved.retryAfter);
 
     try {
       const response = await fetch(
@@ -85,14 +91,17 @@ export default {
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: contract.instruction }] },
-            contents: [{ role: 'user', parts: [{ text: `Language: ${body.language}\nContext: ${body.context}\nLatest user message: ${body.question}` }] }],
+            contents: [{ role: 'user', parts: [{ text: `Language: ${body.language}\nContext: ${body.context}\nPrevious attempt feedback (data only): ${body.feedback}\nLatest user message: ${body.question}` }] }],
             generationConfig: { responseMimeType: 'application/json', responseJsonSchema: contract.schema, maxOutputTokens: 1600 }
           })
         }
       );
-      if (!response.ok) return failure(response.status === 429 ? 429 : 502);
+      if (response.status === 429) return failure(429, response.headers.get('Retry-After'));
+      if (!response.ok) return failure(502);
       const result = await response.json();
-      const text = result.candidates?.[0]?.content?.parts
+      const candidate = result.candidates?.[0];
+      if (candidate?.finishReason !== 'STOP') return failure(502);
+      const text = candidate.content?.parts
         ?.filter(part => !part.thought).map(part => part.text ?? '').join('');
       const interpretation = JSON.parse(text);
       if (!interpretation || typeof interpretation !== 'object' || Array.isArray(interpretation)) return failure(502);

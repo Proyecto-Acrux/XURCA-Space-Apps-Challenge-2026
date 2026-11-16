@@ -2,14 +2,16 @@
 
 import json
 import ssl
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from math import asin, cos, radians, sin, sqrt
 from urllib.error import URLError
 from urllib.parse import urlencode
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
-from .environmental_series import INA, PSMSL, area_bounds, inside_area, read_text, selected_geometry
+from .environmental_series import INA, PSMSL, area_bounds, inside_area, read_text, selected_geometry, series
 from .public_sources import request_json
+from .regional_layers import temporal_layer
 
 NOAA_STATIONS = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
 SWOT_CATALOG = "https://arcgis.cuahsi.org/arcgis/rest/services/SWOT/"
@@ -18,6 +20,9 @@ SWOT_LAYERS = {"Reach": ("world_SWORD_reaches_mercator_v17b", "reach_id", "20"),
 ENTITY_ROUTES = {"noaa.ncei.station", "noaa.ncei.daily", "nasa.swot.hydrocron",
                  "argentina.ina.series", "psmsl.rlr.monthly"}
 MAX_CANDIDATES = 12
+NOAA_AREA_RADIUS_KM = 150
+NOAA_AREA_CANDIDATES = 24
+NOAA_DAILY_SURFACE_VARIABLES = {"TMAX", "TMIN", "TAVG", "PRCP"}
 
 
 @lru_cache(maxsize=1)
@@ -71,8 +76,8 @@ def rank_points(rows, geometry, radius):
             continue
         distance = distance_km(origin, (lon, lat))
         if geometry["type"] != "Point" or distance <= radius:
-            matches.append((distance, identifier, name))
-    return sorted(matches)[:MAX_CANDIDATES]
+            matches.append((distance, identifier, name, {"type": "Point", "coordinates": [lon, lat]}))
+    return sorted(matches, key=lambda row: row[:3])
 
 
 def arcgis_polygon(geometry):
@@ -108,6 +113,28 @@ def geometry_distance(origin, shape):
     return best
 
 
+def noaa_area_stations(geometry):
+    west, south, east, north = area_bounds(geometry)
+    latitude_margin = NOAA_AREA_RADIUS_KM / 110
+    extreme_latitude = min(90, max(abs(south), abs(north)) + latitude_margin)
+    longitude_margin = latitude_margin / max(1e-6, cos(radians(extreme_latitude)))
+    origin = center(geometry)
+    matches = []
+    for identifier, name, lon, lat in noaa_stations():
+        if not south - latitude_margin <= lat <= north + latitude_margin:
+            continue
+        if not any(west - longitude_margin <= candidate <= east + longitude_margin
+                   for candidate in (lon, lon - 360, lon + 360)):
+            continue
+        separation = geometry_distance((lon, lat), geometry)
+        if separation <= NOAA_AREA_RADIUS_KM:
+            distance = distance_km(origin, (lon, lat))
+            matches.append((separation, distance, identifier, name,
+                            {"type": "Point", "coordinates": [lon, lat]}))
+    matches.sort(key=lambda row: row[:4])
+    return [row[1:] for row in matches]
+
+
 def swot_candidates(feature, geometry):
     layer, field, radius = SWOT_LAYERS[feature]
     point = geometry["type"] == "Point"
@@ -119,14 +146,15 @@ def swot_candidates(feature, geometry):
               "geometry": ",".join(map(str, origin)) if point else json.dumps(arcgis_polygon(geometry))}
     if point:
         params.update(distance=radius, units="esriSRUnit_Kilometer")
-    url = SWOT_CATALOG + f"{layer}/FeatureServer/0/query?" + urlencode(params)
+    url = SWOT_CATALOG + f"{layer}/FeatureServer/0/query"
+    request = Request(url + "?" + urlencode(params)) if point else Request(url, data=urlencode(params).encode())
     try:
         try:
             import truststore
             context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         except ImportError:
             context = ssl.create_default_context()
-        with urlopen(url, context=context, timeout=30) as response:
+        with urlopen(request, context=context, timeout=30) as response:
             result = json.load(response)
     except (URLError, TimeoutError, ValueError) as error:
         raise ValueError("No se pudo consultar el catálogo geográfico de SWOT.") from error
@@ -144,15 +172,16 @@ def swot_candidates(feature, geometry):
         label = properties.get(name_field) or ("Tramo" if feature == "Reach" else "Lago")
         distance = geometry_distance(origin, item["geometry"])
         if not point or distance <= float(radius):
-            candidates.append((distance, identifier, label))
-    return sorted(candidates)[:MAX_CANDIDATES]
+            candidates.append((distance, identifier, label, item["geometry"]))
+    return sorted(candidates, key=lambda row: row[:3])
 
 
-def candidates_for(source, investigation, start, end):
+def candidates_for(source, geometry, start, end):
     route = source["access"]
-    geometry = selected_geometry(source, investigation, {"Point", "Polygon", "MultiPolygon"})
     upstream = source["upstream"]
     if route.startswith("noaa."):
+        if geometry["type"] != "Point":
+            return noaa_area_stations(geometry)
         return rank_points(noaa_stations(), geometry, 150)
     if route == "psmsl.rlr.monthly":
         return rank_points(tide_stations(), geometry, 150)
@@ -180,10 +209,13 @@ def candidates_for(source, investigation, start, end):
 
 
 def fetch_for_selection(source, investigation, start, end, fetch):
-    candidates = candidates_for(source, investigation, start, end)
+    area = selected_geometry(source, investigation, {"Point", "Polygon", "MultiPolygon"})
+    candidates = candidates_for(source, area, start, end)
     route = source["access"]
     upstream = source["upstream"]
-    for distance, identifier, name in candidates:
+
+    def fetch_candidate(candidate):
+        distance, identifier, name, shape = candidate
         selectors = dict(upstream.get("selectors") or {})
         if route.startswith("noaa."):
             selectors["stationId"] = identifier
@@ -200,5 +232,70 @@ def fetch_for_selection(source, investigation, start, end, fetch):
             if route in {"argentina.ina.series", "psmsl.rlr.monthly"}:
                 result["label"] = source.get("variable") or result["product"]
             return result
+        return None
+
+    if area["type"] != "Point":
+        return regional_entities(source, area, start, end, candidates, fetch_candidate)
+    for candidate in candidates[:MAX_CANDIDATES]:
+        result = fetch_candidate(candidate)
+        if result:
+            return result
     detail = "No hay registros compatibles en la selección y el período." if candidates else "El catálogo no encontró una entidad en el área o cerca del punto."
     raise ValueError(f"{source.get('product') or route}: {detail}")
+
+
+def regional_entities(source, area, start, end, candidates, fetch_candidate):
+    route = source.get("access", "")
+    noaa = route in {"noaa.ncei.station", "noaa.ncei.daily"}
+    attempted = candidates[:NOAA_AREA_CANDIDATES if noaa else MAX_CANDIDATES]
+    failures = []
+
+    def read(candidate):
+        try:
+            return fetch_candidate(candidate), None
+        except ValueError as error:
+            return None, str(error)
+
+    result = None
+    events = []
+    entities = 0
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        for candidate, (response, error) in zip(attempted, pool.map(read, attempted)):
+            if error:
+                failures.append(error)
+                continue
+            if not response:
+                continue
+            if result is None:
+                result = response
+            if response["unit"] != result["unit"]:
+                failures.append("Hay entidades con unidades incompatibles.")
+                continue
+            _, identifier, name, shape = candidate
+            entities += 1
+            for index, row in enumerate(response["points"]):
+                if row["value"] is not None:
+                    events.append({"id": f"{identifier}:{index}", "entityId": identifier, "geometry": shape,
+                                   "date": row["month"], "value": row["value"], "location": name,
+                                   "quality": row.get("qualityFlag")})
+    if attempted and not result and len(failures) == len(attempted):
+        raise ValueError(failures[0])
+    if noaa and not result:
+        variable = source.get("variable") or source["upstream"]["variableId"]
+        detail = f"Se consultaron {len(attempted)} estaciones." if attempted else "El catálogo no encontró estaciones."
+        if failures:
+            detail += f" NOAA no respondió correctamente para {len(failures)} de ellas."
+        raise ValueError(f"NOAA NCEI no devolvió datos de {variable} para las fechas elegidas en el área "
+                         f"ni hasta {NOAA_AREA_RADIUS_KM} km de su límite. {detail}")
+    result = result or series(source, source.get("provider", ""), source.get("product", ""), "", [], "Área", None)
+    map_layer = temporal_layer("entities", area, start, end, "value", events=events,
+                               matched=len(candidates), attempted=len(attempted), entities=entities,
+                               failures=len(failures))
+    if result.get("cadence") == "monthly" and map_layer["cadence"] == "daily":
+        map_layer["cadence"] = "monthly"
+    if route == "noaa.ncei.daily" and source["upstream"]["variableId"] in NOAA_DAILY_SURFACE_VARIABLES:
+        map_layer["stationSurface"] = True
+    if noaa:
+        result = {**result, "product": source.get("product") or "NOAA NCEI"}
+    return {**result, "map": map_layer,
+            "message": f"Entidades con observaciones: {entities}. Entidades consultadas: {len(attempted)} de {len(candidates)}."}

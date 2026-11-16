@@ -16,6 +16,7 @@ from urllib.parse import quote
 from ..configuration import directory
 from .environmental_series import area_bounds, inside_area, days, read_text, selected_geometry, series
 from .public_sources import number
+from .regional_layers import temporal_layer
 
 ENDPOINT = "https://firms.modaps.eosdis.nasa.gov/api/area/"
 UNITS = {"frp": "MW", "brightness": "K", "bright_t31": "K", "bright_ti4": "K", "bright_ti5": "K",
@@ -41,7 +42,7 @@ def fetch_firms(source, investigation, start, end):
     try:
         with NamedTemporaryFile(dir=folder, mode="w", encoding="utf-8", newline="", delete=False) as raw:
             staged = Path(raw.name)
-            counts, values = extract(raw, token, sensor, field, geometry, bounds, start, end)
+            counts, values, events = extract(raw, token, sensor, field, geometry, bounds, start, end)
         staged.replace(path)
     except OSError as error:
         raise ValueError("No se pudieron guardar las detecciones FIRMS.") from error
@@ -59,13 +60,18 @@ def fetch_firms(source, investigation, start, end):
         label = "Detecciones FIRMS · CSV"
     unit = "detecciones" if is_count else UNITS.get(field, "Unidad sin verificar")
     result = series(source, "NASA FIRMS", sensor, "" if raw_only else unit, points, "Polígono", ENDPOINT)
-    return {**result, "label": label, "downloadPath": str(path),
+    categorical = sorted({event[field] for event in events if isinstance(event.get(field), str)})
+    layer = temporal_layer("events", geometry, start, end, "count" if field == "all" else field,
+                           events=events, eventType="fire", categories={value: value for value in categorical},
+                           label=field if field not in {"count", "all"} else None)
+    return {**result, "label": label, "downloadPath": str(path), "map": layer,
             "message": f"CSV original filtrado al área. Detecciones recuperadas: {sum(counts.values())}."}
 
 
 def extract(raw, token, sensor, field, geometry, bounds, start, end):
     counts = defaultdict(int)
     values = defaultdict(list)
+    events = []
     writer = None
     first = start
     while first <= end:
@@ -89,7 +95,20 @@ def extract(raw, token, sensor, field, geometry, bounds, start, end):
             counts[day] += 1
             writer.writerow(row)
             value = number(row.get(field))
+            utc = (row.get("acq_time") or "").strip().zfill(4)
+            stamp = day + "T" + utc[:2] + ":" + utc[2:] + ":00Z" if row.get("acq_time") else day
+            event = {"id": str(len(events)), "coordinates": [lon, lat], "date": stamp,
+                     "quality": row.get("confidence"), "location": row.get("satellite")}
+            if field not in {"count", "all"}:
+                raw_value = row.get(field)
+                event[field] = value
+                if value is None and raw_value:
+                    try:
+                        float(raw_value)
+                    except ValueError:
+                        event[field] = raw_value
+            events.append(event)
             if value is not None:
                 values[day].append(value)
         first += timedelta(days=length)
-    return counts, values
+    return counts, values, events

@@ -8,10 +8,12 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from .public_sources import number, request_json
+from .regional_layers import temporal_layer
 
 
 OISST = "https://psl.noaa.gov/thredds/ncss/grid/Datasets/noaa.oisst.v2.highres/"
 ONI = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+RONI = "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt"
 USGS = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 OISST_FIELDS = {"sst": ("sst.day.mean", "degC"), "err": ("sst.day.err", "degC"),
                 "icec": ("icec.day.mean", "%"), "anom": ("sst.day.anom", "degC")}
@@ -109,18 +111,24 @@ def fetch_oisst(source, investigation, start, end):
 
 
 def fetch_oni(source, investigation, start, end):
+    field = source["upstream"]["variableId"]
+    if field not in {"anomaly", "total", "roni"}:
+        raise ValueError("Elegí una variable ENSO del catálogo de NOAA.")
+    relative = field == "roni"
+    url = RONI if relative else ONI
     values = []
-    for row in read_text(ONI, "NOAA CPC").splitlines()[1:]:
+    for row in read_text(url, "NOAA CPC").splitlines()[1:]:
         if not row.strip():
             continue
-        season, year, total, anomaly = row.split()
+        season, year, *observations = row.split()
         month = ("DJF", "JFM", "FMA", "MAM", "AMJ", "MJJ", "JJA", "JAS", "ASO", "SON", "OND", "NDJ").index(season) + 1
         center = date(int(year), month, 1)
         if start.replace(day=1) <= center <= end:
-            value = anomaly if source["upstream"]["variableId"] == "anomaly" else total
+            value = observations[0] if field == "total" else observations[-1]
             values.append({"month": center.isoformat()[:7], "value": number(value)})
-    return series(source, "NOAA CPC", "ONI · media móvil de tres meses", "°C", values,
-                  "Niño 3.4", ONI, "monthly")
+    product = "RONI" if relative else "ONI"
+    return series(source, "NOAA CPC", f"{product} · media móvil de tres meses", "°C", values,
+                  "Niño 3.4", url, "monthly")
 
 
 def fetch_ina(source, investigation, start, end):
@@ -168,7 +176,7 @@ def fetch_earthquakes(source, investigation, start, end):
     if min_magnitude:
         params["minmagnitude"] = float(min_magnitude)
     totals = {}
-    records = []
+    events = []
     offset = 1
     while True:
         payload, _ = request_json(USGS, "USGS", **params, offset=offset)
@@ -180,7 +188,12 @@ def fetch_earthquakes(source, investigation, start, end):
             stamp = datetime.fromtimestamp(item["properties"]["time"] / 1000, tz=timezone.utc).isoformat()
             day = stamp[:10]
             totals[day] = totals.get(day, 0) + 1
-            records.append((stamp, item["properties"]["mag"], depth))
+            props = item["properties"]
+            events.append({
+                "id": item["id"], "coordinates": [lon, lat], "date": stamp,
+                "magnitude": props["mag"], "magnitudeType": props.get("magType"),
+                "depth": depth, "location": props.get("place"), "quality": props.get("status"),
+            })
         if len(page) < params["limit"]:
             break
         offset += len(page)
@@ -189,7 +202,9 @@ def fetch_earthquakes(source, investigation, start, end):
         values = [{"month": day, "value": totals.get(day, 0)} for day in days(start, end)]
         unit, cadence = "sismos", "daily"
     else:
-        values = [{"month": stamp, "value": magnitude if field == "magnitude" else depth}
-                  for stamp, magnitude, depth in records]
+        values = [{"month": event["date"], "value": event[field]} for event in events]
         unit, cadence = ("magnitud" if field == "magnitude" else "km"), "event"
-    return series(source, "USGS", "ComCat", unit, values, "Polígono", USGS, cadence)
+    result = series(source, "USGS", "ComCat", unit, values, "Polígono", USGS, cadence)
+    result["map"] = temporal_layer("events", geometry, start, end, field, events=events,
+                                   minimumMagnitude=params.get("minmagnitude"), eventType="earthquake")
+    return result

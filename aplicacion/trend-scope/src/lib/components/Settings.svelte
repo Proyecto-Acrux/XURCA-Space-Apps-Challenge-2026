@@ -5,16 +5,18 @@
   import { SlidersHorizontal, ChevronDown, Plus, X, Database, CalendarDays, MapPin, Pencil, FlaskConical } from '@lucide/svelte';
   import { workspace, editData } from '$lib/stores/workspace.js';
   import PlaceSearch from './PlaceSearch.svelte';
-  import { catalog, providers, sourceConfig, customSource, geographicEntityRoutes, entityGeometries } from '$lib/services/sources.js';
+  import { catalog, providers, sourceConfig, customSource, geographicEntityRoutes, entityGeometries, providerMatchesScope, geometryMatchesScope, sourceMatchesScope } from '$lib/services/sources.js';
   import { coordinateLabel } from '$lib/services/geography.js';
 
   const cdsAreaProducts = new Set(['reanalysis-era5-single-levels', 'reanalysis-era5-pressure-levels', 'reanalysis-era5-land']);
   let { openCoordinates } = $props();
   let data = $derived($workspace.data);
-  let provider = $state('nasa.power.monthly');
+  let scope = $derived(data.geography.scope ?? '');
+  let visibleProviders = $derived(providers.filter(item => providerMatchesScope(item, scope)));
+  let provider = $state('');
   let sourceChoice = $state('');
   let route = $derived(providers.find(item => item.id === provider));
-  let customAllowed = $derived(!['openmeteo.archive.daily', 'noaa.cpc.oni', 'usgs.earthquakes', 'argentina.ina.series', 'psmsl.rlr.monthly'].includes(provider));
+  let customAllowed = $derived(!!provider && !route?.catalogOnly && !['openmeteo.archive.daily', 'noaa.cpc.oni', 'usgs.earthquakes', 'argentina.ina.series', 'psmsl.rlr.monthly'].includes(provider));
   let product = $state('');
   let products = $state([]);
   let layers = $state([]);
@@ -54,7 +56,8 @@
     }
   }
 
-  function changeProvider() {
+  function changeProvider(nextProvider) {
+    provider = nextProvider;
     catalogRequest++;
     loadingCatalog = false;
     catalogError = '';
@@ -66,6 +69,11 @@
     if (provider === 'nasa.appeears') void loadAppEEARSCatalog();
     if (provider === 'argentina.ina.series') void loadInaCatalog();
   }
+  $effect(() => {
+    if (provider && !visibleProviders.some(item => item.id === provider)) {
+      changeProvider('');
+    }
+  });
   let availableVariables = $derived.by(() => {
     const presets = catalog.filter(item => item.route.id === provider);
     const extra = provider === 'argentina.ina.series' ? inaVariables
@@ -80,7 +88,7 @@
   );
   let code = $state('');
   let featureType = $state('Reach');
-  let sections = $state({ sources:true, time:true, methods:true });
+  let sections = $state({ objective: true });
   function addSource() {
     const codeValue = ['nasa.appeears', 'microsoft.planetary.stac'].includes(provider) ? code.trim()
       : ['nasa.power.monthly', 'noaa.ncei.station', 'noaa.ncei.daily'].includes(provider) ? code.trim().toUpperCase()
@@ -112,13 +120,23 @@
   <header class="panel-heading"><span><SlidersHorizontal size={16}/> {$translate("Configuración")}</span></header>
   <div class="settings-scroll">
     {@render group('objective','Investigación',FlaskConical,objective)}
-    {@render group('sources','Fuentes de información',Database,sources)}
-    {@render group('time','Período de análisis',CalendarDays,time)}
-    {@render group('geography','Configuración geográfica',MapPin,geography)}
+    {#if scope}
+      {@render group('sources','Fuentes de información',Database,sources)}
+      {@render group('time','Período de análisis',CalendarDays,time)}
+      {@render group('geography','Configuración geográfica',MapPin,geography)}
+    {/if}
   </div>
 </section>
 
 {#snippet objective()}
+  <label>{$translate('Zona o punto geográfico')}
+    <select value={scope} onchange={event => set('geography', 'scope', event.currentTarget.value)}>
+      <option disabled value="">{$translate('Elegí el alcance geográfico')}</option>
+      <option value="point">{$translate('Punto geográfico')}</option>
+      <option value="area">{$translate('Zona geográfica')}</option>
+      <option value="both">{$translate('Ambos')}</option>
+    </select>
+  </label>
   <label>{$translate("Nombre del proyecto")}<input value={data.title} oninput={event => editData(next => next.title = event.currentTarget.value)}/></label>
   <label>{$translate("Objetivo")}<textarea value={data.objective} oninput={event => editData(next => next.objective = event.currentTarget.value)}></textarea></label>
   <label>{$translate("Descripción")}<textarea value={data.description} oninput={event => editData(next => next.description = event.currentTarget.value)}></textarea></label>
@@ -126,20 +144,24 @@
 
 {#snippet sources()}
   {#each data.sources as item (item.id)}
-    {@const entry = catalog.find(source => source.id === item.id)}
+    {@const entry = catalog.find(source => source.id === item.id.split('::')[0])}
     {@const selectedRoute = providers.find(route => route.id === item.access)}
     {@const resolvesEntity = geographicEntityRoutes.has(item.access)}
     {@const geometryTypes = resolvesEntity ? entityGeometries : selectedRoute?.geometry ?? ['Point']}
+    {@const active = sourceMatchesScope(item, scope, data.geography.selection.features)}
     <div class="selected-item"><div><strong>{$translate(entry?.label ?? item.variable)}</strong><small>{item.product}</small></div>
     <button class="icon-button" aria-label={$translate('Quitar') + ' ' + $translate(entry?.label ?? item.variable)} onclick={() => editData(next => next.sources = next.sources.filter(source => source.id !== item.id))}><X size={14}/></button></div>
-    {#if resolvesEntity || (selectedRoute?.geometry && !(item.access === 'copernicus.cds' && !cdsAreaProducts.has(item.upstream.productId))) || ['nasa.power.monthly', 'openmeteo.archive.daily'].includes(item.access)}
+    {#if !active}
+      <small>{$translate('En pausa para este alcance geográfico.')}</small>
+    {/if}
+    {#if selectedRoute && providerMatchesScope(selectedRoute, scope) && (resolvesEntity || (selectedRoute.geometry && !(item.access === 'copernicus.cds' && !cdsAreaProducts.has(item.upstream.productId))) || ['nasa.power.monthly', 'openmeteo.archive.daily'].includes(item.access))}
       {#if resolvesEntity}<small>{$translate('Identificador automático según la selección y las fechas.')}</small>{/if}
       <label>{$translate(geometryTypes.some(type => type !== 'Point') ? 'Geometría de consulta' : 'Punto de consulta')}
         <select value={item.upstream.geometryId ?? ''} onchange={event => editData(next => {
           next.sources.find(source => source.id === item.id).upstream.geometryId = event.currentTarget.value || null;
         })}>
           <option value="">{$translate("Usar la única selección compatible")}</option>
-          {#each data.geography.selection.features.filter(feature => geometryTypes.includes(feature.geometry.type)) as feature (feature.id)}
+          {#each data.geography.selection.features.filter(feature => geometryTypes.includes(feature.geometry.type) && (geometryMatchesScope(feature.geometry.type, scope) || feature.id === item.upstream.geometryId)) as feature (feature.id)}
             <option value={feature.id}>{$translate(feature.properties.name || (feature.geometry.type === 'Point' ? coordinateLabel(feature.geometry.coordinates) : feature.id))}</option>
           {/each}
         </select>
@@ -169,10 +191,19 @@
           })}/>
       </label>
     {/if}
+    {#if ['nasa.earthdata', 'copernicus.dataspace', 'microsoft.planetary.stac', 'copernicus.cds'].includes(item.access)}
+      <label>{$translate('Variable o banda para el mapa (opcional)')}
+        <input value={item.upstream.selectors.mapVariable ?? ''}
+          oninput={event => editData(next => {
+            next.sources.find(source => source.id === item.id).upstream.selectors.mapVariable = event.currentTarget.value;
+          })}/>
+      </label>
+    {/if}
   {/each}
   <label>{$translate('Fuente de datos')}
-    <select bind:value={provider} onchange={changeProvider}>
-      {#each providers as entry}<option value={entry.id}>{entry.label}</option>{/each}
+    <select value={provider} onchange={event => changeProvider(event.currentTarget.value)}>
+      <option value="" disabled>{$translate('Elegí una fuente de datos')}</option>
+      {#each visibleProviders as entry}<option value={entry.id}>{entry.label}</option>{/each}
     </select>
   </label>
   <small>{$translate(providers.find(entry => entry.id === provider)?.hint)}</small>
@@ -186,7 +217,7 @@
         <option value={item.id}>{$translate(item.label)}</option>
       {/each}
     </select>
-    <button class="icon-button outlined" aria-label={$translate("Agregar variable")} disabled={!source || (source === 'custom' && (!validCode || (route?.product && !product.trim())))} onclick={addSource}><Plus size={16}/></button>
+    <button class="outlined" aria-label={$translate("Agregar variable")} disabled={!source || (source === 'custom' && (!validCode || (route?.product && !product.trim())))} onclick={addSource}><Plus size={14}/> {$translate("Agregar")}</button>
   </div>
   {#if provider === 'argentina.ina.series' && catalogError}<small>{catalogError}</small>{/if}
   {#if source === 'custom'}
@@ -234,11 +265,16 @@
 {/snippet}
 
 {#snippet geography()}
-  <PlaceSearch/>
+  <PlaceSearch {scope}/>
+  {#if scope === 'area'}
+    <small>{$translate('Elegí un lugar con límite publicado o dibujá el área en el mapa.')}</small>
+  {/if}
   {#each data.geography.selection.features as item (item.id)}
-    <div class="selected-item"><div><strong>{$translate(item.properties.name || coordinateLabel(item.geometry.coordinates))}</strong>
-      <small>{item.geometry.type === 'Point' ? $translate('Punto WGS 84') : (item.geometry.coordinates[0].length - 1) + ' ' + $translate('vértices')}</small>
-    </div><button class="icon-button" aria-label={$translate("Editar coordenadas")} onclick={() => openCoordinates(item)}><Pencil size={14}/></button><button class="icon-button" aria-label={$translate("Eliminar selección")} onclick={() => editData(next => next.geography.selection.features = next.geography.selection.features.filter(feature => feature.id !== item.id))}><X size={14}/></button></div>
+    <div class="selected-item"><div><strong>{$translate(item.properties.name || (item.geometry.type === 'Point' ? coordinateLabel(item.geometry.coordinates) : 'Zona geográfica'))}</strong>
+      <small>{item.geometry.type === 'Point' ? $translate('Punto WGS 84') : $translate('Zona geográfica')}</small>
+    </div>{#if item.geometry.type === 'Point' || (item.geometry.type === 'Polygon' && item.geometry.coordinates.length === 1)}
+      <button class="icon-button" aria-label={$translate("Editar coordenadas")} onclick={() => openCoordinates(item)}><Pencil size={14}/></button>
+    {/if}<button class="icon-button" aria-label={$translate("Eliminar selección")} onclick={() => editData(next => next.geography.selection.features = next.geography.selection.features.filter(feature => feature.id !== item.id))}><X size={14}/></button></div>
   {/each}
   <button class="outlined" onclick={() => openCoordinates()}><MapPin size={14}/> {$translate("Ingresar coordenadas")}</button>
 {/snippet}

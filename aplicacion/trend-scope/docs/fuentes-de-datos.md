@@ -1,5 +1,16 @@
 # Fuentes de datos de Earth Detective
 
+## Mapas temporales regionales
+
+En **Zona geográfica**, se puede dibujar el área o elegir una provincia o localidad censal argentina con límite publicado por Georef. El área seleccionada recorta el resultado y deja visible el relieve exterior. Para ciudades fuera de ese catálogo, el polígono se puede dibujar manualmente.
+
+Sismos y focos de calor muestran una superficie orientativa de concentración verde, amarillo, naranja y rojo, calculada a partir de las detecciones de cada ventana temporal. Los puntos conservan el valor de su variable y la leyenda de concentración está separada. Las grillas numéricas usan la misma familia de colores para valores bajos a altos. Las estaciones, tramos de río y lagos conservan su geometría.
+
+- USGS y FIRMS muestran eventos como puntos. NOAA NCEI, INA y PSMSL conservan los valores en la ubicación de cada estación. SWOT muestra los tramos y lagos que intersectan el área. Para las fuentes por entidad se prueban hasta 12 candidatos y el resultado muestra cuántos se encontraron, consultaron y devolvieron datos. La gráfica, cuando existe, conserva la serie de la primera entidad compatible.
+- AppEEARS, Earthdata CMR, Copernicus CDS, Copernicus Data Space y Planetary Computer pueden mostrar archivos compatibles. Se admiten NetCDF con ejes geográficos regulares y fechas legibles y bandas GeoTIFF o JPEG 2000 de un solo canal con referencia espacial y fecha reconocible. Para pedidos con varias variables o bandas, indicá **Variable o banda para el mapa**. En CDS de niveles de presión se muestra el primer nivel seleccionado.
+- El mapa recorta la capa al polígono y mantiene la leyenda fija durante toda la consulta. Para grillas usa la última imagen o medición disponible por ventana, con su fecha real. Cuando la visualización submuestrea, se indica junto con la resolución nativa. El lector conserva máscaras y valores faltantes presentes en el archivo. Las máscaras específicas de nubes, la interpretación SAR y las grillas de swath o curvilíneas requieren adaptadores de producto.
+- Los archivos originales siguen disponibles cuando no se puede generar un mapa. Las credenciales de cada proveedor se mantienen como requisito de descarga. NASA POWER, Open-Meteo y OISST mantienen sus consultas puntuales. ENSO conserva su serie regional de referencia.
+
 ## Consultas y descargas desde Configuración
 
 Agregá una fuente en **Fuentes de información**, elegí un punto o polígono cuando la fuente lo pida y pulsá **Procesar**. Las series muestran valores en la app. Las descargas muestran la ruta del archivo en el resultado. Los archivos van al subdirectorio `downloads` del directorio de datos de Earth Detective. En Windows está bajo `%LOCALAPPDATA%\com.xurca.trend-scope`.
@@ -93,6 +104,12 @@ El campo `upstream` es opcional al leer proyectos de esquema 1. Para POWER, la a
 
 En los conectores activos se puede elegir una variable habitual o introducir su código oficial desde el selector. La disponibilidad depende del producto y la resolución: POWER mensual (comunidad AG en la interfaz), NOAA Global Summary of the Month y SWOT RiverSP/LakeSP D. Para NOAA, las variables con unidades todavía sin identificar se muestran como tales.
 
+
+## Precipitación mensual de grilla e índices ENSO
+
+- **CHIRPS v3 final** ofrece precipitación acumulada mensual en mm sobre tierra entre 60° S y 60° N desde 1981. La app lee los COG oficiales por HTTP y obtiene la celda del punto o un mapa recortado y el promedio espacial mensual para el área. [UCSB](https://www.chc.ucsb.edu/data/chirps3)
+- **PMRAv1** ofrece la misma variable para Argentina, en celdas de 5 km. La app consulta los GeoTIFF del archivo público del estudio. El archivo verificado contiene enero de 2000 a diciembre de 2023. [Publicación](https://sedici.unlp.edu.ar/handle/10915/175062)
+- **NOAA CPC** ofrece ONI, temperatura media móvil Niño 3.4 y RONI. Son series del Pacífico tropical con ventanas móviles de tres meses, rotuladas por el mes central. [RONI](https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt)
 
 ## Reanálisis histórico vía Open-Meteo
 

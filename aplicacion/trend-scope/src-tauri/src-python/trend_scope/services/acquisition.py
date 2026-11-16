@@ -8,15 +8,21 @@ from .climate_store import fetch_cds
 from .downloads import fetch_copernicus, fetch_earthdata, fetch_planetary
 from .environmental_series import fetch_earthquakes, fetch_ina, fetch_oisst, fetch_oni, fetch_tide_gauge
 from .firms import fetch_firms
+from .grid_layers import with_grid_map
 from .reanalysis import ROUTE as REANALYSIS, fetch_reanalysis
 from .power import ROUTE, fetch_series
+from .precipitation import CHIRPS_DAILY_ROUTE, CHIRPS_ROUTE, PMRA_ROUTE, fetch_precipitation
 from .public_sources import fetch_public_series
 from .station_catalogs import ENTITY_ROUTES, fetch_for_selection
 
 PUBLIC_ROUTES = {"noaa.ncei.station", "noaa.ncei.daily", "nasa.swot.hydrocron"}
+RASTER_ROUTES = {"nasa.appeears", "nasa.earthdata", "copernicus.dataspace", "copernicus.cds", "microsoft.planetary.stac"}
 SERIES_ROUTES = {
     "noaa.oisst.daily": fetch_oisst,
     "noaa.cpc.oni": fetch_oni,
+    CHIRPS_ROUTE: fetch_precipitation,
+    CHIRPS_DAILY_ROUTE: fetch_precipitation,
+    PMRA_ROUTE: fetch_precipitation,
     "usgs.earthquakes": fetch_earthquakes,
     "nasa.firms.area": fetch_firms,
     "nasa.appeears": fetch_appeears,
@@ -94,7 +100,13 @@ def acquire(investigation):
         if route in ENTITY_ROUTES:
             results.append(fetch_for_selection(source, investigation, start, end, fetch))
         else:
-            results.append(fetch(source))
+            result = fetch(source)
+            if route in RASTER_ROUTES and result.get("downloadPath"):
+                try:
+                    result = with_grid_map(result, source, investigation, start, end)
+                except (OSError, RuntimeError, ValueError, KeyError):
+                    result["mapMessage"] = "La descarga sigue disponible. No se pudo interpretar una capa regional en este archivo."
+            results.append(result)
 
     results.extend(fetch_reanalysis([source for source in sources if source["access"] == REANALYSIS], investigation))
     by_id = {result["id"]: result for result in results}

@@ -43,7 +43,7 @@ ROUTES = {
         "Public", geometry=("Point",), product_required=False,
     ),
     "noaa.cpc.oni": AccessRoute(
-        "NOAA CPC ONI",
+        "NOAA CPC ONI / RONI",
         "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
         "Public", product_required=False,
     ),
@@ -51,6 +51,21 @@ ROUTES = {
         "USGS ComCat",
         "https://earthquake.usgs.gov/fdsnws/event/1/",
         "Public", geometry=("Polygon", "MultiPolygon"), product_required=False,
+    ),
+    "ucsb.chirps.monthly": AccessRoute(
+        "CHIRPS v3 mensual",
+        "https://www.chc.ucsb.edu/data/chirps3",
+        "Public HTTP COG files", geometry=("Point", "Polygon", "MultiPolygon"), product_required=False,
+    ),
+    "argentina.pmra.monthly": AccessRoute(
+        "PMRAv1 mensual",
+        "https://sedici.unlp.edu.ar/handle/10915/175062",
+        "Public GeoTIFF files", geometry=("Point", "Polygon", "MultiPolygon"), product_required=False,
+    ),
+    "ucsb.chirps.daily": AccessRoute(
+        "CHIRPS v3 diario · ERA5",
+        "https://data.chc.ucsb.edu/products/CHIRPS/v3.0/daily/final/rnl/",
+        "Public GeoTIFF files", geometry=("Point", "Polygon", "MultiPolygon"), product_required=False,
     ),
     "nasa.firms.area": AccessRoute(
         "NASA FIRMS Area",

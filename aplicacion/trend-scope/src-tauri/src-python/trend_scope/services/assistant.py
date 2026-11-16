@@ -2,21 +2,20 @@
 
 import json
 from datetime import date
-from typing import Literal, Optional
-from urllib.parse import urlparse
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from jsonschema import Draft202012Validator, ValidationError as SchemaError
 
 from .gemini import CONTRACT, post_json
-from .assistant_providers import current_connection, generate
-from .coverage import PRODUCTS
+
+WORKER_URL = "https://gemini-tauri-api.bilbaojuani.workers.dev"
 
 
 class AssistantQuestion(BaseModel):
     question: str = Field(min_length=1, max_length=1200)
     language: Literal["es", "en"] = "es"
-    endpoint: Optional[str] = Field(default=None, max_length=512)
+    feedback: str = Field(default="", max_length=700)
     context: str = Field(default="", max_length=18000)
 
 
@@ -30,7 +29,7 @@ def validate_proposal(proposal):
                 raise ValueError()
         if period.get("start", "") > period.get("end", "9999-12-31"):
             raise ValueError()
-        if sum(key in changes for key in ("point", "place", "polygon")) > 1:
+        if sum(key in changes for key in ("point", "place", "places", "polygon")) > 1:
             raise ValueError()
         point = changes.get("point")
         if point and not (-180 <= point["longitude"] <= 180 and -90 <= point["latitude"] <= 90):
@@ -50,16 +49,24 @@ def interpret(body: AssistantQuestion) -> dict:
     question = body.question.strip()
     if not question:
         raise ValueError("Escribí una pregunta para el asistente.")
-    prompt = {"question": question, "language": body.language, "context": body.context}
-    connection = current_connection()
-    if connection:
-        instruction = CONTRACT["instruction"] + "\nAvailable coverage metadata: " + json.dumps(PRODUCTS)
-        proposal = generate(connection, json.dumps(prompt, ensure_ascii=False), instruction)
-    elif body.endpoint:
-        uri = urlparse(body.endpoint)
-        if uri.scheme != "https" or not uri.hostname or uri.username or uri.password:
-            raise ValueError("El servicio del asistente requiere una URL HTTPS.")
-        proposal = post_json(body.endpoint, prompt)
-    else:
-        raise ValueError("Abrí Conectar IA y elegí un proveedor para empezar a conversar.")
+    request = {
+        "question": question, "language": body.language,
+        "context": body.context, "previous_attempt_feedback": body.feedback,
+    }
+    prompt = (
+        CONTRACT["instruction"]
+        + "\nRespond with a single JSON object matching this schema. Use no Markdown."
+        + "\nSchema: " + json.dumps(CONTRACT["schema"], separators=(",", ":"))
+        + "\nRequest data: " + json.dumps(request, ensure_ascii=False, separators=(",", ":"))
+    )
+    answer = post_json(WORKER_URL, {"prompt": prompt}, {"User-Agent": "EarthDetective/1.0"}).get("answer")
+    try:
+        if not isinstance(answer, str):
+            raise ValueError()
+        answer = answer.strip()
+        if answer.startswith(("```json\n", "```\n")) and answer.endswith("```"):
+            answer = answer.split("\n", 1)[1][:-3].strip()
+        proposal = json.loads(answer)
+    except (ValueError, TypeError):
+        raise ValueError("La IA devolvió una propuesta inválida.") from None
     return validate_proposal(proposal)

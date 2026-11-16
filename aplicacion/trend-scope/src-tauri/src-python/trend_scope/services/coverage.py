@@ -12,7 +12,13 @@ VARIABLES = {
         "GWETROOT", "soil_moisture_0_to_7cm_mean", "soil_moisture_7_to_28cm_mean",
         "soil_moisture_28_to_100cm_mean", "soil_moisture_100_to_255cm_mean",
     },
-    "precipitation": {"PRECTOTCORR", "PRCP", "precipitation_sum"},
+    "precipitation": {"PRECTOTCORR", "PRCP", "precipitation_sum", "precipitation"},
+    "oni": {"anomaly"},
+    "nino34-temperature": {"total"},
+    "roni": {"roni"},
+    "earthquake-count": {"count"},
+    "earthquake-magnitude": {"magnitude"},
+    "earthquake-depth": {"depth"},
     "relative-humidity": {"RH2M"},
     "temperature": {"T2M", "TAVG"},
     "temperature-max": {"temperature_2m_max"},
@@ -49,6 +55,8 @@ def coverage(request: CoverageRequest, today: Optional[date] = None) -> list[dic
             continue
         start = date.fromisoformat(product.get("from") or product["collectionFrom"])
         end = today - timedelta(days=product.get("publicationLagDays", 0))
+        if product.get("through"):
+            end = date.fromisoformat(product["through"])
         if product.get("endRule") == "previous-calendar-year":
             end = date(today.year - 1, 12, 31)
         status, reason = assess(product, request, start, end)
@@ -63,13 +71,20 @@ def coverage(request: CoverageRequest, today: Optional[date] = None) -> list[dic
 
 def assess(product, request, start, end):
     selection = product["selection"]
-    if request.scope == "area":
+    if request.scope == "area" and selection not in {"Point/Area", "Area", "Index"}:
         return "incompatible", "area"
-    if selection != "Point":
+    if selection == "Area" and request.scope != "area":
+        return "incompatible", "area"
+    if product.get("maxDays") and (request.end - request.start).days + 1 > product["maxDays"]:
+        return "incompatible", "period_limit"
+    if selection == "Point/Area":
+        if request.scope not in {"land", "area"}:
+            return "incompatible", "land_only"
+    elif selection in {"Station", "Reach", "PriorLake"}:
         expected = {"Station": "station", "Reach": "river", "PriorLake": "lake"}[selection]
         if request.scope != expected:
             return "incompatible", "identifier"
-    elif request.scope not in ("land", "sea"):
+    elif selection == "Point" and request.scope not in ("land", "sea"):
         return "incompatible", "point"
     if request.scope == "sea":
         if product["geography"] == "land-grid" or request.variable == "soil-moisture":
@@ -82,4 +97,6 @@ def assess(product, request, start, end):
         return "unverified", "marine_cell"
     if product.get("requiresEntityCoverage"):
         return "unverified", "entity"
+    if product.get("publisherCatalog") or product["geography"] == "argentina-land-grid":
+        return "unverified", "catalog"
     return "compatible", "catalog"

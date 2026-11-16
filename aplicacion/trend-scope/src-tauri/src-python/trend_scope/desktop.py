@@ -13,11 +13,12 @@ from .main import RegressionPayload, execute_regression as execute_regression_se
 from .services.acquisition import acquire
 from .services.appeears import catalog as appeears_catalog
 from .services.assistant import AssistantQuestion, interpret
-from .services.assistant_providers import Connection, configure_connection, connection_status, forget_connection
 from .services.evidence import with_evidence
 from .services.coverage import CoverageRequest, coverage
-from .services.public_sources import find_places
+from .services.public_sources import find_places, place_boundary
 from .services.station_catalogs import ina_variables
+from .handlers.analysis_handler import capabilities as analysis_capabilities
+from .handlers.data_handler import run as run_analysis_service
 
 from .configuration import (
     ConfigurationName,
@@ -88,9 +89,39 @@ async def search_places(body: PlaceRequest) -> str:
     return json.dumps(places, allow_nan=False)
 
 
+class PlaceBoundaryRequest(BaseModel):
+    kind: str
+    id: str
+
+
+@commands.command()
+async def load_place_boundary(body: PlaceBoundaryRequest) -> dict:
+    try:
+        return await to_thread.run_sync(place_boundary, body.kind, body.id)
+    except ValueError as error:
+        raise InvokeException(str(error)) from error
+
+
 @commands.command()
 async def execute_regression(body: RegressionPayload) -> dict:
     return await to_thread.run_sync(execute_regression_service, body)
+
+
+class AnalysisRunRequest(BaseModel):
+    request: dict
+
+
+@commands.command()
+async def run_analysis(body: AnalysisRunRequest) -> str:
+    """request.json -> response.json. Failures come back inside the response, not as exceptions."""
+    response = await to_thread.run_sync(run_analysis_service, body.request)
+    return json.dumps(response, allow_nan=False)
+
+
+@commands.command()
+async def list_analyses() -> str:
+    """Catalogue of available analyses and their parameters (for the form and the assistant)."""
+    return json.dumps(await to_thread.run_sync(analysis_capabilities), allow_nan=False)
 
 
 @commands.command()
@@ -104,24 +135,6 @@ async def interpret_question(body: AssistantQuestion) -> dict:
         return await to_thread.run_sync(interpret, body)
     except ValueError as error:
         raise InvokeException(str(error)) from error
-
-
-@commands.command()
-async def assistant_status() -> dict:
-    return connection_status()
-
-
-@commands.command()
-async def configure_assistant(body: Connection) -> dict:
-    try:
-        return await to_thread.run_sync(configure_connection, body)
-    except ValueError as error:
-        raise InvokeException(str(error)) from error
-
-
-@commands.command()
-async def disconnect_assistant() -> dict:
-    return forget_connection()
 
 
 def main() -> int:

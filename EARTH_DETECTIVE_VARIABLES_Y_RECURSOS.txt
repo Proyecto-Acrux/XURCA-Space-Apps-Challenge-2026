@@ -1,0 +1,548 @@
+EARTH DETECTIVE / TREND SCOPE
+Inventario de variables, recursos y problemas conocidos
+Revisión del 15 de noviembre de 2026 · Copia de trabajo local, rama ia
+
+ALCANCE
+
+Incluye las 16 opciones de fuente que ofrece la copia de trabajo. Una serie se
+puede visualizar en la aplicación. Una descarga proporciona datos originales
+para que el equipo los procese. La presencia de una opción en el menú no
+garantiza disponibilidad para todo lugar, variable, fecha o credencial.
+
+1. SERIES QUE LA APP PUEDE CONSULTAR Y GRAFICAR
+
+01 NASA POWER — nasa.power.monthly
+  Por punto, mensual, comunidad AG desde la interfaz. Sin cuenta.
+  PRECTOTCORR  Precipitación media diaria de cada mes. Para obtener el
+               acumulado mensual hay que convertirla usando los días del mes.
+  RH2M         Humedad relativa del aire.
+  WS2M         Velocidad del viento a 2 m.
+  GWETROOT     Humedad de la zona radicular.
+  ALLSKY_SFC_SW_DWN  Radiación solar incidente en superficie.
+  T2M          Temperatura del aire a 2 m.
+  PS           Presión en superficie (kPa), disponible por código oficial y
+               probada desde el backend. No es presión reducida al nivel del mar.
+  Admite otros parámetros mensuales según el producto. El conector acepta
+  períodos desde 1981 hasta el último año calendario cerrado; la disponibilidad
+  efectiva depende del parámetro.
+  Recurso: https://power.larc.nasa.gov/docs/services/api/temporal/monthly/
+
+02 NOAA NCEI mensual — noaa.ncei.station
+  Global Summary of the Month (GSOM), por estación. Sin token en esta ruta.
+  PRCP  Precipitación acumulada mensual.
+  TAVG  Temperatura media mensual.
+  Admite códigos adicionales de GSOM. La app los solicita al proveedor;
+  las unidades de códigos fuera de su tabla pueden quedar sin verificar.
+  Recurso: https://www.ncei.noaa.gov/access/search/datasets/global-summary-of-the-month/
+
+03 SWOT / Hydrocron — nasa.swot.hydrocron
+  RiverSP D por tramo y LakeSP D por lago, observaciones por pasada. Público.
+  wse         Altura de la superficie del agua de río o lago, en m.
+  area_total  Superficie del lago, en km².
+  width       Ancho de tramo, en m. Probado por código oficial.
+  slope       Pendiente de la superficie del agua, en m/m. Probado por código.
+  dschg_c     Caudal estimado por el producto. El campo fue aceptado, pero la
+              prueba no devolvió valores válidos. Cobertura pendiente por tramo.
+  Pueden pedirse otros campos numéricos de Hydrocron según la entidad y
+  colección. Altura, superficie y caudal representan magnitudes distintas.
+  Recurso: https://podaac.github.io/hydrocron/timeseries/
+  Catálogos geográficos SWORD v17b y PLD: https://arcgis.cuahsi.org/arcgis/rest/services/SWOT
+
+04 Open-Meteo ERA5 y ERA5-Land — openmeteo.archive.daily
+  Ocho variables diarias por punto, UTC, selección de celda terrestre.
+  ERA5-Land:
+    soil_moisture_0_to_7cm_mean       Humedad del suelo, 0–7 cm.
+    soil_moisture_7_to_28cm_mean      Humedad del suelo, 7–28 cm.
+    soil_moisture_28_to_100cm_mean    Humedad del suelo, 28–100 cm.
+    soil_moisture_100_to_255cm_mean   Humedad del suelo, 100–255 cm.
+    temperature_2m_max             Temperatura máxima diaria del aire.
+    temperature_2m_min             Temperatura mínima diaria del aire.
+  ERA5:
+    precipitation_sum             Precipitación acumulada diaria.
+    et0_fao_evapotranspiration     Evapotranspiración de referencia ET₀.
+  ET₀ es demanda de referencia. Para ET real hay productos en AppEEARS/Earthdata.
+  El acceso público tiene condiciones de uso. La app solo habilita estas ocho
+  variables. El pedido histórico largo documentado para Open-Meteo falló;
+  hubo datos en ventanas cortas en los extremos del intervalo.
+  Recurso: https://open-meteo.com/en/docs/historical-weather-api
+
+05 NOAA NCEI diario — noaa.ncei.daily
+  Daily Summaries/GHCN-Daily por estación, con días faltantes como nulos.
+  PRCP  Precipitación diaria.
+  TMAX  Temperatura máxima diaria.
+  TMIN  Temperatura mínima diaria.
+  Admite otros códigos numéricos del producto. El conector también reconoce
+  unidades para TAVG, SNOW y SNWD cuando hay datos del parámetro seleccionado.
+  Recurso: https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation
+  Catálogo: https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt
+
+06 NOAA OISST v2.1 — noaa.oisst.daily
+  Serie diaria de una celda oceánica, seleccionada por punto. Pública.
+  sst   Temperatura superficial del mar.
+  anom  Anomalía de temperatura superficial del mar.
+  err   Error estimado de temperatura superficial del mar.
+  icec  Concentración de hielo marino; puede quedar sin valor fuera de cobertura.
+  Recurso: https://psl.noaa.gov/thredds/catalog/Datasets/noaa.oisst.v2.highres/catalog.html
+
+07 NOAA ENSO / ONI — noaa.cpc.oni
+  Serie regional Niño 3.4 sin selección geográfica y sin cuenta.
+  anomaly  Índice ONI, anomalía de temperatura superficial del mar.
+  total    Temperatura media móvil de Niño 3.4.
+  Ambas son medias móviles de tres meses, etiquetadas con el mes central.
+  Recurso: https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt
+
+08 USGS ComCat — usgs.earthquakes
+  Sismos dentro de un polígono, con magnitud mínima opcional. Sin cuenta.
+  count      Conteo diario de eventos del catálogo.
+  magnitude  Magnitud por evento.
+  depth      Profundidad por evento, en km.
+  Recurso: https://earthquake.usgs.gov/fdsnws/event/1/
+
+09 NASA FIRMS — nasa.firms.area
+  Polígono, fechas y código oficial de sensor, como VIIRS_SNPP_SP. Requiere
+  FIRMS_MAP_KEY. Guarda un CSV con todas las columnas originales de las
+  detecciones que caen dentro del área. Según el sensor puede incluir
+  coordenadas, fecha y hora, confianza, FRP y temperaturas de brillo.
+  count  Grafica conteos diarios de detecciones.
+  frp    Grafica potencia radiativa media diaria entre las detecciones, en MW.
+  all    Entrega el CSV con todas sus columnas.
+  Cualquier columna numérica disponible puede solicitarse por su código para
+  obtener una media diaria. Una columna categórica se conserva en el CSV.
+  Un foco térmico es una detección. El área quemada se obtiene de otro producto.
+  Recurso: https://firms.modaps.eosdis.nasa.gov/api/area/
+
+15 INA Alerta5 — argentina.ina.series
+  Series puntuales públicas, por punto o polígono. La interfaz ofrece altura
+  hidrométrica (var-2), caudal (var-4), precipitación diaria 12Z (var-1)
+  y las variables numéricas que obtiene dinámicamente del catálogo.
+  Cobertura según red, estación y fechas. Se filtran series públicas con
+  procedimiento 1, metadatos temporales y geometría puntual. Una variable
+  visible puede carecer de series que pasen esos filtros.
+  Recurso: https://alerta.ina.gov.ar/a5/secciones
+  Catálogo de variables: https://alerta.ina.gov.ar/a5/obs/variables
+
+16 PSMSL — psmsl.rlr.monthly
+  Nivel relativo del mar RLR mensual en mm, por mareógrafo. Público.
+  Conserva indicadores de calidad y días faltantes por observación.
+  Ejemplo previo: Mar del Plata B, código 2504. La altura corresponde al
+  mareógrafo seleccionado y a su referencia local.
+  Recurso: https://psmsl.org/data/obtaining/
+
+2. ARCHIVOS CIENTÍFICOS QUE LA APP PUEDE SOLICITAR
+
+10 NASA AppEEARS — nasa.appeears
+  Producto y versión, capa, fechas y selección por punto o polígono.
+  Buscar capas consulta el catálogo en vivo. La app genera un trabajo y
+  recupera el ZIP de resultados cuando vuelve a pulsarse Procesar y está listo.
+  El ZIP puede incluir CSV para puntos, o NetCDF para áreas, y metadatos.
+  Productos encontrados en catálogo:
+    MOD13Q1.061 / MOD13A2.061   NDVI y EVI.
+    MOD11A2.061                Temperatura superficial terrestre día y noche.
+    MCD64A1.061                Fecha de quema y capas de calidad del producto.
+    MOD16A2GF.061              ET real estimada y PET, según la capa.
+    MCD12Q1.061 / MOD44B.061    Cobertura del suelo / cobertura arbórea.
+    MCD15A3H.061               Índice de área foliar y capas afines.
+    MOD17A2HGF.061 / MOD17A3HGF.061  Productividad primaria GPP y NPP.
+    MOD10A1.061                Nieve.
+    MCD43A3.061                Albedo.
+    NASADEM_NC.001 / SRTMGL1_NC.003   Elevación.
+  Credenciales: APPEEARS_TOKEN o EARTHDATA_USERNAME y EARTHDATA_PASSWORD.
+  Recurso: https://appeears.earthdatacloud.nasa.gov/api/
+
+11 NASA Earthdata CMR — nasa.earthdata
+  ID de colección, fechas y punto o rectángulo que contiene el área. La app
+  descarga gránulos completos con enlaces HTTPS directos compatibles y
+  conserva todas las variables presentes en cada archivo y un manifiesto.
+  Ejemplos de familias: GPM IMERG (lluvia satelital), SMAP (humedad
+  superficial), GLDAS (humedad por capas, ET y escorrentía), MERRA-2/MODIS
+  (aerosoles) y NASA Ocean Color (clorofila-a y reflectancia).
+  La colección exacta determina las variables, formato y permisos. IMERG
+  Final V07 se verificó en el catálogo con fin el 30/09/2025.
+  Credencial para archivos protegidos: EARTHDATA_TOKEN.
+  Recurso: https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
+
+12 Copernicus Data Space — copernicus.dataspace
+  Colección, tipo de producto o all, fechas y punto o extensión rectangular.
+  Entrega escenas completas. Ejemplos: Sentinel-1 para radar; Sentinel-2
+  para bandas ópticas y máscaras; Sentinel-5P para columnas de gases según
+  producto, como NO₂, HCHO y SO₂. Cada escena conserva las variables del
+  producto. Se puede buscar en el catálogo público; la descarga usa
+  CDSE_ACCESS_TOKEN.
+  Recurso: https://documentation.dataspace.copernicus.eu/APIs/OData.html
+
+13 Copernicus Climate Data Store — copernicus.cds
+  ERA5, ERA5-Land y ERA5 de niveles de presión. Código oficial de variable,
+  fechas y rectángulo del área. Entrega NetCDF horario en un ZIP; admite
+  configurar niveles de presión. Ejemplos según producto: temperatura,
+  precipitación, presión, viento, geopotencial, nieve, altura de capa límite.
+  Para otros conjuntos admite pegar el objeto JSON autorizado por la API
+  del proveedor, con sus fechas y filtros. Esa vía permite solicitar
+  productos como FireCCI o temperatura superficial de lagos si la cuenta
+  tiene acceso y el proveedor acepta la solicitud.
+  Credenciales: CDSAPI_KEY o .cdsapirc y aceptación de términos por producto.
+  Recurso: https://cds.climate.copernicus.eu/how-to-api
+
+14 Microsoft Planetary Computer STAC — microsoft.planetary.stac
+  Colección STAC, activo o all, fechas y punto o área. Entrega ZIP con bandas
+  o archivos fuente del catálogo y manifiesto. all busca los activos
+  marcados como datos. Ejemplo probado: landsat-c2-l2 con el activo red.
+  Otros ejemplos en Landsat según la escena: green, blue, nir08, swir16,
+  swir22, lwir11 y qa_pixel. Disponibilidad y acceso dependen de la colección.
+  Recurso: https://planetarycomputer.microsoft.com/docs/concepts/sas/
+
+Los CSV y ZIP de resultados se guardan bajo
+%LOCALAPPDATA%\com.xurca.trend-scope\downloads en Windows. Los archivos
+originales requieren procesamiento para obtener promedios ponderados por
+polígono, aplicar máscaras de calidad o calcular índices como SPI y dNBR.
+La aplicación todavía no ofrece esas operaciones como parte de Procesar.
+
+3. ERRORES Y LIMITACIONES DE IDs Y CATÁLOGOS
+
+Estado: el usuario reportó que la selección no se realiza correctamente.
+La implementación actual debe considerarse pendiente de corrección y de
+validación de cobertura. Las pruebas puntuales previas no prueban que
+seleccione bien para otras ubicaciones, fechas o variables. En esta revisión
+no se reprodujo el caso concreto reportado porque no se indicó qué fuente,
+lugar, variable y fechas produjeron el resultado incorrecto.
+
+Comportamiento comprobado en el código:
+  - Se ordenan las entidades por distancia y se prueban hasta 12. Se usa la
+    primera que tenga un valor válido en el período. Una estación más cercana
+    con un solo dato puede ganar frente a otra con una serie más completa.
+    Una estación compatible puede quedar fuera de los 12 candidatos.
+  - Para un punto, la búsqueda tiene un radio máximo de 150 km en NOAA, INA
+    y PSMSL, 20 km para tramos SWOT, y 10 km para lagos SWOT. Se puede elegir
+    una entidad distante dentro del radio o informar que no hay datos aunque
+    exista una más lejos. En un polígono se ordena desde el centro de su
+    rectángulo envolvente. Para SWOT debe intersectar el polígono y, para
+    estaciones, sus coordenadas deben estar dentro del área.
+  - NOAA diario y mensual buscan candidatos en el catálogo geográfico
+    GHCN-Daily. Estar en ese catálogo no garantiza cobertura en GSOM, ni
+    disponibilidad de la variable o del período. Hubo una prueba mensual
+    alrededor de San Luis para 2024 sin resultado compatible, aunque el mismo
+    punto sí devolvió datos con otro período.
+  - INA lista variables numéricas de un catálogo general. Luego aplica un
+    filtro más estricto de series públicas, procedimiento 1, cobertura
+    temporal declarada y coordenadas. Por eso pueden aparecer variables que
+    después no devuelven series en una zona.
+  - Un error al consultar un candidato aborta el recorrido; el código solo
+    pasa al siguiente si el proveedor devuelve una respuesta válida pero
+    vacía o sin valores. Un ID desactualizado o un error HTTP puede impedir
+    que se prueben otros candidatos. Las consultas de varias fuentes también
+    fallan como conjunto si una lanza un error.
+  - SWOT depende de las capas externas SWORD/PLD para resolver IDs y de
+    Hydrocron para los datos. Un área grande puede exceder el límite de la
+    consulta espacial. Un ID del mapa no garantiza observaciones para la
+    colección, campo y fechas que se pidan.
+  - Se retiraron los campos de ID geográfico manual. Los códigos de producto,
+    capa y variable siguen siendo parámetros separados. Si el buscador falla,
+    la interfaz actual no ofrece una corrección manual del ID geográfico.
+
+Validaciones puntuales previas: PSMSL Mar del Plata B (2504) se seleccionó y
+graficó en escritorio. Se obtuvieron datos de NOAA diario y mensual en
+ventanas puntuales de San Luis, INA en Paraná y SWOT en el río Paraná y lago
+Tahoe. Se descargó una banda Landsat y se comprobó OISST con datos reales.
+El catálogo de AppEEARS se consultó en vivo. Las descargas autenticadas de
+AppEEARS, FIRMS, Earthdata protegido, CDS y Sentinel quedaron pendientes de
+verificación real con sus credenciales. Los casos probados de AppEEARS y
+FIRMS con respuestas simuladas no confirman el acceso autenticado de campo.
+
+4. CATÁLOGOS DINÁMICOS CONSULTADOS PARA ESTE INVENTARIO
+
+
+INA — variables numéricas publicadas (93)
+  var-1  precipitación diaria 12Z
+  var-10  Velocidad del viento media
+  var-100  Conductividad eléctrica del suelo
+  var-101  Altura hidrométrica 4-horaria
+  var-102  Caudal medio semanal
+  var-104  Estado hidrológico
+  var-11  dirección del viento modal diaria
+  var-12  Humedad relativa media diaria
+  var-13  Heliofanía
+  var-14  Radiación solar
+  var-15  Evapotranspiración potencial
+  var-16  Presión barométrica media diaria
+  var-17  nubosidad media diaria
+  var-18  presión al nivel del mar media diaria
+  var-2  Altura hidrométrica
+  var-20  Humedad del suelo
+  var-21  Magnitud de inundación
+  var-22  Caudal Afluente
+  var-23  Caudal Efluente
+  var-24  Caudal Vertido
+  var-25  Caudal Transferido
+  var-26  Volumen Útil
+  var-27  Precipitación a intervalo nativo
+  var-28  Aforos:Altura
+  var-29  Aforos:Caudal
+  var-31  precipitación horaria
+  var-32  Altura geométrica
+  var-33  Altura hidrométrica media mensual
+  var-34  precipitación 3 horaria
+  var-35  Altura de marea astronómica
+  var-36  Altura de marea meteorológica
+  var-37  nivel de nieve
+  var-38  precipicación acumulada
+  var-39  Altura hidrométrica media diaria
+  var-4  Caudal
+  var-40  Caudal medio diario
+  var-41  precipitación mensual
+  var-42  visibilidad
+  var-43  temperatura de rocío
+  var-45  temperatura de bulbo húmedo
+  var-46  anomalía de precipitación mensual
+  var-47  índice de precipitación antecedente
+  var-48  caudal medio mensual
+  var-49  Altura hidrométrica mínima mensual
+  var-5  Temperatura mínima
+  var-50  Altura hidrométrica máxima mensual
+  var-51  Caudal mínimo mensual
+  var-52  Caudal máximo mensual
+  var-53  Temperatura
+  var-54  Temperatura horaria
+  var-55  Velocidad del viento
+  var-56  Velocidad del viento horaria
+  var-57  Dirección del viento
+  var-58  Humedad relativa
+  var-59  Humedad relativa media horaria
+  var-6  Temperatura máxima
+  var-60  Presión barométrica
+  var-61  Presión barométrica media horaria
+  var-62  nubosidad
+  var-63  presión al nivel del mar
+  var-64  Dirección del viento modal horaria
+  var-65  Viento - componente u
+  var-66  Viento - componente v
+  var-67  Altura hidrométrica media semanal
+  var-68  Caudal Medio Diario Máximo
+  var-69  Caudal Medio Diario Mínimo
+  var-7  Temperatura media
+  var-70  QMax Instantáneo
+  var-71  QMin Instantáneo
+  var-72  Humedad relativa máxima diaria
+  var-73  Temperatura del agua
+  var-74  guía de crecidas
+  var-75  Evapotranspiración potencial mensual
+  var-76  Humedad relativa media mensual
+  var-77  Temperatura máxima media mensual
+  var-78  Temperatura mínima media mensual
+  var-79  Presión barométrica media mensual
+  var-8  Temperatura del suelo
+  var-80  temperatura de rocío horaria
+  var-81  nubosidad horaria
+  var-82  temperatura de bulbo húmedo horaria
+  var-83  presión al nivel del mar horaria
+  var-84  fracción de área saturada
+  var-85  Altura hidrométrica horaria
+  var-86  Altura geométrica horaria
+  var-87  Caudal horario
+  var-88  altura geométrica diaria
+  var-9  Velocidad del viento máxima
+  var-91  Precipitación 6 horaria
+  var-96  Altura freatimétrica
+  var-97  Humedad del suelo instantánea
+  var-98  Temperatura del suelo instantánea
+  var-99  Permitividad eléctrica relativa del suelo
+
+
+AppEEARS — productos habilitados en su catálogo público (194)
+  ASTGTM_NC.003  Elevation
+  ASTGTM_NUMNC.003  Source
+  ASTWBD_ATTNC.001  Water Bodies Database Attributes
+  ASTWBD_NC.001  Water Bodies Database Elevation
+  DAYMET.004  Daily Surface Weather Data for North America
+  ECOCO3.002  ECOSTRESS/OCO-3 Co-Located Observations
+  ECO_L1B_GEO.002  Geolocation
+  ECO_L1CT_RAD.002  Tiled Top of Atmosphere Calibrated Radiance Instantaneous
+  ECO_L2T_LSTE.002  Tiled Land Surface Temperature and Emissivity
+  ECO_L2T_STARS.002  Tiled Ancillary NDVI and Albedo L2 Global
+  ECO_L2_CLOUD.002  Cloud Mask Instantaneous
+  ECO_L2_LSTE.002  Swath Land Surface Temperature and Emissivity Instantaneous
+  ECO_L3T_ET_ALEXI.002  Evapotranspiration dis-ALEXI-JPL
+  ECO_L3T_JET.002  Tiled Evapotranspiration Instantaneous and Daytime L3 Global
+  ECO_L3T_MET.002  Tiled Downscaled Meteorology Instantaneous L3 Global
+  ECO_L3T_SEB.002  Tiled Surface Energy Balance Instantaneous L3 Global
+  ECO_L3T_SM.002  Tiled Downscaled Soil Moisture Instantaneous L3 Global
+  ECO_L4T_ESI.002  Tiled Evaporative Stress Index PT-JPL Instantaneous L4 Global
+  ECO_L4T_ESI_ALEXI.002  Evaporative Stress Index dis-ALEXI-JPL
+  ECO_L4T_WUE.002  Tiled Water Use Efficiency Instantaneous L4 Global
+  EMIT_L1B_OBS.001  L1B Observation Data
+  EMIT_L1B_RAD.001  At-Sensor Calibrated Radiance and Geolocation Data
+  EMIT_L2A_MASK.001  L2A Reflectance Masks
+  EMIT_L2A_RFL.001  Estimated Surface Reflectance
+  EMIT_L2A_RFLUNCERT.001  L2A Reflectance Uncertainty
+  EMIT_L2B_MIN.001  Estimated Mineral Identification and Band Depth
+  EMIT_L2B_MINUNCERT.001  L2B Mineral Identification and Band Depth Uncertainty
+  HLSL30.020  Land Surface Reflectance
+  HLSL30_VI.020  Vegetation Indices
+  HLSS30.020  Land Surface Reflectance
+  HLSS30_VI.020  Vegetation Indices
+  L04.002  Landsat Collection 2 ARD Surface Reflectance - Landsat 4
+  L04_ST.002  Landsat Collection 2 ARD Surface Temperature - Landsat 4
+  L05.002  Landsat Collection 2 ARD Surface Reflectance - Landsat 5
+  L05_ST.002  Landsat Collection 2 ARD Surface Temperature - Landsat 5
+  L07.002  Landsat Collection 2 ARD Surface Reflectance - Landsat 7
+  L07_ST.002  Landsat Collection 2 ARD Surface Temperature - Landsat 7
+  L08.002  Landsat Collection 2 ARD Surface Reflectance - Landsat 8
+  L08_ST.002  Landsat Collection 2 ARD Surface Temperature - Landsat 8
+  L09.002  Landsat Collection 2 ARD Surface Reflectance - Landsat 9
+  L09_ST.002  Landsat Collection 2 ARD Surface Temperature - Landsat 9
+  MCD12Q1.061  Land Cover Type
+  MCD12Q2.061  Land Cover Dynamics
+  MCD15A2H.061  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  MCD15A3H.061  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  MCD43A1.061  Bidirectional Reflectance Distribution Function (BRDF) and Albedo
+  MCD43A2.061  Bidirectional Reflectance Distribution Function (BRDF) and Albedo
+  MCD43A3.061  Bidirectional Reflectance Distribution Function (BRDF) and Albedo
+  MCD43A4.061  Bidirectional Reflectance Distribution Function (BRDF) and Albedo
+  MCD64A1.061  Burned Area (fire)
+  MOD09A1.061  Surface Reflectance Bands 1-7
+  MOD09GA.061  Surface Reflectance Bands 1-7
+  MOD09GQ.061  Surface Reflectance Bands 1-2
+  MOD09Q1.061  Surface Reflectance Bands 1-2
+  MOD10A1.061  Snow Cover (NDSI)
+  MOD10A2.061  Snow Cover
+  MOD11A1.061  Land Surface Temperature & Emissivity (LST&E)
+  MOD11A2.061  Land Surface Temperature & Emissivity (LST&E)
+  MOD13A1.061  Vegetation Indices (NDVI & EVI)
+  MOD13A2.061  Vegetation Indices (NDVI & EVI)
+  MOD13A3.061  Vegetation Indices (NDVI & EVI)
+  MOD13Q1.061  Vegetation Indices (NDVI & EVI)
+  MOD14A2.061  Thermal Anomalies and Fire
+  MOD15A2H.061  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  MOD16A2.061  Evapotranspiration (ET & LE)
+  MOD16A2GF.061  Net Evapotranspiration Gap-Filled (ET & LE)
+  MOD16A3GF.061  Net Evapotranspiration Gap-Filled (ET & LE)
+  MOD17A2H.061  Gross Primary Productivity (GPP)
+  MOD17A2HGF.061  Gross Primary Productivity (GPP)
+  MOD17A3HGF.061  Net Primary Production (NPP) Gap-Filled
+  MOD21A1D.061  Temperature and Emissivity (LST&E)
+  MOD21A1N.061  Temperature and Emissivity (LST&E)
+  MOD21A2.061  Temperature and Emissivity (LST&E)
+  MOD44B.061  Vegetation Continuous Fields (VCF)
+  MOD44W.061  Land/Water Mask
+  MYD09A1.061  Surface Reflectance Bands 1-7
+  MYD09GA.061  Surface Reflectance Bands 1-7
+  MYD09GQ.061  Surface Reflectance Bands 1-2
+  MYD09Q1.061  Surface Reflectance Bands 1-2
+  MYD10A1.061  Snow Cover (NDSI)
+  MYD10A2.061  Snow Cover
+  MYD11A1.061  Land Surface Temperature & Emissivity (LST&E)
+  MYD11A2.061  Land Surface Temperature & Emissivity (LST&E)
+  MYD13A1.061  Vegetation Indices (NDVI & EVI)
+  MYD13A2.061  Vegetation Indices (NDVI & EVI)
+  MYD13A3.061  Vegetation Indices (NDVI & EVI)
+  MYD13Q1.061  Vegetation Indices (NDVI & EVI)
+  MYD14A2.061  Thermal Anomalies and Fire
+  MYD15A2H.061  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  MYD16A2.061  Evapotranspiration (ET & LE)
+  MYD16A2GF.061  Net Evapotranspiration Gap-Filled (ET & LE)
+  MYD16A3GF.061  Net Evapotranspiration Gap-Filled (ET & LE)
+  MYD17A2H.061  Gross Primary Productivity (GPP)
+  MYD17A2HGF.061  Gross Primary Productivity (GPP) Gap-Filled
+  MYD17A3HGF.061  Net Primary Production (NPP) Gap-Filled
+  MYD21A1D.061  Land Surface Temperature & Emissivity (LST&E)
+  MYD21A1N.061  Land Surface Temperature & Emissivity (LST&E)
+  MYD21A2.061  Land Surface Temperature & Emissivity (LST&E)
+  NASADEM_NC.001  Elevation
+  NASADEM_NUMNC.001  Source
+  NLCD.012  Annual NLCD Collection 1.2
+  PACE_OCI_L3M_LANDVI_0p1deg_8D.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 0.1 Degree 8-Day Data
+  PACE_OCI_L3M_LANDVI_0p1deg_DAY.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 0.1 Degree Daily Data
+  PACE_OCI_L3M_LANDVI_2KM_8D.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 2km 8-Day Data
+  PACE_OCI_L3M_LANDVI_2KM_DAY.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 2km Daily Data
+  PACE_OCI_L3M_LANDVI_4KM_8D.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 4km 8-Day Data
+  PACE_OCI_L3M_LANDVI_4KM_DAY.031  PACE OCI Level-3 Global Mapped Land Vegetation Indices 4km Daily Data
+  PACE_OCI_L3M_SFREFL_0P1DEG_8D.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 0.1deg 8-Day
+  PACE_OCI_L3M_SFREFL_0P1DEG_DAY.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 0.1deg Daily
+  PACE_OCI_L3M_SFREFL_2KM_8D.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 2km 8-Day
+  PACE_OCI_L3M_SFREFL_2KM_DAY.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 2km Daily
+  PACE_OCI_L3M_SFREFL_4KM_8D.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 4km 8-Day
+  PACE_OCI_L3M_SFREFL_4KM_DAY.031  PACE OCI Level-3 Global Mapped Surface Reflectance Data 4km Daily
+  SPL3FTP.004  Freeze/Thaw State
+  SPL3SMP.009  Soil Moisture
+  SPL3SMP_E.006  Enhanced L3 Radiometer Soil Moisture
+  SPL4CMDL.008  Carbon Net Ecosystem Exchange
+  SPL4SMGP.008  Surface and Root Zone Soil Moisture
+  SRTMGL1_NC.003  Elevation (DEM)
+  SRTMGL1_NUMNC.003  Source (DEM)
+  SRTMGL3_NC.003  Elevation (DEM)
+  SRTMGL3_NUMNC.003  Source (DEM)
+  VJ109A1.002  Surface Reflectance
+  VJ109GA.002  Surface Reflectance
+  VJ109H1.002  Surface Reflectance
+  VJ110A1.002  Snow Cover
+  VJ113A1.002  Vegetation Indices (NDVI & EVI)
+  VJ113A2.002  Vegetation Indices (NDVI & EVI)
+  VJ113A3.002  Vegetation Indices (NDVI & EVI)
+  VJ114A1.002  Thermal Anomalies and Fire
+  VJ115A2H.002  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  VJ117A2.002  Gross Primary Productivity (GPP)
+  VJ117A2GF.002  Gross Primary Productivity (GPP)
+  VJ117A3GF.002  Net Primary Production (NPP) Gap-Filled
+  VJ121A1D.002  Land Surface Temperature and Emissivity (LST&E) Day
+  VJ121A1N.002  Land Surface Temperature and Emissivity (LST&E) Night
+  VJ121A2.002  Land Surface Temperature and Emissivity (LST&E)
+  VJ143IA1.002  BRDF/Albedo Model Parameters
+  VJ143IA2.002  BRDF-Albedo Quality
+  VJ143IA3.002  Albedo (BRDF)
+  VJ143IA4.002  Nadir BRDF-Adjusted Reflectance
+  VJ143MA1.002  BRDF/Albedo Model Parameters
+  VJ143MA2.002  BRDF-Albedo Quality
+  VJ143MA3.002  Albedo (BRDF)
+  VJ143MA4.002  Nadir BRDF-Adjusted Reflectance
+  VJ209A1.002  Surface Reflectance
+  VJ209GA.002  Surface Reflectance
+  VJ210A1.002  Snow Cover
+  VJ213A1.002  Vegetation Indices (NDVI & EVI)
+  VJ213A2.002  Vegetation Indices (NDVI & EVI)
+  VJ213A3.002  Vegetation Indices (NDVI & EVI)
+  VJ214A1.002  Thermal Anomalies and Fire
+  VJ215A2H.002  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  VJ217A2.002  Gross Primary Productivity (GPP) and Net Photosynthesis (PSN)
+  VJ217A2GF.002  Gross Primary Productivity (GPP) and Net Photosynthesis (PSN) Gap-Filled
+  VJ217A3GF.002  Gross and Net Primary Production (NPP) Gap-Filled
+  VJ221A1D.002  Land Surface Temperature & Emissivity Day (LST&E)
+  VJ221A1N.002  Land Surface Temperature & Emissivity Night (LST&E)
+  VJ221A2.002  Land Surface Temperature & Emissivity (LST&E)
+  VJ243IA1.002  BRDF/Albedo Model Parameters
+  VJ243IA2.002  BRDF-Albedo Quality
+  VJ243IA3.002  Albedo (BRDF)
+  VJ243IA4.002  Nadir BRDF-Adjusted Reflectance
+  VJ243MA1.002  BRDF/Albedo Model Parameters
+  VJ243MA2.002  BRDF-Albedo Quality
+  VJ243MA3.002  Albedo (BRDF)
+  VJ243MA4.002  Nadir BRDF-Adjusted Reflectance
+  VNP09A1.002  Surface Reflectance
+  VNP09GA.002  Surface Reflectance
+  VNP09H1.002  Surface Reflectance
+  VNP10A1.002  Snow Cover
+  VNP13A1.002  Vegetation Indices (NDVI & EVI)
+  VNP13A2.002  Vegetation Indices (NDVI & EVI)
+  VNP13A3.002  Vegetation Indices (NDVI & EVI)
+  VNP14A1.002  Thermal Anomalies and Fire
+  VNP15A2H.002  Leaf Area Index (LAI) and Fraction of Photosynthetically Active Radiation (FPAR)
+  VNP17A2.002  Gross Primary Productivity (GPP)
+  VNP17A2GF.002  Gross Primary Productivity (GPP)
+  VNP17A3GF.002  Net Primary Production (NPP) Gap-Filled
+  VNP21A1D.002  Land Surface Temperature and Emissivity (LST&E) Day
+  VNP21A1N.002  Land Surface Temperature and Emissivity (LST&E) Night
+  VNP21A2.002  Land Surface Temperature and Emissivity (LST&E)
+  VNP22Q2.002  Global Land Surface Phenology (GLSP)
+  VNP43IA1.002  BRDF/Albedo Model Parameters
+  VNP43IA2.002  BRDF-Albedo Quality
+  VNP43IA3.002  Albedo (BRDF)
+  VNP43IA4.002  Nadir BRDF-Adjusted Reflectance
+  VNP43MA1.002  BRDF/Albedo Model Parameters
+  VNP43MA2.002  BRDF-Albedo Quality
+  VNP43MA3.002  Albedo (BRDF)
+  VNP43MA4.002  Nadir BRDF-Adjusted Reflectance
+  VNP64A1.002  Burned Area (fire)
+  WaterBalance_Daily_Historical_GRIDMET.015  NPS Water Balance
+  WaterBalance_Monthly_Historical_GRIDMET.015  NPS Water Balance
+
+
+Para AppEEARS, la lista completa de variables de cada producto se consulta
+con Buscar capas o en https://appeears.earthdatacloud.nasa.gov/api/product/{producto}.
+Listar el producto acredita su publicación en el catálogo, no una descarga.
